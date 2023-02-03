@@ -1,5 +1,5 @@
 # **C++ Project Template**
-A simple project template for quickly writing and compiling a C++ project. Uses a Zlib license by default but can be changed. My name is included in the license by default, so make sure you change it!
+A simple project template for quickly writing and compiling a C++ project. Uses an MIT license by default but can be changed. My name is included in the license by default, so make sure you change it!
 ## **Build this project**
 **1.** Open a terminal window in the root directory of this project.
 **2.** Install the required packages.
@@ -20,5 +20,5 @@ $ make
 ```
 **6.** Run the generated executable.
 ```bash
-$ ./test
+$ ./bin/test
 ```
