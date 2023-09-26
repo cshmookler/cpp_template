@@ -1,0 +1,15 @@
+CompileFlags:
+    Compiler: clang++
+    Add: [-xc++, -Wall, -Wextra, -Wpedantic]
+---
+Index:
+    StandardLibrary: No
+    Background: Build
+# ---
+# Diagnostics:
+#     UnusedIncludes: Strict
+---
+InlayHints:
+    Designators: Yes
+    ParameterNames: Yes
+    DeducedTypes: Yes

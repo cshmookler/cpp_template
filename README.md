@@ -1,25 +1,25 @@
-# **C++ Project Template**
-A simple project template for quickly writing and compiling C++ code. Uses an MIT license by default but can be changed. My name is included in the license by default, so make sure you change it!
-## **Build this project**
-**1.** Open a terminal window in the root directory of this project.
+# **C++ Template Project**
+C++ project template with automatic versioning, LLVM tools, Conan, and Meson.
 
-**2.** Install the required packages.
+## **Build and install this project with Conan (for Unix-like systems)**
+**1.** Install a C++ compiler (Example: clang), Git, and Python >=3.7 (Example: apt).
 ```bash
-$ sudo apt install g++ cmake
+$ sudo apt install clang git python3
 ```
-**3.** Create and enter the `build` directory.
+**2.** (Optional) Create a Python >=3.7 virtual environment and activate it. You may need to install the Python Virtual Environment if you haven't already.
 ```bash
-$ mkdir build && cd build
+$ python3 -m venv .venv
+$ source .venv/bin/activate
 ```
-**4.** Generate CMake build files.
+**3.** Install Conan.
 ```bash
-$ cmake ..
+$ pip3 install "conan>=2.0.0"
 ```
-**5.** Build the project.
+**4.** Create the default Conan profile.
 ```bash
-$ make
+$ conan profile detect
 ```
-**6.** Run the generated executable.
+**5.** Build and install this project with Conan.
 ```bash
-$ ./bin/test
+$ conan create .
 ```

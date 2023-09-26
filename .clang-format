@@ -1,192 +1,248 @@
 ---
-Language:        Cpp
-# BasedOnStyle:  Mozilla
-AccessModifierOffset: -2
-AlignAfterOpenBracket: Align
-AlignArrayOfStructures: None
-AlignConsecutiveMacros: None
-AlignConsecutiveAssignments: None
-AlignConsecutiveBitFields: None
-AlignConsecutiveDeclarations: None
-AlignEscapedNewlines: Right
-AlignOperands:   Align
-AlignTrailingComments: true
-AllowAllArgumentsOnNextLine: true
-AllowAllParametersOfDeclarationOnNextLine: false
-AllowShortEnumsOnASingleLine: true
-AllowShortBlocksOnASingleLine: Never
-AllowShortCaseLabelsOnASingleLine: false
-AllowShortFunctionsOnASingleLine: Inline
-AllowShortLambdasOnASingleLine: All
-AllowShortIfStatementsOnASingleLine: Never
-AllowShortLoopsOnASingleLine: false
-AlwaysBreakAfterDefinitionReturnType: None
-AlwaysBreakAfterReturnType: None
-AlwaysBreakBeforeMultilineStrings: false
-AlwaysBreakTemplateDeclarations: Yes
-AttributeMacros:
-  - __capability
-BinPackArguments: false
-BinPackParameters: false
-BraceWrapping:
-  AfterCaseLabel:  false
-  AfterClass:      true
-  AfterControlStatement: Never
-  AfterEnum:       true
-  AfterFunction:   true
-  AfterNamespace:  false
-  AfterObjCDeclaration: false
-  AfterStruct:     true
-  AfterUnion:      true
-  AfterExternBlock: true
-  BeforeCatch:     false
-  BeforeElse:      false
-  BeforeLambdaBody: false
-  BeforeWhile:     false
-  IndentBraces:    false
-  SplitEmptyFunction: true
-  SplitEmptyRecord: false
-  SplitEmptyNamespace: true
-BreakBeforeBinaryOperators: None
-BreakBeforeConceptDeclarations: true
-BreakBeforeBraces: Mozilla
-BreakBeforeInheritanceComma: false
-BreakInheritanceList: BeforeComma
-BreakBeforeTernaryOperators: true
-BreakConstructorInitializersBeforeComma: false
-BreakConstructorInitializers: BeforeComma
-BreakAfterJavaFieldAnnotations: false
-BreakStringLiterals: true
-ColumnLimit:     80
-CommentPragmas:  '^ IWYU pragma:'
-QualifierAlignment: Leave
-CompactNamespaces: false
-ConstructorInitializerIndentWidth: 4
-ContinuationIndentWidth: 4
-Cpp11BracedListStyle: false
-DeriveLineEnding: true
-DerivePointerAlignment: false
-DisableFormat:   false
-EmptyLineAfterAccessModifier: Never
-EmptyLineBeforeAccessModifier: LogicalBlock
-ExperimentalAutoDetectBinPacking: false
-PackConstructorInitializers: BinPack
-BasedOnStyle:    ''
-ConstructorInitializerAllOnOneLineOrOnePerLine: false
-AllowAllConstructorInitializersOnNextLine: true
-FixNamespaceComments: false
-ForEachMacros:
-  - foreach
-  - Q_FOREACH
-  - BOOST_FOREACH
-IfMacros:
-  - KJ_IF_MAYBE
-IncludeBlocks:   Preserve
-IncludeCategories:
-  - Regex:           '^"(llvm|llvm-c|clang|clang-c)/'
-    Priority:        2
-    SortPriority:    0
-    CaseSensitive:   false
-  - Regex:           '^(<|"(gtest|gmock|isl|json)/)'
-    Priority:        3
-    SortPriority:    0
-    CaseSensitive:   false
-  - Regex:           '.*'
-    Priority:        1
-    SortPriority:    0
-    CaseSensitive:   false
-IncludeIsMainRegex: '(Test)?$'
-IncludeIsMainSourceRegex: ''
-IndentAccessModifiers: false
-IndentCaseLabels: true
-IndentCaseBlocks: false
-IndentGotoLabels: true
-IndentPPDirectives: None
-IndentExternBlock: AfterExternBlock
-IndentRequires:  false
-IndentWidth:     4
-IndentWrappedFunctionNames: false
-InsertTrailingCommas: None
-JavaScriptQuotes: Leave
-JavaScriptWrapImports: true
-KeepEmptyLinesAtTheStartOfBlocks: true
-LambdaBodyIndentation: Signature
-MacroBlockBegin: ''
-MacroBlockEnd:   ''
-MaxEmptyLinesToKeep: 1
-NamespaceIndentation: None
-ObjCBinPackProtocolList: Auto
-ObjCBlockIndentWidth: 4
-ObjCBreakBeforeNestedBlockParam: true
-ObjCSpaceAfterProperty: true
-ObjCSpaceBeforeProtocolList: false
-PenaltyBreakAssignment: 2
-PenaltyBreakBeforeFirstCallParameter: 19
-PenaltyBreakComment: 300
-PenaltyBreakFirstLessLess: 120
-PenaltyBreakOpenParenthesis: 0
-PenaltyBreakString: 1000
-PenaltyBreakTemplateDeclaration: 10
-PenaltyExcessCharacter: 1000000
-PenaltyReturnTypeOnItsOwnLine: 200
-PenaltyIndentedWhitespace: 0
-PointerAlignment: Left
-PPIndentWidth:   -1
-ReferenceAlignment: Pointer
-ReflowComments:  true
-RemoveBracesLLVM: false
-SeparateDefinitionBlocks: Leave
-ShortNamespaceLines: 1
-SortIncludes:    CaseSensitive
-SortJavaStaticImport: Before
-SortUsingDeclarations: true
-SpaceAfterCStyleCast: false
-SpaceAfterLogicalNot: false
-SpaceAfterTemplateKeyword: false
-SpaceBeforeAssignmentOperators: true
-SpaceBeforeCaseColon: false
-SpaceBeforeCpp11BracedList: false
-SpaceBeforeCtorInitializerColon: true
-SpaceBeforeInheritanceColon: true
-SpaceBeforeParens: ControlStatements
-SpaceBeforeParensOptions:
-  AfterControlStatements: true
-  AfterForeachMacros: true
-  AfterFunctionDefinitionName: false
-  AfterFunctionDeclarationName: false
-  AfterIfMacros:   true
-  AfterOverloadedOperator: false
-  BeforeNonEmptyParentheses: false
-SpaceAroundPointerQualifiers: Default
-SpaceBeforeRangeBasedForLoopColon: true
-SpaceInEmptyBlock: false
-SpaceInEmptyParentheses: false
-SpacesBeforeTrailingComments: 1
-SpacesInAngles:  Never
-SpacesInConditionalStatement: false
-SpacesInContainerLiterals: true
-SpacesInCStyleCastParentheses: false
-SpacesInLineCommentPrefix:
-  Minimum:         1
-  Maximum:         -1
-SpacesInParentheses: false
-SpacesInSquareBrackets: false
-SpaceBeforeSquareBrackets: false
-BitFieldColonSpacing: Both
-Standard:        Latest
-StatementAttributeLikeMacros:
-  - Q_EMIT
-StatementMacros:
-  - Q_UNUSED
-  - QT_REQUIRE_VERSION
-TabWidth:        4
-UseCRLF:         false
-UseTab:          Never
-WhitespaceSensitiveMacros:
-  - STRINGIZE
-  - PP_STRINGIZE
-  - BOOST_PP_STRINGIZE
-  - NS_SWIFT_NAME
-  - CF_SWIFT_NAME
-...
+# Written for Clang-Format 18
+# Documentation - https://clang.llvm.org/docs/ClangFormatStyleOptions.html
 
+                                            #      section      # version   # options
+
+DisableFormat : false                                           #  3.7      # (boolean)
+#-------------------------------------------#      General      #-----------#-----------------------------------------------------------------------------------------------------------------#
+Language : Cpp                                                  #  3.5      # None, Cpp, CSharp, Java, JavaScript, Json, ObjC, Proto, TableGen, TextProto, Verilog
+Standard : Latest                                               #  3.7      # c++03, c++11, c++14, c++17, c++20, Latest, Auto
+BasedOnStyle : Chromium                                                     # LLVM, Google, Chromium, Mozilla, WebKit, Microsoft, GNU, InheritParentConfig
+ColumnLimit : 80                                                #  3.7      # (unsigned integer)
+#-------------------------------------------#    Indentation    #-----------#-----------------------------------------------------------------------------------------------------------------#
+UseTab : Never                                                  #  3.7      # Never, ForIndentation, ForContinuationAndIndentation, AlignWithSpaces, Always
+TabWidth : 4                                                    #  3.7      # (unsigned integer)  # Irrelevent if UseTab : Never.
+IndentWidth : 4                                                 #  3.7      # (unsigned integer)
+# BracedInitializerIndentWidth : 4                                # 17.x      # (unsigned integer)
+ConstructorInitializerIndentWidth : 0                           #  3.7      # (unsigned integer)
+ContinuationIndentWidth : 4                                     #  3.7      # (unsigned integer)
+IndentAccessModifiers : false                                   # 13.x      # (boolean)
+AccessModifierOffset : -2                                       #  3.3      # (integer)
+IndentCaseBlocks : false                                        # 11.x      # (boolean)
+IndentCaseLabels : true                                         #  3.3      # (boolean)
+IndentExternBlock : Indent                                      # 11.x      # AfterExternBlock, NoIndent, Indent
+IndentGotoLabels : true                                         # 10.x      # (boolean)
+IndentPPDirectives : BeforeHash                                 #  6.x      # None, AfterHash, BeforeHash
+PPIndentWidth : 4                                               # 13.x      (integer)
+# IndentRequiresClause : false                                    # 15.x      # (boolean)  # Successor of IndentRequires
+IndentRequires : false                                          # 12.x      # (boolean)
+IndentWrappedFunctionNames : false                              #  3.7      # (boolean)
+NamespaceIndentation : None                                     #  3.7      # None, Inner, All
+LambdaBodyIndentation : OuterScope                              # 13.x      # Signature, OuterScope
+# RequiresExpressionIndentation : OuterScope                      # 16.x      # OuterScope, Keyword
+ObjCBlockIndentWidth : 4                                        #  3.7      # (unsigned integer)
+#-------------------------------------------#     Alignment     #-----------#-----------------------------------------------------------------------------------------------------------------#
+AlignAfterOpenBracket : AlwaysBreak                             #  3.8      # (boolean), Align, DontAlign, AlwaysBreak, BlockIndent
+AlignArrayOfStructures : Right                                  # 13.x      # Left, Right, None
+AlignConsecutiveAssignments : None                              #  3.8      # (see documentation), None, Consecutive, AcrossEmptyLines, AcrossComments, AcrossEmptyLinesAndComments
+    # Enabled : false                                                       # (boolean)
+    # AcrossEmptyLines : false                                              # (boolean)
+    # AcrossComments : false                                                # (boolean)
+    # AlignCompound : false                                                 # (boolean)
+    # PadOperators : false                                                  # (boolean)
+AlignConsecutiveBitFields : None                                # 11.x      # (see documentation), None, Consecutive, AcrossEmptyLines, AcrossComments, AcrossEmptyLinesAndComments
+    # Enabled: false                                                        # (boolean)
+    # AcrossEmptyLines : false                                              # (boolean)
+    # AcrossComments : false                                                # (boolean)
+AlignConsecutiveDeclarations : None                             #  3.8      # (see documentation), None, Consecutive, AcrossEmptyLines, AcrossComments, AcrossEmptyLinesAndComments
+    # Enabled: false                                                        # (boolean)
+    # AcrossEmptyLines : false                                              # (boolean)
+    # AcrossComments : false                                                # (boolean)
+AlignConsecutiveMacros : None                                   #  9.x      # (see documentation), None, Consecutive, AcrossEmptyLines, AcrossComments, AcrossEmptyLinesAndComments
+    # Enabled: false                                                        # (boolean)
+    # AcrossEmptyLines : false                                              # (boolean)
+    # AcrossComments : false                                                # (boolean)
+# AlignConsecutiveShortCaseStatements :                           # 17.x      # (see documentation)  # Only applies if AllowShortCaseLabelsOnSingleLine : true.
+#     Enabled : false                                                         # (boolean)
+#     AcrossEmptyLines : false                                                # (boolean)
+#     AcrossComments : false                                                  # (boolean)
+#     AlignCaseColons : false                                                 # (boolean)
+AlignEscapedNewlines : Right                                    #  5.x      # DontAlign, Left, Right
+AlignOperands : Align                                           #  3.5      # (boolean), DontAlign, Align, AlignAfterOperator
+AlignTrailingComments : true                                    #  3.7      # (see documentation), (boolean)
+    # Kind : Always                                               # 16.x    # Leave, Always, Never
+    # OverEmptyLines : 0                                          # 16.x    # (unsigned integer)
+DerivePointerAlignment : false                                  #  3.7      # (boolean)
+PointerAlignment : Left                                         #  3.7      # Left, Right, Middle
+ReferenceAlignment : Pointer                                    # 13.x      # Pointer, Left, Right, Middle
+#-------------------------------------------#    Line Breaks    #-----------#-----------------------------------------------------------------------------------------------------------------#
+AllowAllArgumentsOnNextLine : true                              #  9.x      # (boolean)
+AllowAllConstructorInitializersOnNextLine : true                #  9.x      # (boolean)  # Deprecated and only kept for use with older versions of Clang-Format.
+AllowAllParametersOfDeclarationOnNextLine : true                #  3.3      # (boolean)
+# AllowBreakBeforeNoexceptSpecifier : OnlyWithParen               # 18.x      # Never, OnlyWithParen, Always
+AllowShortBlocksOnASingleLine : Empty                           #  3.5      # Never, Empty, Always
+AllowShortCaseLabelsOnASingleLine : true                        #  3.6      # (boolean)
+AllowShortEnumsOnASingleLine : false                            # 11.x      # (boolean)
+AllowShortFunctionsOnASingleLine : Inline                       #  3.5      # None, InlineOnly, Empty, Inline, All
+AllowShortIfStatementsOnASingleLine : Never                     #  3.3      # Never, WithoutElse, OnlyFirstIf, AllIfsAndElse
+AllowShortLambdasOnASingleLine : All                            #  9.x      # None, Empty, Inline, All
+AllowShortLoopsOnASingleLine : false                            #  3.7      # (boolean)
+AlwaysBreakAfterDefinitionReturnType : None                     #  3.7      # None, All, TopLevel  # Deprecated and only kept for use with older versions of Clang-Format.
+AlwaysBreakAfterReturnType : None                               #  3.8      # None, All, TopLevel, AllDefinitions, TopLevelDefinitions
+AlwaysBreakBeforeMultilineStrings : false                       #  3.4      # (boolean)
+AlwaysBreakTemplateDeclarations : Yes                           #  3.4      # No, MultiLine, Yes
+BreakBeforeBraces : Custom                                      #  3.7      # Attach, Linux, Mozilla, Stroustrup, Allman, Whitesmiths, GNU, WebKit, Custom
+BraceWrapping :                                                 #  3.8      # (see documentation)  # Only applies if BreakBeforeBraces : Custom.
+    AfterCaseLabel : false                                                  # (boolean)
+    AfterClass : false                                                      # (boolean)
+    AfterControlStatement : Never                                           # Never, MultiLine, Always
+    AfterEnum : false                                                       # (boolean)
+    AfterFunction : false                                                   # (boolean)
+    AfterNamespace : false                                                  # (boolean)
+    AfterObjCDeclaration : false                                            # (boolean)
+    AfterStruct : false                                                     # (boolean)
+    AfterUnion : false                                                      # (boolean)
+    AfterExternBlock : false                                                # (boolean)
+    BeforeCatch : true                                                      # (boolean)
+    BeforeElse : true                                                       # (boolean)
+    BeforeLambdaBody : false                                                # (boolean)
+    BeforeWhile : false                                                     # (boolean)
+    IndentBraces : false                                                    # (boolean)
+    SplitEmptyFunction : false                                              # (boolean)
+    SplitEmptyRecord : false                                                # (boolean)
+    SplitEmptyNamespace : false                                             # (boolean)
+# BreakAfterAttributes : Never                                    # 16.x      # Always, Leave, Never
+# BreakArrays : false                                             # 16.x      # (boolean)  # Currently only for formatting JSON
+BreakBeforeBinaryOperators : NonAssignment                      #  3.6      # None, NonAssignment, All
+# BreakBeforeConceptDeclarations : Always                         # 12.x      # Never, Allowed, Always
+# BreakBeforeInlineASMColon : OnlyMultiLine                       # 16.x      # Never, OnlyMultiLine, Always
+BreakBeforeTernaryOperators : true                              #  3.7      # (boolean)
+BreakConstructorInitializers : BeforeComma                      #  5.x      # BeforeColon, BeforeComma, AfterColon
+BreakInheritanceList : BeforeComma                              #  7.x      # BeforeColon, BeforeComma, AfterColon, AfterComma
+BreakStringLiterals : true                                      #  3.9      # (boolean)
+ReflowComments : true                                           #  3.8      # (boolean)
+CompactNamespaces : false                                       #  5.x      # (boolean)
+# RequiresClausePosition : WithPreceding                          # 15.x      # OwnLine, WithPreceding, WithFollowing, SingleLine
+# PackConstructorInitializers : NextLineOnly                      # 14.x      # Never, BinPack, CurrentLine, NextLine, NextLineOnly
+PackConstructorInitializers : NextLine                          # 14.x      # Never, BinPack, CurrentLine, NextLine  # Deprecated and only kept for use with older versions of Clang-Format.
+ConstructorInitializerAllOnOneLineOrOnePerLine : true           #  3.7      # (boolean)  # Deprecated and only kept for use with older versions of Clang-Format.
+BinPackArguments : false                                        #  3.7      # (boolean)
+BinPackParameters : false                                       #  3.7      # (boolean)
+EmptyLineAfterAccessModifier : Never                            # 13.x      # Never, Leave, Always
+EmptyLineBeforeAccessModifier : LogicalBlock                    # 12.x      # Never, Leave, LogicalBlock, Always
+SeparateDefinitionBlocks : Leave                                # 14.x      # Leave, Always, Never
+ShortNamespaceLines : 0                                         # 13.x      # (unsigned integer)
+ExperimentalAutoDetectBinPacking : false                        #  3.7      # (boolean)
+BreakAfterJavaFieldAnnotations : false                          #  3.8      # (boolean)
+JavaScriptWrapImports : true                                    #  3.9      # (boolean)
+ObjCBinPackProtocolList : Auto                                  #  7.x      # Auto, Always, Never
+ObjCBreakBeforeNestedBlockParam : false                         # 11.x      # (boolean)
+#-------------------------------------------#      Spacing      #-----------#-----------------------------------------------------------------------------------------------------------------#
+Cpp11BracedListStyle : false                                    #  3.4      # (boolean)
+SpaceAfterCStyleCast : false                                    #  3.5      # (boolean)
+SpaceAfterLogicalNot : true                                     #  9.x      # (boolean)
+SpaceAfterTemplateKeyword : false                               #  4.x      # (boolean)
+SpaceAroundPointerQualifiers : Default                          # 12.x      # Default, Before, After, Both
+SpaceBeforeAssignmentOperators : true                           #  3.7      # (boolean)
+SpaceBeforeCaseColon : false                                    # 12.x      # (boolean)
+SpaceBeforeCpp11BracedList : false                              #  7.x      # (boolean)
+SpaceBeforeCtorInitializerColon : true                          #  7.x      # (boolean)
+SpaceBeforeInheritanceColon : true                              #  7.x      # (boolean)
+# SpaceBeforeJsonColon : false                                    # 17.x      # (boolean)
+SpaceBeforeParens : ControlStatements                           #  3.5      # Never, ControlStatements, ControlStatementsExceptControlMacros, NonEmptyParentheses, Always, Custom
+SpaceBeforeParensOptions :                                      # 14.x      # (see documentation)  # Only applies if SpaceBeforeParens : Custom.
+    AfterControlStatements : true                                           # (boolean)
+    AfterForeachMacros : true                                               # (boolean)
+    AfterFunctionDefinitionName : false                                     # (boolean)
+    AfterFunctionDeclarationName : false                                    # (boolean)
+    AfterIfMacros : true                                                    # (boolean)
+    AfterOverloadedOperator : false                                         # (boolean)
+    # AfterRequiresInClause : false                                           # (boolean)
+    # AfterRequiresInExpression : false                                       # (boolean)
+    BeforeNonEmptyParentheses : false                                       # (boolean)
+SpaceBeforeRangeBasedForLoopColon : true                        #  7.x      # (boolean)
+SpaceBeforeSquareBrackets : false                               # 10.x      # (boolean)
+SpaceInEmptyBlock : false                                       # 10.x      # (boolean)
+SpacesBeforeTrailingComments : 1                                #  3.7      # (unsigned integer)
+# SpacesInEmptyParentheses : false                                #  3.7      # (boolean)  # Deprecated and only kept for use with older versions of Clang-Format.
+SpacesInCStyleCastParentheses : false                           #  3.7      # (boolean)  # Deprecated and only kept for use with older versions of Clang-Format.
+SpacesInConditionalStatement : false                            #  3.7      # (boolean)  # Deprecated and only kept for use with older versions of Clang-Format.
+SpacesInParentheses : false                                     #  3.7      # (boolean)  # Deprecated and only kept for use with older versions of Clang-Format.
+SpacesInAngles : Never                                          #  3.4      # Never, Always, Leave
+SpacesInContainerLiterals : true                                #  3.7      # (boolean)
+SpacesInLineCommentPrefix :                                     # 13.x      # (see documentation)  # Only applies if ReflowComments : true.
+    Minimum : 1                                                             # (unsigned integer)
+    Maximum : -1                                                            # (unsigned integer)
+# SpacesInParens : Never                                          # 17.x      # Never, Custom
+# SpacesInParensOptions :                                         # 17.x      # (see documentation)  # Only applies if SpacesInParens : Custom.
+#     InConditionalStatements : false                                         # (boolean)
+#     InCStyleCasts : false                                                   # (boolean)
+#     InEmptyParentheses : false                                              # (boolean)
+#     Other : false                                                           # (boolean)
+SpacesInSquareBrackets : false                                  #  3.7      # (boolean)
+BitFieldColonSpacing : Both                                     # 12.x      # Both, None, Before, After
+ObjCSpaceAfterProperty : true                                   #  3.7      # (boolean)
+ObjCSpaceBeforeProtocolList : false                             #  3.7      # (boolean)
+#-------------------------------------------#    Manipulation   #-----------#-----------------------------------------------------------------------------------------------------------------#
+FixNamespaceComments : true                                     #  5.x      # (boolean)
+# InsertBraces : false                                            # 15.x      # (boolean)  # This is an experimental feature that may generate invalid code.
+# InsertNewlineAtEOF : true                                       # 16.x      # (boolean)
+InsertTrailingCommas : Wrapped                                  # 11.x      # None, Wrapped  # JavaScript only and incompatible with BinPackArguments : true.
+# IntegerLiteralSeparator :                                       # 16.x      # (none)
+#     Binary : 0                                                              # (int8_t)
+#     BinaryMinDigits : 0                                                     # (int8_t)
+#     Decimal : 3                                                             # (int8_t)
+#     DecimalMinDigits : 4                                                    # (int8_t)
+#     Hex : 2                                                                 # (int8_t)
+#     HexMinDigits : 6                                                        # (int8_t)
+IncludeBlocks : Preserve                                        #  6.x      # Preserve, Merge, Regroup
+SortIncludes : Never                                            #  3.8      # Never, CaseSensitive, CaseInsensitive
+# SortUsingDeclarations : Never                                   #  5.x      # Never, Lexicographic, LexicographicNumeric
+SortUsingDeclarations : false                                   #  5.x      # (boolean)  # Deprecated and only kept for use with older versions of Clang-Format.
+QualifierAlignment : Leave                                      # 14.x      # Leave, Left, Right, Custom  # This is an experimental feature that may generate invalid code.
+# QualifierOrder :                                                # 14.x      # (list of strings)  # Only applies if QualifierAlignment : Custom.
+#     - inline
+#     - static
+#     - constexpr
+#     - const
+#     - volatile
+#     - type
+# KeepEmptyLinesAtEOF : false                                     # 17.x      # (boolean)
+DeriveLineEnding : false                                        # 10.x      # (boolean)  # Deprecated and only kept for use with older versions of Clang-Format.
+# LineEnding : LF                                                 # 16.x      # LF, CRLF, DeriveLF, DeriveCRLF
+UseCRLF : false                                                 # 10.x      # (boolean)  # Deprecated and only kept for use with older versions of Clang-Format.
+MaxEmptyLinesToKeep : 1                                         #  3.7      # (unsigned integer)
+KeepEmptyLinesAtTheStartOfBlocks : false                        #  3.7      # (boolean)
+RemoveBracesLLVM : false                                        # 14.x      # (boolean)  # This is an experimental feature that may generate invalid code.
+# RemoveParentheses : Leave                                       # 17.x      # Leave, MultipleParentheses, ReturnStatement  # This is an experimental feature that may generate invalid code.
+# RemoveSemicolon : false                                         # 16.x      # (boolean)  # This is an experimental feature that may generate invalid code.
+JavaScriptQuotes : Double                                       #  3.9      # Leave, Single, Double
+SortJavaStaticImport : Before                                   # 12.x      # Before, After
+#-------------------------------------------#       Other       #-----------#-----------------------------------------------------------------------------------------------------------------#
+PenaltyBreakAssignment : 2                                      #  5.x      # (unsigned integer)
+PenaltyBreakBeforeFirstCallParameter : 19                       #  3.7      # (unsigned integer)
+PenaltyBreakComment : 300                                       #  3.7      # (unsigned integer)
+PenaltyBreakFirstLessLess : 120                                 #  3.7      # (unsigned integer)
+PenaltyBreakOpenParenthesis : 0                                 # 14.x      # (unsigned integer)
+PenaltyBreakString : 1000                                       #  3.7      # (unsigned integer)
+PenaltyBreakTemplateDeclaration : 10                            #  7.x      # (unsigned integer)
+PenaltyExcessCharacter : 1000000                                #  3.7      # (unsigned integer)
+PenaltyIndentedWhitespace : 0                                   # 12.x      # (unsigned integer)
+PenaltyReturnTypeOnItsOwnLine : 200                             #  3.7      # (unsigned integer)
+IncludeCategories : []                                          #  3.8      # (see documentation)
+IncludeIsMainRegex : "(Test)?$"                                 #  3.9      # (string)
+IncludeIsMainSourceRegex : ""                                   # 10.x      # (string)
+CommentPragmas : "^ IWYU pragma:"                               #  3.7      # (string)
+AttributeMacros :                                               # 12.x      # (list of strings)
+    - __capability
+    - __output
+    - __unused
+ForEachMacros :                                                 #  3.7      # (list of strings)
+    - FOREACH
+    - RANGES_FOR
+IfMacros :                                                      # 13.x      # (list of strings)
+    - IF
+MacroBlockBegin : ""                                            #  3.7      # (string)
+MacroBlockEnd : ""                                              #  3.7      # (string)
+# Macros :                                                        # 17.x      # (list of strings)
+#     - FOREVER=for(;;)
+# NamespaceMacros : []                                            #  9.x      # (list of strings)
+# RawStringFormats : []                                           #  6.x      # (see documentation)
+# StatementAttributeLikeMacros : []                               # 12.x      # (list of strings)
+# StatementMacros : []                                            #  8.x      # (list of strings)
+# TypeNames : []                                                  # 17.x      # (list of strings)
+# TypenameMacros : []                                             #  9.x      # (list of strings)
+# VerilogBreakBetweenInstancePorts : false                        # 17.x      # (boolean)
+# WhitespaceSensitiveMacros : []                                  # 11.x      # (list of strings)
+# JavaImportGroups : []                                           #  8.x      # (list of strings)

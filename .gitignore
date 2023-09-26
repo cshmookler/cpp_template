@@ -1,3 +1,6 @@
-.vscode
 .cache
+.venv
 build
+
+version.hpp
+version.cpp
