@@ -1,0 +1,3 @@
+*.hpp.in.tmpl linguist-language=C++
+*.cpp.tmpl linguist-language=C++
+*.py.tmpl linguist-language=Python

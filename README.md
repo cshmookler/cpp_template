@@ -26,7 +26,7 @@ python3 confirm.py
 
 ## **Build and install this project with Conan (for Unix-like systems)**
 
-> Note: Configure this template before building it for the first time! -> [`configure`](#make-it-your-own-for-unix-like-systems)
+> Note: Configure this template before building it for the first time! -> [configure](#make-it-your-own-for-unix-like-systems)
 
 **1.** Install a C++ compiler (Example: clang), Git, and Python >=3.7 (Example: apt).
 
