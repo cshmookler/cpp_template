@@ -36,23 +36,23 @@ ObjCBlockIndentWidth : 4                                        #  3.7      # (u
 AlignAfterOpenBracket : AlwaysBreak                             #  3.8      # (boolean), Align, DontAlign, AlwaysBreak, BlockIndent
 AlignArrayOfStructures : Right                                  # 13.x      # Left, Right, None
 AlignConsecutiveAssignments : None                              #  3.8      # (see documentation), None, Consecutive, AcrossEmptyLines, AcrossComments, AcrossEmptyLinesAndComments
-    # Enabled : false                                                       # (boolean)
-    # AcrossEmptyLines : false                                              # (boolean)
-    # AcrossComments : false                                                # (boolean)
-    # AlignCompound : false                                                 # (boolean)
-    # PadOperators : false                                                  # (boolean)
+    # Enabled : false                                                         # (boolean)
+    # AcrossEmptyLines : false                                                # (boolean)
+    # AcrossComments : false                                                  # (boolean)
+    # AlignCompound : false                                                   # (boolean)
+    # PadOperators : false                                                    # (boolean)
 AlignConsecutiveBitFields : None                                # 11.x      # (see documentation), None, Consecutive, AcrossEmptyLines, AcrossComments, AcrossEmptyLinesAndComments
-    # Enabled: false                                                        # (boolean)
-    # AcrossEmptyLines : false                                              # (boolean)
-    # AcrossComments : false                                                # (boolean)
+    # Enabled: false                                                          # (boolean)
+    # AcrossEmptyLines : false                                                # (boolean)
+    # AcrossComments : false                                                  # (boolean)
 AlignConsecutiveDeclarations : None                             #  3.8      # (see documentation), None, Consecutive, AcrossEmptyLines, AcrossComments, AcrossEmptyLinesAndComments
-    # Enabled: false                                                        # (boolean)
-    # AcrossEmptyLines : false                                              # (boolean)
-    # AcrossComments : false                                                # (boolean)
+    # Enabled: false                                                          # (boolean)
+    # AcrossEmptyLines : false                                                # (boolean)
+    # AcrossComments : false                                                  # (boolean)
 AlignConsecutiveMacros : None                                   #  9.x      # (see documentation), None, Consecutive, AcrossEmptyLines, AcrossComments, AcrossEmptyLinesAndComments
-    # Enabled: false                                                        # (boolean)
-    # AcrossEmptyLines : false                                              # (boolean)
-    # AcrossComments : false                                                # (boolean)
+    # Enabled: false                                                          # (boolean)
+    # AcrossEmptyLines : false                                                # (boolean)
+    # AcrossComments : false                                                  # (boolean)
 # AlignConsecutiveShortCaseStatements :                           # 17.x      # (see documentation)  # Only applies if AllowShortCaseLabelsOnSingleLine : true.
 #     Enabled : false                                                         # (boolean)
 #     AcrossEmptyLines : false                                                # (boolean)
@@ -61,8 +61,8 @@ AlignConsecutiveMacros : None                                   #  9.x      # (s
 AlignEscapedNewlines : Right                                    #  5.x      # DontAlign, Left, Right
 AlignOperands : Align                                           #  3.5      # (boolean), DontAlign, Align, AlignAfterOperator
 AlignTrailingComments : true                                    #  3.7      # (see documentation), (boolean)
-    # Kind : Always                                               # 16.x    # Leave, Always, Never
-    # OverEmptyLines : 0                                          # 16.x    # (unsigned integer)
+    # Kind : Always                                               # 16.x      # Leave, Always, Never
+    # OverEmptyLines : 0                                          # 16.x      # (unsigned integer)
 DerivePointerAlignment : false                                  #  3.7      # (boolean)
 PointerAlignment : Left                                         #  3.7      # Left, Right, Middle
 ReferenceAlignment : Pointer                                    # 13.x      # Pointer, Left, Right, Middle

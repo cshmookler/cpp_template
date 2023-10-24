@@ -1,0 +1,12 @@
+// Standard includes
+#include <array>
+#include <iostream>
+
+// Package includes
+#include <____package_name____/version.hpp>
+
+int main() {
+    std::cout << "\nCompiletime Version: \t" << ____package_name____::compiletime_version
+              << "\nRuntime Version: \t" << ____package_name____::get_runtime_version()
+              << "\n\nThe test succeeded!\n";
+}
