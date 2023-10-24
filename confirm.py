@@ -2,6 +2,7 @@
 
 from os import remove
 from os.path import join as join_path
+from shutil import rmtree
 
 from config import get_config
 
@@ -16,4 +17,5 @@ if __name__ == "__main__":
     remove("template_config.ini")
     remove("config.py")
     remove("confirm.py")
+    rmtree("__pycache__/")
 
