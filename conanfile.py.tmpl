@@ -164,6 +164,12 @@ class ____package_name____(ConanFile):
             join_path(self.source_folder, "include", self.name),
         )
         meson.build()
+        copy_file(
+            self,
+            "compile_commands.json",
+            self.build_folder,
+            self.source_folder,
+        )
 
     def package(self):
         """Install project headers and compiled libraries"""
