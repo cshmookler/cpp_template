@@ -19,12 +19,12 @@
 /*     distribution.                                                         */
 /*****************************************************************************/
 
-#include "../include/____package_name____/version.hpp"
+#include "../____version_header_dir____/version.hpp"
 
-namespace ____package_name____ {
+namespace ____namespace____ {
 
 const char* get_runtime_version() {
-    return ::____package_name____::compiletime_version;
+    return ::____namespace____::compiletime_version;
 }
 
-} // namespace ____package_name____
+} // namespace ____namespace____

@@ -4,7 +4,10 @@ from configparser import ConfigParser
 from dataclasses import dataclass
 from typing import Dict, List, KeysView, Union
 from types import NoneType
+from shutil import move
+from shutil import rmtree
 from os import rename
+from os import remove
 from os.path import join as join_path
 
 
@@ -34,7 +37,8 @@ def get_config() -> Dict[str, str]:
     section_name: str = "template_config"
     expected_configs: Dict[str, str] = {
         "package_name": "cpp_template",
-        "package_type": "executable",
+        "namespace": "tmpl",
+        "package_type": "application",
         "dependencies": "[]",
         "author": "",
         "license": "",
@@ -53,6 +57,11 @@ def get_config() -> Dict[str, str]:
         pv: str = parsed_configs[k]
         if pv != "" and pv != None:
             expected_configs[k] = pv
+
+    if expected_configs["package_type"] == "library":
+        expected_configs["version_header_dir"] = "include/" + expected_configs["package_name"]
+    elif expected_configs["package_type"] == "application":
+        expected_configs["version_header_dir"] = "src"
 
     return expected_configs
 
@@ -132,9 +141,11 @@ def setup_template(path: str, new_path: str, config: Dict[str, str]) -> None:
     template.close()
 
 
-if __name__ == "__main__":
+def configure():
+    """Configure this template"""
     config = get_config()
     setup_template("conanfile.py.tmpl", "conanfile.py", config)
+    setup_template("meson.build.tmpl", "meson.build", config)
     setup_template(
         join_path("test_package", "conanfile.py.tmpl"),
         join_path("test_package", "conanfile.py"),
@@ -151,7 +162,31 @@ if __name__ == "__main__":
         join_path("test_package", "src", "main.cpp.tmpl"),
         join_path("test_package", "src", "main.cpp"),
         config)
-    rename(
-        join_path("include", "cpp_template"),
-        join_path("include", config["package_name"]))
+    if config["package_type"] == "library":
+        rename(
+            join_path("include", "cpp_template"),
+            join_path("include", config["package_name"]))
+    elif config["package_type"] == "application":
+        move(join_path("include", "cpp_template", "version.hpp.in"), "src")
 
+
+def confirm():
+    """Remove files related to configuration""" 
+    config = get_config()
+    remove("conanfile.py.tmpl")
+    remove("meson.build.tmpl")
+    remove(join_path("test_package", "conanfile.py.tmpl"))
+    remove(join_path("include", config["package_name"], "version.hpp.in.tmpl"))
+    remove(join_path("src", "version.cpp.tmpl"))
+    remove(join_path("test_package", "src", "main.cpp.tmpl"))
+    if config["package_type"] == "application":
+        rmtree("include")
+        rmtree("test_package")
+    remove("template_config.ini")
+    remove("config.py")
+    remove("confirm.py")
+    rmtree("__pycache__/")
+
+
+if __name__ == "__main__":
+    configure()

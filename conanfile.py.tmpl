@@ -161,7 +161,7 @@ class ____package_name____(ConanFile):
             self,
             "version.hpp",
             self.build_folder,
-            join_path(self.source_folder, "include", self.name),
+            self.source_folder + "/____version_header_dir____/",
         )
         meson.build()
         copy_file(
