@@ -176,8 +176,6 @@ def setup_template(path: str, new_path: str, config: Dict[str, str]) -> None:
 def configure():
     """Configure this template"""
     config = get_config()
-    setup_template("conanfile.py.tmpl", "conanfile.py", config)
-    setup_template("meson.build.tmpl", "meson.build", config)
     setup_template(
         join_path("include", "cpp_template", "version.hpp.in.tmpl"),
         join_path("include", "cpp_template", "version.hpp.in"),
@@ -186,6 +184,8 @@ def configure():
         join_path("src", "version.cpp.tmpl"),
         join_path("src", "version.cpp"),
         config)
+    setup_template("conanfile.py.tmpl", "conanfile.py", config)
+    setup_template("meson.build.tmpl", "meson.build", config)
     if config["package_type"] == "library":
         setup_template(
             join_path("test_package", "conanfile.py.tmpl"),
@@ -209,21 +209,24 @@ def configure():
 def confirm():
     """Remove files related to configuration""" 
     config = get_config()
-    remove("conanfile.py.tmpl")
-    remove("meson.build.tmpl")
-    remove(join_path("test_package", "conanfile.py.tmpl"))
-    remove(join_path("include", config["package_name"], "version.hpp.in.tmpl"))
     remove(join_path("src", "version.cpp.tmpl"))
     remove(join_path("src", "main.cpp.tmpl"))
-    remove(join_path("test_package", "src", "main.cpp.tmpl"))
-    if config["package_type"] == "application":
-        rmtree("include")
-        rmtree("test_package")
+    remove("conanfile.py.tmpl")
+    remove("meson.build.tmpl")
     remove("template_config.ini")
     remove("config.py")
     remove("confirm.py")
     rmtree("__pycache__/")
+    if config["package_type"] == "library":
+        remove(join_path("include", config["package_name"], "version.hpp.in.tmpl"))
+        remove(join_path("test_package", "conanfile.py.tmpl"))
+        remove(join_path("test_package", "src", "main.cpp.tmpl"))
+    elif config["package_type"] == "application":
+        rmtree("include")
+        rmtree("test_package")
 
 
 if __name__ == "__main__":
     configure()
+    confirm()
+

@@ -18,12 +18,6 @@ sudo apt install -y python3
 python3 config.py
 ```
 
-**4.** Remove template files.
-
-```bash
-python3 confirm.py
-```
-
 ## **Build and install this project with Conan (for Unix-like systems)**
 
 > Note: Configure this template before building it for the first time! -> [configure](#make-it-your-own-for-unix-like-systems)
@@ -53,7 +47,7 @@ pip3 install "conan>=2.0.0"
 conan profile detect
 ```
 
-**5.** Build and install this project with Conan.
+**5.** Build and install with Conan.
 
 ```bash
 conan create .
