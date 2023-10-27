@@ -3,10 +3,11 @@
 #include <iostream>
 
 // Package includes
-#include <____namespace____/version.hpp>
+#include <___package_name___/version.hpp>
 
 int main() {
-    std::cout << "\nCompiletime Version: \t" << ____namespace____::compiletime_version
-              << "\nRuntime Version: \t" << ____namespace____::get_runtime_version()
+    std::cout << "\nCompiletime Version: \t"
+              << ___namespace___::compiletime_version << "\nRuntime Version: \t"
+              << ___namespace___::get_runtime_version()
               << "\n\nThe test succeeded!\n";
 }

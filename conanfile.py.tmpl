@@ -1,9 +1,7 @@
-"""____package_name____ root Conan file"""
+"""___package_name___ root Conan file"""
 
 from os.path import join as join_path
-
 from typing import List
-
 from dataclasses import dataclass
 
 from conan import ConanFile
@@ -24,32 +22,21 @@ class MesonDependency:
     version: str
 
 
-def str_to_list(string: str) -> List[str]:
-    """Converts a string representing a list of strings to a list object.
-    Assumes that the string representation was generated from a Python list and
-    not from user input."""
-    return [
-        i.strip(" '\"")
-        for i in string.strip("[]").split(",")
-        if i.strip(" '\"")
-    ]
-
-
-class ____package_name____(ConanFile):
-    """____package_name____"""
+class ___package_name___(ConanFile):
+    """___package_name___"""
 
     # Required
-    name = "{{ package_name }}"
+    name = "___package_name___"
 
     # Metadata
-    license = "{{ license }}"
-    author = "{{ author }}"
-    url = "{{ url }}"
-    description = "{{ description }}"
-    topics = str_to_list("{{ topics }}")
+    license = "___license___"
+    author = "___author___"
+    url = "___url___"
+    description = "___description___"
+    topics = "<< topics >>"
 
     # Configuration
-    package_type = "{{ package_type }}"
+    package_type = "___package_type___" 
     settings = "os", "compiler", "build_type", "arch"
     options = {"shared": [True, False], "fPIC": [True, False]}
     default_options = {"shared": False, "fPIC": True}
@@ -63,7 +50,7 @@ class ____package_name____(ConanFile):
     _generator_folder = join_path(_build_folder, "generators")
 
     # Other
-    _dependencies: List[str] = str_to_list("{{ dependencies }}")
+    _dependencies: List[str] = "<< dependencies >>"
 
     def set_version(self):
         """Get project version from Git"""
@@ -105,15 +92,9 @@ class ____package_name____(ConanFile):
         deps = PkgConfigDeps(self)
         deps.generate()
 
-        # depend = [
-        #     dep
-        #     for req, dep in self.dependencies.items()
-        #     if req.direct and not req.build and not req.test
-        # ]
-
         meson_dependencies: List[MesonDependency] = []
         for pc, content in deps.content.items():
-            pc_no_extension = pc[:-3] if pc.endswith(".pc") else pc
+            pc_no_extension = pc.rstrip(".pc")
             split = pc_no_extension.split("-")
             # Assumes that len(split) is always <= 2
             meson_dependencies.append(
@@ -161,7 +142,7 @@ class ____package_name____(ConanFile):
             self,
             "version.hpp",
             self.build_folder,
-            self.source_folder + "/____version_header_dir____/",
+            self.source_folder + "/___version_header_dir___/",
         )
         meson.build()
         copy_file(

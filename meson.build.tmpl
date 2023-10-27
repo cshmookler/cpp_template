@@ -35,7 +35,7 @@ build_dir = meson.build_root()
 conf_data = configuration_data()
 conf_data.set('version', project_version)
 configure_file(configuration : conf_data,
-               input : '____version_header_dir____'/'version.hpp.in',
+               input : '___version_header_dir___'/'version.hpp.in',
                output : 'version.hpp')
 
 headers = files(
@@ -47,10 +47,10 @@ sources = files(
     # Add additional source files here.
 )
 
-package_type = '____package_type____'
+package_type = '___package_type___'
 
 if package_type == 'library'
-    ____namespace____ = library(project_name,
+    ___namespace___ = library(project_name,
                      sources,
                      dependencies : project_deps,
                      version : project_version,
@@ -58,7 +58,7 @@ if package_type == 'library'
     install_headers(headers, subdir : project_name)
 elif package_type == 'application'
     sources += src_dir/'main.cpp'
-    ____namespace____ = executable(project_name,
+    ___namespace___ = executable(project_name,
                         sources,
                         dependencies : project_deps,
                         install : true)
