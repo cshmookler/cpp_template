@@ -7,6 +7,7 @@ from types import NoneType
 from ast import literal_eval
 from shutil import move
 from shutil import rmtree
+from os import system as os_system
 from os import rename
 from os import remove
 from os.path import join as join_path
@@ -16,6 +17,13 @@ def inline_print(return_val: Any, print_msg: str) -> Any:
     """Prints a given message and returns a given value."""
     print(print_msg)
     return return_val
+
+
+def system(cmd: str) -> None:
+    """Executes a given command and prints a warning if it fails."""
+    code: int = os_system(cmd)
+    if code != 0:
+        print("Warning: '" + cmd + "' failed with code " + code)
 
 
 @dataclass
@@ -215,15 +223,16 @@ def confirm():
     remove("meson.build.tmpl")
     remove("template_config.ini")
     remove("config.py")
-    remove("confirm.py")
-    rmtree("__pycache__/")
+    rmtree(".git", ignore_errors = True)
+    remove(".gitattributes")
     if config["package_type"] == "library":
         remove(join_path("include", config["package_name"], "version.hpp.in.tmpl"))
         remove(join_path("test_package", "conanfile.py.tmpl"))
         remove(join_path("test_package", "src", "main.cpp.tmpl"))
     elif config["package_type"] == "application":
-        rmtree("include")
-        rmtree("test_package")
+        rmtree("include", ignore_errors = True)
+        rmtree("test_package", ignore_errors = True)
+    system("git init -b main")
 
 
 if __name__ == "__main__":
