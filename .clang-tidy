@@ -26,7 +26,11 @@ Checks: '
     readability-*,
     zircon-*,
     -modernize-use-trailing-return-type,
-    -fuchsia-default-arguments-calls 
+    -fuchsia-default-arguments-calls,
+    -cppcoreguidelines-avoid-magic-numbers,
+    -altera-unroll-loops,
+    -altera-id-dependent-backward-branch,
+    -altera-struct-pack-align,
 '
 CheckOptions: [
     { key: readability-identifier-naming.NamespaceCase,         value: lower_case               },
