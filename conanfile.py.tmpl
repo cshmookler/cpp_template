@@ -130,6 +130,7 @@ class ___package_name___(ConanFile):
         toolchain.properties = {
             "name": self.name,
             "version": self.version,
+            "type": self.package_type,
             "deps": meson_dependencies_classless,
         }
         toolchain.generate()

@@ -1,7 +1,9 @@
-project(meson.get_external_property('name', 'unknown'),
-        'cpp',
-        version : meson.get_external_property('version', 'unknown'),
-        default_options : ['cpp_std=c++11'])
+project(
+    meson.get_external_property('name', 'unknown'),
+    'cpp',
+    version: meson.get_external_property('version', 'unknown'),
+    default_options: ['cpp_std=c++11'],
+)
 
 project_name = meson.project_name()
 if project_name == 'unknown'
@@ -23,7 +25,5 @@ foreach dep : project_dep_strings
     project_deps += dependency(dep)
 endforeach
 
-executable(meson.project_name(),
-           'src'/'main.cpp',
-           dependencies : project_deps)
+executable(meson.project_name(), 'src' / 'main.cpp', dependencies: project_deps)
 

@@ -1,5 +1,8 @@
 #----------------------------------    C++    ---------------------------------#
 
+# Language server files
+compile_commands.json
+
 # Prerequisites
 *.d
 

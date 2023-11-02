@@ -23,7 +23,7 @@ def system(cmd: str) -> None:
     """Executes a given command and prints a warning if it fails."""
     code: int = os_system(cmd)
     if code != 0:
-        print("Warning: '" + cmd + "' failed with code " + code)
+        print("Warning: '" + cmd + "' failed with code " + str(code))
 
 
 @dataclass
@@ -212,6 +212,7 @@ def configure():
             join_path("src", "main.cpp"),
             config)
         move(join_path("include", "cpp_template", "version.hpp.in"), "src")
+        move(join_path("include", "cpp_template", ".gitignore"), "src")
 
 
 def confirm():
