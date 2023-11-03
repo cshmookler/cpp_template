@@ -1,15 +1,16 @@
 """___package_name___ root Conan file"""
 
+
+from dataclasses import dataclass
 from os.path import join as join_path
 from typing import List
-from dataclasses import dataclass
 
 from conan import ConanFile
+from conan.errors import ConanException
 from conan.tools.files import copy as copy_file
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.meson import Meson, MesonToolchain
 from conan.tools.scm import Git
-from conan.errors import ConanException
 
 required_conan_version = ">=2.0.6"
 
@@ -17,6 +18,7 @@ required_conan_version = ">=2.0.6"
 @dataclass
 class MesonDependency:
     """Meson dependency information"""
+
     package_name: str
     component_name: str
     version: str
@@ -36,7 +38,7 @@ class ___package_name___(ConanFile):
     topics = ["<< topics >>"]
 
     # Configuration
-    package_type = "___package_type___" 
+    package_type = "___package_type___"
     settings = "os", "compiler", "build_type", "arch"
     options = {"shared": [True, False], "fPIC": [True, False]}
     default_options = {"shared": False, "fPIC": True}
@@ -103,15 +105,11 @@ class ___package_name___(ConanFile):
                     component_name=split[0] + "::" + split[1]
                     if len(split) == 2
                     else "",
-                    version=content.split("Version: ")[1]
-                    .split("\n")[0]
-                    .strip(),
+                    version=content.split("Version: ")[1].split("\n")[0].strip(),
                 )
             )
 
-            last: MesonDependency = meson_dependencies[
-                len(meson_dependencies) - 1
-            ]
+            last: MesonDependency = meson_dependencies[len(meson_dependencies) - 1]
             print(
                 "Name: "
                 + last.package_name
@@ -122,8 +120,7 @@ class ___package_name___(ConanFile):
             )
 
         meson_dependencies_classless = [
-            [i.package_name, i.component_name, i.version]
-            for i in meson_dependencies
+            [i.package_name, i.component_name, i.version] for i in meson_dependencies
         ]
 
         toolchain = MesonToolchain(self)
@@ -162,4 +159,4 @@ class ___package_name___(ConanFile):
         """Package information"""
         self.cpp_info.libs = [self.name]
         self.cpp_info.includedirs = ["include"]
-
+        self.cpp_info.bindirs = ["bin"]

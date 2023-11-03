@@ -2,6 +2,7 @@
 
 from os.path import join as join_path
 from typing import List
+
 from conan import ConanFile
 from conan.tools.build import can_run
 from conan.tools.files import copy as copy_file
@@ -62,4 +63,3 @@ class ___package_name___TestPackage(ConanFile):
         if can_run(self):
             cmd = join_path(self.build_folder, "test_package")
             self.run(cmd, env="conanrun")
-
