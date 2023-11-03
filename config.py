@@ -199,13 +199,19 @@ def configure():
     remove("README.md")
     remove("template_config.ini")
 
-    # Create a fresh git repository
+    # Create a fresh git repository.
     system("git init -b main")
 
     # Unpack template files.
     for f in listdir("template_files"):
         move(join_path("template_files", f), f)
     rmtree("template_files", ignore_errors = True)
+
+    # Generate a LICENSE file if the selected license is 'Zlib'.
+    if config["license"] == "Zlib":
+        configure_template("LICENSE.tmpl", "LICENSE", config)
+    else:
+        remove("LICENSE.tmpl")
 
     # Configure templates.
     configure_template(
