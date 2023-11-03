@@ -30,10 +30,10 @@ class ___package_name___(ConanFile):
 
     # Metadata
     license = "___license___"
-    author = "___author___"
+    author = "___author___ (___email___)"
     url = "___url___"
     description = "___description___"
-    topics = "<< topics >>"
+    topics = ["<< topics >>"]
 
     # Configuration
     package_type = "___package_type___" 
@@ -50,7 +50,7 @@ class ___package_name___(ConanFile):
     _generator_folder = join_path(_build_folder, "generators")
 
     # Other
-    _dependencies: List[str] = "<< dependencies >>"
+    _dependencies: List[str] = ["<< dependencies >>"]
 
     def set_version(self):
         """Get project version from Git"""

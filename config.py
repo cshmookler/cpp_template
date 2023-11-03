@@ -11,6 +11,7 @@ from os import system as os_system
 from os import rename
 from os import remove
 from os.path import join as join_path
+from os import listdir
 
 
 def inline_print(return_val: Any, print_msg: str) -> Any:
@@ -79,6 +80,7 @@ def get_config() -> Dict[str, str]:
         "package_type": ConfigInfo(default = "application", options = lambda s: s in ["library", "application"]),
         "dependencies": ConfigInfo(default = "[]", options = valid_list),
         "author": ConfigInfo(default = ""),
+        "email": ConfigInfo(default = ""),
         "license": ConfigInfo(default = ""),
         "url": ConfigInfo(default = ""),
         "description": ConfigInfo(default = ""),
@@ -113,14 +115,14 @@ class EscapeInfo:
     postfix: str
 
 
-def setup_template(path: str, new_path: str, config: Dict[str, str]) -> None:
+def configure_template(path: str, new_path: str, config: Dict[str, str]) -> None:
     """Insert configuration information into the provided template file."""
 
     newline_char: str = "\n"
     template = open(path, mode="r", newline=newline_char)
     escape_strings: List[EscapeInfo] = [
         EscapeInfo('___', '___'),
-        EscapeInfo('"<<', '>>"'),
+        EscapeInfo('["<<', '>>"]'),
     ]
 
     active_escape: Union[EscapeInfo, NoneType] = None
@@ -176,6 +178,10 @@ def setup_template(path: str, new_path: str, config: Dict[str, str]) -> None:
 
     template.close()
 
+    # Remove template file.
+    remove(path)
+
+    # Write to new file.
     template = open(new_path, mode="w", newline=newline_char)
     template.write(read_so_far)
     template.close()
@@ -184,22 +190,43 @@ def setup_template(path: str, new_path: str, config: Dict[str, str]) -> None:
 def configure():
     """Configure this template"""
     config = get_config()
-    setup_template(
+
+    # Remove unnecessary files.
+    rmtree(".git", ignore_errors = True)
+    remove(".gitattributes")
+    remove("config.py")
+    remove("LICENSE")
+    remove("README.md")
+    remove("template_config.ini")
+
+    # Create a fresh git repository
+    system("git init -b main")
+
+    # Unpack template files.
+    for f in listdir("template_files"):
+        move(join_path("template_files", f), f)
+    rmtree("template_files", ignore_errors = True)
+
+    # Configure templates.
+    configure_template(
         join_path("include", "cpp_template", "version.hpp.in.tmpl"),
         join_path("include", "cpp_template", "version.hpp.in"),
         config)
-    setup_template(
+    configure_template(
         join_path("src", "version.cpp.tmpl"),
         join_path("src", "version.cpp"),
         config)
-    setup_template("conanfile.py.tmpl", "conanfile.py", config)
-    setup_template("meson.build.tmpl", "meson.build", config)
+    configure_template("conanfile.py.tmpl", "conanfile.py", config)
+    configure_template("meson.build.tmpl", "meson.build", config)
+    configure_template(".gitignore.tmpl", ".gitignore", config)
+    configure_template("README.md.tmpl", "README.md", config)
     if config["package_type"] == "library":
-        setup_template(
+        remove(join_path("src", "main.cpp.tmpl"))
+        configure_template(
             join_path("test_package", "conanfile.py.tmpl"),
             join_path("test_package", "conanfile.py"),
             config)
-        setup_template(
+        configure_template(
             join_path("test_package", "src", "main.cpp.tmpl"),
             join_path("test_package", "src", "main.cpp"),
             config)
@@ -207,36 +234,15 @@ def configure():
             join_path("include", "cpp_template"),
             join_path("include", config["package_name"]))
     elif config["package_type"] == "application":
-        setup_template(
+        configure_template(
             join_path("src", "main.cpp.tmpl"),
             join_path("src", "main.cpp"),
             config)
         move(join_path("include", "cpp_template", "version.hpp.in"), "src")
-        move(join_path("include", "cpp_template", ".gitignore"), "src")
-
-
-def confirm():
-    """Remove files related to configuration""" 
-    config = get_config()
-    remove(join_path("src", "version.cpp.tmpl"))
-    remove(join_path("src", "main.cpp.tmpl"))
-    remove("conanfile.py.tmpl")
-    remove("meson.build.tmpl")
-    remove("template_config.ini")
-    remove("config.py")
-    rmtree(".git", ignore_errors = True)
-    remove(".gitattributes")
-    if config["package_type"] == "library":
-        remove(join_path("include", config["package_name"], "version.hpp.in.tmpl"))
-        remove(join_path("test_package", "conanfile.py.tmpl"))
-        remove(join_path("test_package", "src", "main.cpp.tmpl"))
-    elif config["package_type"] == "application":
         rmtree("include", ignore_errors = True)
         rmtree("test_package", ignore_errors = True)
-    system("git init -b main")
 
 
 if __name__ == "__main__":
     configure()
-    confirm()
 
