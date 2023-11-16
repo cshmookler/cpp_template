@@ -105,11 +105,15 @@ class ___package_name___(ConanFile):
                     component_name=split[0] + "::" + split[1]
                     if len(split) == 2
                     else "",
-                    version=content.split("Version: ")[1].split("\n")[0].strip(),
+                    version=content.split("Version: ")[1]
+                    .split("\n")[0]
+                    .strip(),
                 )
             )
 
-            last: MesonDependency = meson_dependencies[len(meson_dependencies) - 1]
+            last: MesonDependency = meson_dependencies[
+                len(meson_dependencies) - 1
+            ]
             print(
                 "Name: "
                 + last.package_name
@@ -120,7 +124,8 @@ class ___package_name___(ConanFile):
             )
 
         meson_dependencies_classless = [
-            [i.package_name, i.component_name, i.version] for i in meson_dependencies
+            [i.package_name, i.component_name, i.version]
+            for i in meson_dependencies
         ]
 
         toolchain = MesonToolchain(self)

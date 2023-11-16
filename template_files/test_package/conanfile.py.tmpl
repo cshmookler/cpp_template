@@ -1,5 +1,6 @@
 """___package_name___ test package Conan file"""
 
+
 from os.path import join as join_path
 from typing import List
 
@@ -27,8 +28,8 @@ class ___package_name___TestPackage(ConanFile):
 
     def build_requirements(self):
         """Declare dependencies of the build system"""
-        self.tool_requires("meson/1.2.1")  # pylint: disable=not-callable
-        self.tool_requires("pkgconf/2.0.3")  # pylint: disable=not-callable
+        self.tool_requires("meson/1.2.1")
+        self.tool_requires("pkgconf/2.0.3")
 
     def requirements(self):
         """Declare library dependencies"""

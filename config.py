@@ -16,7 +16,6 @@ from os import listdir
 
 def inline_print(return_val: Any, print_msg: str) -> Any:
     """Prints a given message and returns a given value."""
-    print(print_msg)
     return return_val
 
 
@@ -30,6 +29,7 @@ def system(cmd: str) -> None:
 @dataclass
 class ConfigInfo:
     """Information relating to a specific configuration."""
+
     default: str
     options: Callable[[str], bool] = lambda _: True
 
@@ -56,9 +56,11 @@ def valid_list(list_str: str) -> bool:
     return True
 
 
-def assert_none_missing(expected: Union[List[str], KeysView[str]],
-                        parsed: Union[List[str], KeysView[str]],
-                        classify: str) -> None:
+def assert_none_missing(
+    expected: Union[List[str], KeysView[str]],
+    parsed: Union[List[str], KeysView[str]],
+    classify: str,
+) -> None:
     """Ensure that all items in the expected list are in the parsed list."""
     missing_sections: List[str] = [k for k in expected if k not in parsed]
     if len(missing_sections) <= 0:
@@ -75,16 +77,21 @@ def get_config() -> Dict[str, str]:
     ini_file: str = "template_config.ini"
     section_name: str = "template_config"
     expected_configs: Dict[str, ConfigInfo] = {
-        "package_name": ConfigInfo(default = "cpp_template", options = valid_identifier_name),
-        "namespace": ConfigInfo(default = "tmpl", options = valid_identifier_name),
-        "package_type": ConfigInfo(default = "application", options = lambda s: s in ["library", "application"]),
-        "dependencies": ConfigInfo(default = "[]", options = valid_list),
-        "author": ConfigInfo(default = ""),
-        "email": ConfigInfo(default = ""),
-        "license": ConfigInfo(default = ""),
-        "url": ConfigInfo(default = ""),
-        "description": ConfigInfo(default = ""),
-        "topics": ConfigInfo(default = "[]", options = valid_list),
+        "package_name": ConfigInfo(
+            default="cpp_template", options=valid_identifier_name
+        ),
+        "namespace": ConfigInfo(default="tmpl", options=valid_identifier_name),
+        "package_type": ConfigInfo(
+            default="application",
+            options=lambda s: s in ["library", "application"],
+        ),
+        "dependencies": ConfigInfo(default="[]", options=valid_list),
+        "author": ConfigInfo(default=""),
+        "email": ConfigInfo(default=""),
+        "license": ConfigInfo(default=""),
+        "url": ConfigInfo(default=""),
+        "description": ConfigInfo(default=""),
+        "topics": ConfigInfo(default="[]", options=valid_list),
     }
 
     parser = ConfigParser()
@@ -96,9 +103,20 @@ def get_config() -> Dict[str, str]:
     configs: Dict[str, str] = {}
     for k, v in expected_configs.items():
         pv: str = parsed_configs[k]
-        configs[k] = pv if v.options(pv) else inline_print(v.default,
-                "Warning: Invalid option '" + pv + "' for '" + k + "'. Using '"
-                + v.default + "' instead.")
+        configs[k] = (
+            pv
+            if v.options(pv)
+            else inline_print(
+                v.default,
+                "Warning: Invalid option '"
+                + pv
+                + "' for '"
+                + k
+                + "'. Using '"
+                + v.default
+                + "' instead.",
+            )
+        )
 
     if configs["package_type"] == "library":
         configs["version_header_dir"] = "include/" + configs["package_name"]
@@ -111,17 +129,20 @@ def get_config() -> Dict[str, str]:
 @dataclass
 class EscapeInfo:
     """Information relating to a specific identifier."""
+
     prefix: str
     postfix: str
 
 
-def configure_template(path: str, new_path: str, config: Dict[str, str]) -> None:
+def configure_template(
+    path: str, new_path: str, config: Dict[str, str]
+) -> None:
     """Insert configuration information into the provided template file."""
 
     newline_char: str = "\n"
     template = open(path, mode="r", newline=newline_char)
     escape_strings: List[EscapeInfo] = [
-        EscapeInfo('___', '___'),
+        EscapeInfo("___", "___"),
         EscapeInfo('["<<', '>>"]'),
     ]
 
@@ -147,17 +168,26 @@ def configure_template(path: str, new_path: str, config: Dict[str, str]) -> None
                 continue
 
             id: str = read_so_far[
-                    id_start:-len(active_escape.postfix)].strip()
+                id_start : -len(active_escape.postfix)
+            ].strip()
 
             # if active_escape.replace_line:
             #     cutoff_i: int = max(0, newline)
             # else:
-            cutoff_i: int = id_start-len(active_escape.prefix)
+            cutoff_i: int = id_start - len(active_escape.prefix)
 
             if id not in config:
-                raise RuntimeError("Unknown identifier '" + id + "' at line "
-                        + str(newlines_so_far+1) + " column "
-                        + str(cols_since_newline+1) + " in '" + path + "'")
+                raise RuntimeError(
+                    "Unknown identifier '"
+                    + id
+                    + "' at line "
+                    + str(newlines_so_far + 1)
+                    + " column "
+                    + str(cols_since_newline + 1)
+                    + " in '"
+                    + path
+                    + "'"
+                )
 
             id_value: str = config[id]
             # if active_escape.insert_quotations:
@@ -192,7 +222,7 @@ def configure():
     config = get_config()
 
     # Remove unnecessary files.
-    rmtree(".git", ignore_errors = True)
+    rmtree(".git", ignore_errors=True)
     remove(".gitattributes")
     remove("config.py")
     remove("LICENSE")
@@ -205,7 +235,7 @@ def configure():
     # Unpack template files.
     for f in listdir("template_files"):
         move(join_path("template_files", f), f)
-    rmtree("template_files", ignore_errors = True)
+    rmtree("template_files", ignore_errors=True)
 
     # Generate a LICENSE file if the selected license is 'Zlib'.
     if config["license"] == "Zlib":
@@ -217,11 +247,13 @@ def configure():
     configure_template(
         join_path("include", "cpp_template", "version.hpp.in.tmpl"),
         join_path("include", "cpp_template", "version.hpp.in"),
-        config)
+        config,
+    )
     configure_template(
         join_path("src", "version.cpp.tmpl"),
         join_path("src", "version.cpp"),
-        config)
+        config,
+    )
     configure_template("conanfile.py.tmpl", "conanfile.py", config)
     configure_template("meson.build.tmpl", "meson.build", config)
     configure_template(".gitignore.tmpl", ".gitignore", config)
@@ -231,24 +263,27 @@ def configure():
         configure_template(
             join_path("test_package", "conanfile.py.tmpl"),
             join_path("test_package", "conanfile.py"),
-            config)
+            config,
+        )
         configure_template(
             join_path("test_package", "src", "main.cpp.tmpl"),
             join_path("test_package", "src", "main.cpp"),
-            config)
+            config,
+        )
         rename(
             join_path("include", "cpp_template"),
-            join_path("include", config["package_name"]))
+            join_path("include", config["package_name"]),
+        )
     elif config["package_type"] == "application":
         configure_template(
             join_path("src", "main.cpp.tmpl"),
             join_path("src", "main.cpp"),
-            config)
+            config,
+        )
         move(join_path("include", "cpp_template", "version.hpp.in"), "src")
-        rmtree("include", ignore_errors = True)
-        rmtree("test_package", ignore_errors = True)
+        rmtree("include", ignore_errors=True)
+        rmtree("test_package", ignore_errors=True)
 
 
 if __name__ == "__main__":
     configure()
-

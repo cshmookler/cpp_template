@@ -1,8 +1,8 @@
 project(
     meson.get_external_property('name', 'unknown'),
     'cpp',
-    version: meson.get_external_property('version', 'unknown'),
-    default_options: ['cpp_std=c++11'],
+    version : meson.get_external_property('version', 'unknown'),
+    default_options : [ 'cpp_std=c++11' ],
 )
 
 project_name = meson.project_name()
@@ -20,8 +20,8 @@ if project_type == 'unknown'
     error('Failed to get project type from Conan.')
 endif
 
-project_dep_strings = meson.get_external_property('deps', ['unknown'])
-if project_dep_strings == ['unknown']
+project_dep_strings = meson.get_external_property('deps', [ 'unknown' ])
+if project_dep_strings == [ 'unknown' ]
     error('Failed to get project dependencies from Conan.')
 endif
 
@@ -29,10 +29,10 @@ project_deps = []
 foreach dep : project_dep_strings
     project_deps += dependency(
         dep[0],
-        modules: dep[1],
-        version: dep[2],
-        required: true,
-        method: 'auto',
+        modules : dep[1],
+        version : dep[2],
+        required : true,
+        method : 'auto',
     )
 endforeach
 
@@ -43,9 +43,9 @@ build_dir = meson.build_root()
 conf_data = configuration_data()
 conf_data.set('version', project_version)
 configure_file(
-    configuration: conf_data,
-    input: '___version_header_dir___' / 'version.hpp.in',
-    output: 'version.hpp',
+    configuration : conf_data,
+    input : '___version_header_dir___' / 'version.hpp.in',
+    output : 'version.hpp',
 )
 
 headers = files(
@@ -57,23 +57,26 @@ sources = files(
     # Add additional source files here.
 )
 
-if project_type == 'library'
-    ___namespace___ = library(
-        project_name,
-        sources,
-        dependencies: project_deps,
-        version: project_version,
-        install: true,
-    )
-    install_headers(headers, subdir: project_name)
-elif project_type == 'application'
+
+
+
+if project_type == 'application'
     sources += src_dir / 'main.cpp'
     ___namespace___ = executable(
         project_name,
         sources,
-        dependencies: project_deps,
-        install: true,
+        dependencies : project_deps,
+        install : true,
     )
+elif project_type == 'library' or project_type == 'header-library'
+    ___namespace___ = library(
+        project_name,
+        sources,
+        dependencies : project_deps,
+        version : project_version,
+        install : true,
+    )
+    install_headers(headers, subdir : project_name)
 else
     error(
         'Invalid package type "' + project_type + '". Must either be "library" or "application".',
