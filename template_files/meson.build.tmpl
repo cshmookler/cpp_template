@@ -48,65 +48,77 @@ configure_file(
     output : 'version.hpp',
 )
 
-headers = files(
-    build_dir / 'version.hpp',
-    # Add additional header files here.
-)
-sources = files(
-    src_dir / 'version.cpp',
-    # Add additional source files here.
-)
-tests = files(
-    src_dir / 'version.test.cpp',
-    # Add additional test source files here.,
-)
+binaries = [
+    [
+        project_name, # name
+        project_type, # type
+        project_deps, # dependencies
+        files(build_dir / 'version.hpp'), # headers
+        files(src_dir / 'version.cpp'), # sources
+        src_dir / 'main.cpp', # main
+    ],
+    # Add additional binaries here.
+]
+tests = [
+    [ 'version', files(src_dir / 'version.test.cpp'), project_deps ],
+    # Add additional tests here.
+]
 
-if project_type == 'application'
-    sources += src_dir / 'main.cpp'
-    ___namespace___ = executable(
-        project_name,
-        sources,
-        dependencies : project_deps,
-        install : true,
-    )
-elif project_type == 'library' or project_type == 'header-library'
-    ___namespace___ = library(
-        project_name,
-        sources,
-        dependencies : project_deps,
-        version : project_version,
-        install : true,
-    )
-    install_headers(headers, subdir : project_name)
-elif project_type == 'shared-library'
-    ___namespace___ = shared_library(
-        project_name,
-        sources,
-        dependencies : project_deps,
-        version : project_version,
-        install : true,
-    )
-    install_headers(headers, subdir : project_name)
-elif project_type == 'static-library'
-    ___namespace___ = static_library(
-        project_name,
-        sources,
-        dependencies : project_deps,
-        install : true,
-    )
-    install_headers(headers, subdir : project_name)
-else
-    error(
-        'Invalid project type "' + project_type + '". Must be one of "application", "library", "header-library", "static_library", or "shared_library".',
-    )
-endif
+foreach bin : binaries
+    name = bin[0]
+    type = bin[1]
+    deps = bin[2]
+    headers = bin[3]
+    sources = bin[4]
+    main = bin[5]
+
+    if type == 'application'
+        sources += main
+        executable(
+            name,
+            sources,
+            dependencies : deps,
+            install : true,
+        )
+    elif type == 'library' or type == 'header-library'
+        library(
+            name,
+            sources,
+            dependencies : deps,
+            version : project_version,
+            install : true,
+        )
+        install_headers(headers, subdir : name)
+    elif type == 'shared-library'
+        shared_library(
+            name,
+            sources,
+            dependencies : deps,
+            version : project_version,
+            install : true,
+        )
+        install_headers(headers, subdir : name)
+    elif type == 'static-library'
+        static_library(
+            name,
+            sources,
+            dependencies : deps,
+            install : true,
+        )
+        install_headers(headers, subdir : name)
+    else
+        error(
+            'Invalid binary type "' + type + '". Must be one of "application", "library", "header-library", "shared-library", or "static-library".',
+        )
+    endif
+endforeach
 
 foreach test : tests
     test_exec = executable(
-        'placeholder',
-        test,
-        dependencies : project_deps,
+        test[0], # name
+        test[1], # source files
+        dependencies : test[2], # dependencies
     )
-    test('placeholder', test_exec)
+    test(test[0], test_exec)
 endforeach
 

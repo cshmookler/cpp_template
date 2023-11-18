@@ -116,8 +116,9 @@ See the official [Conan FAQ](https://docs.conan.io/2/knowledge/faq.html) for hel
 
 ## **TODO**
 
-- [ ] Proper GoogleTest integration.
+- [X] Proper GoogleTest integration.
 - [ ] Some dependencies fail to build from source (may just be a Conan problem).
 - [ ] Provide options for controlling what modules are linked from dependencies.
 - [ ] Allow a template to be configured multiple times.
-- [ ] Provide a more intuitive method for adding more executables, libraries and tests.
+- [X] Provide a more intuitive method for adding more executables, libraries and tests.
+
