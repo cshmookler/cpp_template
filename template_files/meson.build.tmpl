@@ -56,9 +56,10 @@ sources = files(
     src_dir / 'version.cpp',
     # Add additional source files here.
 )
-
-
-
+tests = files(
+    src_dir / 'version.test.cpp',
+    # Add additional test source files here.,
+)
 
 if project_type == 'application'
     sources += src_dir / 'main.cpp'
@@ -77,9 +78,35 @@ elif project_type == 'library' or project_type == 'header-library'
         install : true,
     )
     install_headers(headers, subdir : project_name)
+elif project_type == 'shared-library'
+    ___namespace___ = shared_library(
+        project_name,
+        sources,
+        dependencies : project_deps,
+        version : project_version,
+        install : true,
+    )
+    install_headers(headers, subdir : project_name)
+elif project_type == 'static-library'
+    ___namespace___ = static_library(
+        project_name,
+        sources,
+        dependencies : project_deps,
+        install : true,
+    )
+    install_headers(headers, subdir : project_name)
 else
     error(
-        'Invalid package type "' + project_type + '". Must either be "library" or "application".',
+        'Invalid project type "' + project_type + '". Must be one of "application", "library", "header-library", "static_library", or "shared_library".',
     )
 endif
+
+foreach test : tests
+    test_exec = executable(
+        'placeholder',
+        test,
+        dependencies : project_deps,
+    )
+    test('placeholder', test_exec)
+endforeach
 

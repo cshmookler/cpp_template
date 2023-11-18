@@ -8,16 +8,17 @@ Index:
     Background: Build
     StandardLibrary: No
 ---
-Style:
-    FullyQualifiedNamespaces: Yes
----
 Diagnostics:
     UnusedIncludes: Strict
+    # MissingIncludes: Strict
 ---
 InlayHints:
-    Designators: Yes
+    Enabled: Yes
     ParameterNames: Yes
     DeducedTypes: Yes
+    Designators: Yes
+  # BlockEnd: Yes
+  # TypeNameLimit: 0
 ---
 Hover:
     ShowAKA: Yes

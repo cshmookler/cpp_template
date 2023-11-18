@@ -83,7 +83,14 @@ def get_config() -> Dict[str, str]:
         "namespace": ConfigInfo(default="tmpl", options=valid_identifier_name),
         "package_type": ConfigInfo(
             default="application",
-            options=lambda s: s in ["library", "application"],
+            options=lambda s: s
+            in [
+                "application",
+                "library",
+                "header-library",
+                "shared_library",
+                "static-library",
+            ],
         ),
         "dependencies": ConfigInfo(default="[]", options=valid_list),
         "author": ConfigInfo(default=""),
@@ -254,11 +261,25 @@ def configure():
         join_path("src", "version.cpp"),
         config,
     )
+    configure_template(
+        join_path("src", "version.test.cpp.tmpl"),
+        join_path("src", "version.test.cpp"),
+        config,
+    )
     configure_template("conanfile.py.tmpl", "conanfile.py", config)
     configure_template("meson.build.tmpl", "meson.build", config)
     configure_template(".gitignore.tmpl", ".gitignore", config)
     configure_template("README.md.tmpl", "README.md", config)
-    if config["package_type"] == "library":
+    if config["package_type"] == "application":
+        configure_template(
+            join_path("src", "main.cpp.tmpl"),
+            join_path("src", "main.cpp"),
+            config,
+        )
+        move(join_path("include", "cpp_template", "version.hpp.in"), "src")
+        rmtree("include", ignore_errors=True)
+        rmtree("test_package", ignore_errors=True)
+    else:
         remove(join_path("src", "main.cpp.tmpl"))
         configure_template(
             join_path("test_package", "conanfile.py.tmpl"),
@@ -274,15 +295,6 @@ def configure():
             join_path("include", "cpp_template"),
             join_path("include", config["package_name"]),
         )
-    elif config["package_type"] == "application":
-        configure_template(
-            join_path("src", "main.cpp.tmpl"),
-            join_path("src", "main.cpp"),
-            config,
-        )
-        move(join_path("include", "cpp_template", "version.hpp.in"), "src")
-        rmtree("include", ignore_errors=True)
-        rmtree("test_package", ignore_errors=True)
 
 
 if __name__ == "__main__":
