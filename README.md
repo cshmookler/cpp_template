@@ -1,6 +1,6 @@
 # **C++ Project Template**
 
-C++ project template with automatic versioning, LLVM tools, Conan, and Meson.
+C++ project template with automatic versioning, LLVM tools, Conan, Meson, and GoogleTest integration.
 
 ## **Make it your own (for Unix-like systems)**
 
