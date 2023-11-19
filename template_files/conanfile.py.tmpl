@@ -58,9 +58,7 @@ class ___package_name___(ConanFile):
         """Get project version from Git"""
         git = Git(self, folder=self.recipe_folder)
         try:
-            self.version = (
-                git.run("describe --tags").replace("-", ".").rpartition(".")[0]
-            )
+            self.version = git.run("describe --tags").partition("-")[0]
         except ConanException:
             self.version = "0.0.0"
 
