@@ -44,16 +44,7 @@ conan build . --build=missing
 <details>
 <summary> <strong>Click here if you get an error while building with Conan</strong> </summary>
 
-- #### Failed to build dependency from source
-
-```
-CMake Error at /usr/local/share/cmake-3.26/Modules/CmakeTestCXXCompiler.cmake:60 (message):
-  The C++ compiler
-
-    "/usr/bin/c++"
-
-  is not able to compile a simple test program.
-```
+#### Failed to build dependency from source
 
 <details>
 <summary> <strong>Click here if this is your error</strong> </summary>
@@ -90,7 +81,16 @@ export CXX=g++
 
 </details>
 
-- #### Conan related error
+```
+CMake Error at /usr/local/share/cmake-3.26/Modules/CmakeTestCXXCompiler.cmake:60 (message):
+  The C++ compiler
+
+    "/usr/bin/c++"
+
+  is not able to compile a simple test program.
+```
+
+#### Conan related error
 
 See the official [Conan FAQ](https://docs.conan.io/2/knowledge/faq.html) for help with common errors.
 
