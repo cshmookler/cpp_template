@@ -28,41 +28,25 @@ python3 config.py
 sudo apt install -y clang git python3
 ```
 
-**2.** (Optional) Create a Python >=3.7 virtual environment and activate it. Install the Python Virtual Environment if you haven't already.
+**2.** Run the build script.
 
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
-```
-
-**3.** Install Conan.
-
-```bash
-pip3 install "conan>=2.0.0"
-```
-
-**4.** Create the default Conan profile.
-
-```bash
-conan profile detect
-```
-
-**5.** Build and install with Conan.
-
-```bash
-conan create . --build=missing
-```
-
-Alternatively, build with Conan without installing.
-
-```bash
-conan build . --build=missing
+python3 build.py
 ```
 
 <details>
 <summary> <strong>Click here if you get an error while building with Conan</strong> </summary>
 
 #### Failed to build dependency from source
+
+```
+CMake Error at /usr/local/share/cmake-3.26/Modules/CmakeTestCXXCompiler.cmake:60 (message):
+  The C++ compiler
+
+    "/usr/bin/c++"
+
+  is not able to compile a simple test program.
+```
 
 <details>
 <summary> <strong>Click here if this is your error</strong> </summary>
@@ -99,15 +83,6 @@ export CXX=g++
 
 </details>
 
-```
-CMake Error at /usr/local/share/cmake-3.26/Modules/CmakeTestCXXCompiler.cmake:60 (message):
-  The C++ compiler
-
-    "/usr/bin/c++"
-
-  is not able to compile a simple test program.
-```
-
 #### Conan related error
 
 See the official [Conan FAQ](https://docs.conan.io/2/knowledge/faq.html) for help with common errors.
@@ -117,6 +92,7 @@ See the official [Conan FAQ](https://docs.conan.io/2/knowledge/faq.html) for hel
 ## **TODO**
 
 - [X] Proper GoogleTest integration.
+- [ ] Update the year in the LICENSE file.
 - [ ] Some dependencies fail to build from source (may just be a Conan problem).
 - [ ] Provide options for controlling what modules are linked from dependencies.
 - [ ] Allow a template to be configured multiple times.

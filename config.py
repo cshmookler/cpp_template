@@ -1,17 +1,18 @@
-"""Configure a template project"""
+"""Configure this template project"""
 
+from ast import literal_eval
 from configparser import ConfigParser
 from dataclasses import dataclass
-from typing import Dict, List, KeysView, Union, Callable, Any
-from types import NoneType
-from ast import literal_eval
-from shutil import move
-from shutil import rmtree
 from os import system as os_system
 from os import rename
 from os import remove
 from os.path import join as join_path
 from os import listdir
+import platform
+from shutil import move
+from shutil import rmtree
+from typing import Dict, List, KeysView, Union, Callable, Any
+from types import NoneType
 
 
 def inline_print(return_val: Any, print_msg: str) -> Any:
@@ -24,14 +25,6 @@ def system(cmd: str) -> None:
     code: int = os_system(cmd)
     if code != 0:
         print("Warning: '" + cmd + "' failed with code " + str(code))
-
-
-@dataclass
-class ConfigInfo:
-    """Information relating to a specific configuration."""
-
-    default: str
-    options: Callable[[str], bool] = lambda _: True
 
 
 def valid_identifier_name(name: str) -> bool:
@@ -56,16 +49,32 @@ def valid_list(list_str: str) -> bool:
     return True
 
 
+def optional(_: str) -> bool:
+    return True
+
+
+def required(given_str: str) -> bool:
+    return given_str != "" and given_str != None
+
+
+@dataclass
+class ConfigInfo:
+    """Information relating to a specific configuration."""
+
+    default: str = ""
+    constraint: Callable[[str], bool] = required
+
+
 def assert_none_missing(
     expected: Union[List[str], KeysView[str]],
     parsed: Union[List[str], KeysView[str]],
-    classify: str,
+    classification: str,
 ) -> None:
     """Ensure that all items in the expected list are in the parsed list."""
     missing_sections: List[str] = [k for k in expected if k not in parsed]
     if len(missing_sections) <= 0:
         return
-    print("Error: The following " + classify + " were not found:")
+    print("Error: The following " + classification + " were not found:")
     for k in missing_sections:
         print(k + " ", end="")
     print(end="\n")
@@ -77,13 +86,17 @@ def get_config() -> Dict[str, str]:
     ini_file: str = "template_config.ini"
     section_name: str = "template_config"
     expected_configs: Dict[str, ConfigInfo] = {
+        "operating_system": ConfigInfo(default=platform.system()),
+        "architecture": ConfigInfo(default=platform.machine()),
         "package_name": ConfigInfo(
-            default="cpp_template", options=valid_identifier_name
+            default="cpp_template", constraint=valid_identifier_name
         ),
-        "namespace": ConfigInfo(default="tmpl", options=valid_identifier_name),
+        "namespace": ConfigInfo(
+            default="tmpl", constraint=valid_identifier_name
+        ),
         "package_type": ConfigInfo(
             default="application",
-            options=lambda s: s
+            constraint=lambda s: s
             in [
                 "application",
                 "library",
@@ -92,27 +105,29 @@ def get_config() -> Dict[str, str]:
                 "static-library",
             ],
         ),
-        "dependencies": ConfigInfo(default="[]", options=valid_list),
+        "dependencies": ConfigInfo(default="[]", constraint=valid_list),
         "author": ConfigInfo(default=""),
         "email": ConfigInfo(default=""),
         "license": ConfigInfo(default=""),
         "url": ConfigInfo(default=""),
         "description": ConfigInfo(default=""),
-        "topics": ConfigInfo(default="[]", options=valid_list),
+        "topics": ConfigInfo(default="[]", constraint=valid_list),
     }
 
     parser = ConfigParser()
     parser.read(ini_file)
     assert_none_missing([section_name], parser.sections(), "sections")
     parsed_configs = parser[section_name]
-    assert_none_missing(expected_configs.keys(), parsed_configs.keys(), "keys")
 
     configs: Dict[str, str] = {}
     for k, v in expected_configs.items():
-        pv: str = parsed_configs[k]
+        try:
+            pv: str = parsed_configs[k]
+        except KeyError:
+            pv = v.default
         configs[k] = (
             pv
-            if v.options(pv)
+            if v.constraint(pv)
             else inline_print(
                 v.default,
                 "Warning: Invalid option '"
@@ -225,7 +240,7 @@ def configure_template(
 
 
 def configure():
-    """Configure this template"""
+    """Configure this template project"""
     config = get_config()
 
     # Remove unnecessary files.
@@ -270,6 +285,9 @@ def configure():
     configure_template("meson.build.tmpl", "meson.build", config)
     configure_template(".gitignore.tmpl", ".gitignore", config)
     configure_template("README.md.tmpl", "README.md", config)
+    configure_template(
+        join_path("default.profile.tmpl"), join_path("default.profile"), config
+    )
     if config["package_type"] == "application":
         configure_template(
             join_path("src", "main.cpp.tmpl"),
