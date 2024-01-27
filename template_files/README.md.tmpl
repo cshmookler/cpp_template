@@ -10,41 +10,25 @@ ___description___
 sudo apt install -y clang git python3
 ```
 
-**2.** (Optional) Create a Python >=3.7 virtual environment and activate it. Install the Python Virtual Environment if you haven't already.
+**2.** Run the build script.
 
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
-```
-
-**3.** Install Conan.
-
-```bash
-pip3 install "conan>=2.0.0"
-```
-
-**4.** Create the default Conan profile.
-
-```bash
-conan profile detect
-```
-
-**5.** Build and install with Conan.
-
-```bash
-conan create . --build=missing
-```
-
-Alternatively, build with Conan without installing.
-
-```bash
-conan build . --build=missing
+python3 build.py
 ```
 
 <details>
-<summary> <strong>Click here if you get an error while building with Conan</strong> </summary>
+<summary> <strong>Click here if you get an error while building</strong> </summary>
 
 #### Failed to build dependency from source
+
+```
+CMake Error at /usr/local/share/cmake-3.26/Modules/CmakeTestCXXCompiler.cmake:60 (message):
+  The C++ compiler
+
+    "/usr/bin/c++"
+
+  is not able to compile a simple test program.
+```
 
 <details>
 <summary> <strong>Click here if this is your error</strong> </summary>
@@ -54,13 +38,13 @@ A dependency likely passed invalid compiler flags. Try using a different compile
 **1.** Clear the Conan cache.
 
 ```bash
-yes | conan remove "*"
+python3 clear_cache.py
 ```
 
 **2.** If you ran 'conan build', delete the build directory (do not do this if you ran 'conan create').
 
 ```bash
-rm -rf build
+python3 clean.py
 ```
 
 **3.** Set a different compiler for CMake to use.
@@ -79,16 +63,13 @@ export CC=gcc
 export CXX=g++
 ```
 
+**4.** Rerun the build script.
+
+```bash
+python3 build.py
+```
+
 </details>
-
-```
-CMake Error at /usr/local/share/cmake-3.26/Modules/CmakeTestCXXCompiler.cmake:60 (message):
-  The C++ compiler
-
-    "/usr/bin/c++"
-
-  is not able to compile a simple test program.
-```
 
 #### Conan related error
 

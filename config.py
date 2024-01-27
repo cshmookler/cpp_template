@@ -3,14 +3,12 @@
 from ast import literal_eval
 from configparser import ConfigParser
 from dataclasses import dataclass
-from os import system as os_system
-from os import rename
-from os import remove
-from os.path import join as join_path
-from os import listdir
+from os import remove, rename, listdir
+from os.path import join
 import platform
-from shutil import move
-from shutil import rmtree
+import shutil
+import subprocess
+import time
 from typing import Dict, List, KeysView, Union, Callable, Any
 from types import NoneType
 
@@ -18,13 +16,6 @@ from types import NoneType
 def inline_print(return_val: Any, print_msg: str) -> Any:
     """Prints a given message and returns a given value."""
     return return_val
-
-
-def system(cmd: str) -> None:
-    """Executes a given command and prints a warning if it fails."""
-    code: int = os_system(cmd)
-    if code != 0:
-        print("Warning: '" + cmd + "' failed with code " + str(code))
 
 
 def valid_identifier_name(name: str) -> bool:
@@ -106,6 +97,7 @@ def get_config() -> Dict[str, str]:
             ],
         ),
         "dependencies": ConfigInfo(default="[]", constraint=valid_list),
+        "current_year": ConfigInfo(default=str(time.localtime().tm_year)),
         "author": ConfigInfo(default=""),
         "email": ConfigInfo(default=""),
         "license": ConfigInfo(default=""),
@@ -141,7 +133,7 @@ def get_config() -> Dict[str, str]:
         )
 
     if configs["package_type"] == "library":
-        configs["version_header_dir"] = "include/" + configs["package_name"]
+        configs["version_header_dir"] = join("include", configs["package_name"])
     elif configs["package_type"] == "application":
         configs["version_header_dir"] = "src"
 
@@ -156,10 +148,23 @@ class EscapeInfo:
     postfix: str
 
 
-def configure_template(
-    path: str, new_path: str, config: Dict[str, str]
-) -> None:
+class InvalidTemplateFile(Exception):
+    """Exception thrown when a template_file does not have a template file extension"""
+
+    def __init__(self, message: str) -> None:
+        self.message = message
+
+
+def configure_template(path: str, config: Dict[str, str]) -> None:
     """Insert configuration information into the provided template file."""
+
+    template_file_extension = ".tmpl"
+    if not path.endswith(template_file_extension):
+        raise InvalidTemplateFile(
+            "Template files must have a template file extension ("
+            + template_file_extension
+            + ")"
+        )
 
     newline_char: str = "\n"
     template = open(path, mode="r", newline=newline_char)
@@ -234,9 +239,26 @@ def configure_template(
     remove(path)
 
     # Write to new file.
-    template = open(new_path, mode="w", newline=newline_char)
+    template = open(
+        path.removesuffix(template_file_extension),
+        mode="w",
+        newline=newline_char,
+    )
     template.write(read_so_far)
     template.close()
+
+
+class CommandFailure(Exception):
+    """Exception thrown when a command run in a subprocess fails"""
+
+    def __init__(self, message) -> None:
+        self.message = message
+
+
+def cmd(args: List[str]) -> None:
+    """Execute a command in a subprocess and throw an exception upon failure"""
+    if subprocess.call(args) != 0:
+        raise CommandFailure("Command failed: " + str(args))
 
 
 def configure():
@@ -244,7 +266,7 @@ def configure():
     config = get_config()
 
     # Remove unnecessary files.
-    rmtree(".git", ignore_errors=True)
+    shutil.rmtree(".git")
     remove(".gitattributes")
     remove("config.py")
     remove("LICENSE")
@@ -252,66 +274,62 @@ def configure():
     remove("template_config.ini")
 
     # Create a fresh git repository.
-    system("git init -b main")
+    cmd(["git", "init", "--initial-branch", "main"])
 
     # Unpack template files.
     for f in listdir("template_files"):
-        move(join_path("template_files", f), f)
-    rmtree("template_files", ignore_errors=True)
+        shutil.move(join("template_files", f), f)
+    shutil.rmtree("template_files")
 
     # Generate a LICENSE file if the selected license is 'Zlib'.
     if config["license"] == "Zlib":
-        configure_template("LICENSE.tmpl", "LICENSE", config)
+        configure_template("LICENSE.tmpl", config)
     else:
         remove("LICENSE.tmpl")
 
     # Configure templates.
     configure_template(
-        join_path("include", "cpp_template", "version.hpp.in.tmpl"),
-        join_path("include", "cpp_template", "version.hpp.in"),
+        join("include", "cpp_template", "version.hpp.in.tmpl"),
         config,
     )
     configure_template(
-        join_path("src", "version.cpp.tmpl"),
-        join_path("src", "version.cpp"),
+        join("src", "version.cpp.tmpl"),
         config,
     )
     configure_template(
-        join_path("src", "version.test.cpp.tmpl"),
-        join_path("src", "version.test.cpp"),
+        join("src", "version.test.cpp.tmpl"),
         config,
     )
-    configure_template("conanfile.py.tmpl", "conanfile.py", config)
-    configure_template("meson.build.tmpl", "meson.build", config)
-    configure_template(".gitignore.tmpl", ".gitignore", config)
-    configure_template("README.md.tmpl", "README.md", config)
+    configure_template("conanfile.py.tmpl", config)
+    configure_template("meson.build.tmpl", config)
+    configure_template(".gitignore.tmpl", config)
+    configure_template("README.md.tmpl", config)
     configure_template(
-        join_path("default.profile.tmpl"), join_path("default.profile"), config
+        join("profiles", "default.profile.tmpl"),
+        config,
     )
+    configure_template(join("scripts", "clean.py.tmpl"), config)
     if config["package_type"] == "application":
         configure_template(
-            join_path("src", "main.cpp.tmpl"),
-            join_path("src", "main.cpp"),
+            join("src", "main.cpp.tmpl"),
             config,
         )
-        move(join_path("include", "cpp_template", "version.hpp.in"), "src")
-        rmtree("include", ignore_errors=True)
-        rmtree("test_package", ignore_errors=True)
+        shutil.move(join("include", "cpp_template", "version.hpp.in"), "src")
+        shutil.rmtree("include")
+        shutil.rmtree("test_package")
     else:
-        remove(join_path("src", "main.cpp.tmpl"))
+        remove(join("src", "main.cpp.tmpl"))
         configure_template(
-            join_path("test_package", "conanfile.py.tmpl"),
-            join_path("test_package", "conanfile.py"),
+            join("test_package", "conanfile.py.tmpl"),
             config,
         )
         configure_template(
-            join_path("test_package", "src", "main.cpp.tmpl"),
-            join_path("test_package", "src", "main.cpp"),
+            join("test_package", "src", "main.cpp.tmpl"),
             config,
         )
         rename(
-            join_path("include", "cpp_template"),
-            join_path("include", config["package_name"]),
+            join("include", "cpp_template"),
+            join("include", config["package_name"]),
         )
 
 

@@ -35,7 +35,7 @@ python3 build.py
 ```
 
 <details>
-<summary> <strong>Click here if you get an error while building with Conan</strong> </summary>
+<summary> <strong>Click here if you get an error while building</strong> </summary>
 
 #### Failed to build dependency from source
 
@@ -56,16 +56,16 @@ A dependency likely passed invalid compiler flags. Try using a different compile
 **1.** Clear the Conan cache.
 
 ```bash
-yes | conan remove "*"
+python3 clear_cache.py
 ```
 
-**2.** If you ran 'conan build', delete the build directory (do not do this if you ran 'conan create').
+**2.** Remove generated build files.
 
 ```bash
-rm -rf build
+python3 clean.py
 ```
 
-**3.** Set a different compiler for CMake to use.
+**3.** Set a different compiler for CMake to use (Example: bash).
 
 - For Clang:
 
@@ -79,6 +79,12 @@ export CXX=clang++
 ```bash
 export CC=gcc
 export CXX=g++
+```
+
+**4.** Rerun the build script.
+
+```bash
+python3 build.py
 ```
 
 </details>

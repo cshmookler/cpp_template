@@ -60,7 +60,13 @@ binaries = [
     # Add additional binaries here.
 ]
 tests = [
-    [ 'version', files(src_dir / 'version.test.cpp'), project_deps ],
+    [
+        'version', # name
+        files(src_dir / 'version.test.cpp'), # source files
+        project_deps + declare_dependency( # dependencies
+            sources : files(src_dir / 'version.cpp'),
+        ),
+    ],
     # Add additional tests here.
 ]
 
