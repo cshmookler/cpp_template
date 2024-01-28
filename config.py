@@ -132,10 +132,11 @@ def get_config() -> Dict[str, str]:
             )
         )
 
-    if configs["package_type"] == "library":
-        configs["version_header_dir"] = join("include", configs["package_name"])
-    elif configs["package_type"] == "application":
-        configs["version_header_dir"] = "src"
+    configs["version_header_dir"] = (
+        "src"
+        if configs["package_type"] == "application"
+        else join("include", configs["package_name"])
+    )
 
     return configs
 

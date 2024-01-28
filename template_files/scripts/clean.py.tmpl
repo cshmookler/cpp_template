@@ -16,7 +16,7 @@ def clean() -> None:
     """Remove build files"""
     rmtree("build", ignore_errors=True)
     remove("compile_commands.json")
-    remove(os.path.join("include", "___package_name___", "version.hpp"))
+    remove(os.path.join("___version_header_dir___", "version.hpp"))
 
 
 if __name__ == "__main__":
