@@ -16,6 +16,10 @@ def build() -> None:
             "--build=missing",
             "--profile:all",
             os.path.join("profiles", "default.profile"),
+            "--conf:host",
+            "tools.system.package_manager:mode=install",
+            "--conf:host",
+            "tools.system.package_manager:sudo=True",
             os.curdir,
         ]
     )

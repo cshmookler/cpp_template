@@ -1,7 +1,7 @@
 project(
-    meson.get_external_property('name', 'unknown'),
+    meson.get_external_property('_name', 'unknown'),
     'cpp',
-    version : meson.get_external_property('version', 'unknown'),
+    version : meson.get_external_property('_version', 'unknown'),
     default_options : [ 'cpp_std=c++11' ],
 )
 
@@ -15,12 +15,12 @@ if project_version == 'unknown'
     error('Failed to get project version from Conan.')
 endif
 
-project_type = meson.get_external_property('type', 'unknown')
+project_type = meson.get_external_property('_type', 'unknown')
 if project_type == 'unknown'
     error('Failed to get project type from Conan.')
 endif
 
-project_dep_strings = meson.get_external_property('deps', [ 'unknown' ])
+project_dep_strings = meson.get_external_property('_deps', [ 'unknown' ])
 if project_dep_strings == [ 'unknown' ]
     error('Failed to get project dependencies from Conan.')
 endif

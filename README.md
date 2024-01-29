@@ -18,7 +18,7 @@ sudo apt install -y python3
 python3 config.py
 ```
 
-## **Build and install this project with Conan (for Unix-like systems)**
+## **Build this project with Conan (for Unix-like systems)**
 
 > Note: Configure this template before building it for the first time! -> [configure](#make-it-your-own-for-unix-like-systems)
 
@@ -98,9 +98,9 @@ See the official [Conan FAQ](https://docs.conan.io/2/knowledge/faq.html) for hel
 ## **TODO**
 
 - [X] Proper GoogleTest integration.
-- [ ] Update the year in the LICENSE file.
+- [X] Update the year in the LICENSE file.
 - [ ] Some dependencies fail to build from source (may just be a Conan problem).
-- [ ] Provide options for controlling what modules are linked from dependencies.
+- [X] Provide options for controlling what modules are linked from dependencies.
 - [ ] Allow a template to be configured multiple times.
 - [X] Provide a more intuitive method for adding more executables, libraries and tests.
 
