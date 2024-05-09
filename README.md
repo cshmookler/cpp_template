@@ -4,13 +4,13 @@ C++ project template with automatic versioning, LLVM tools, Conan, Meson, and Go
 
 ## **Make it your own (for Unix-like systems)**
 
-**1.** Install Python >= 3.7 (Example: apt).
+**1.** Install Python >= 3.7 (Example: Ubuntu).
 
 ```bash
 sudo apt install -y python3
 ```
 
-**2.** Modify the `template_config.ini` file to suite your project.
+**2.** Modify the `template_config.ini` file to suit your project.
 
 **3.** Configure this template.
 
@@ -22,7 +22,7 @@ python3 config.py
 
 > Note: Configure this template before building it for the first time! -> [configure](#make-it-your-own-for-unix-like-systems)
 
-**1.** Install a C++ compiler (Example: clang), Git, and Python >=3.7 (Example: apt).
+**1.** Install a Clang, Git, and Python >=3.7 (Example: Ubuntu).
 
 ```bash
 sudo apt install -y clang git python3

@@ -1,3 +1,4 @@
 *.hpp.in.tmpl linguist-language=C++
 *.cpp.tmpl linguist-language=C++
 *.py.tmpl linguist-language=Python
+*.meson.build.tmpl linguist-language=Meson

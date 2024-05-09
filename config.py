@@ -135,7 +135,7 @@ def get_config() -> Dict[str, str]:
     configs["version_header_dir"] = (
         "src"
         if configs["package_type"] == "application"
-        else join("include", configs["package_name"])
+        else configs["package_name"]
     )
 
     return configs
@@ -290,7 +290,7 @@ def configure():
 
     # Configure templates.
     configure_template(
-        join("include", "cpp_template", "version.hpp.in.tmpl"),
+        join("___package_name___", "version.hpp.in.tmpl"),
         config,
     )
     configure_template(
@@ -309,14 +309,14 @@ def configure():
         join("profiles", "default.profile.tmpl"),
         config,
     )
-    configure_template(join("scripts", "clean.py.tmpl"), config)
+    configure_template("clean.py.tmpl", config)
     if config["package_type"] == "application":
         configure_template(
             join("src", "main.cpp.tmpl"),
             config,
         )
-        shutil.move(join("include", "cpp_template", "version.hpp.in"), "src")
-        shutil.rmtree("include")
+        shutil.move(join("___package_name___", "version.hpp.in"), "src")
+        shutil.rmtree("___package_name___")
         shutil.rmtree("test_package")
     else:
         remove(join("src", "main.cpp.tmpl"))
@@ -329,8 +329,8 @@ def configure():
             config,
         )
         rename(
-            join("include", "cpp_template"),
-            join("include", config["package_name"]),
+            join("___package_name___"),
+            join(config["package_name"]),
         )
 
 

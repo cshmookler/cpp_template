@@ -36,7 +36,7 @@ foreach dep : project_dep_strings
     )
 endforeach
 
-include_dir = meson.source_root() / 'include' / project_name
+include_dir = meson.source_root() / project_name
 src_dir = meson.source_root() / 'src'
 build_dir = meson.build_root()
 

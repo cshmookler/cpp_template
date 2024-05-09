@@ -1,4 +1,4 @@
-"""Create a Python virtual environment and install conan 2.x"""
+"""Create a Python virtual environment and install Conan 2.x"""
 
 import os
 import shutil
@@ -13,12 +13,11 @@ conan = os.path.join(path, "bin", "conan")
 
 
 def create() -> None:
-    """Create a Python virtual environment and install conan 2.x"""
+    """Create a Python virtual environment and install Conan 2.x"""
     if os.path.isdir(path):
         shutil.rmtree(path)
     print(
-        "Creating virtual environment: "
-        + os.linesep
+        "Creating virtual environment in "
         + os.path.join(os.path.abspath(os.curdir), path)
     )
     venv = EnvBuilder(with_pip=True)
@@ -34,3 +33,8 @@ def exists() -> bool:
         and os.path.isfile(pip)
         and os.path.isfile(conan)
     )
+
+
+if __name__ == "__main__":
+    if not exists():
+        create()
