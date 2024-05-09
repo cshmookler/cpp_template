@@ -318,6 +318,7 @@ def configure():
         shutil.move(join("___package_name___", "version.hpp.in"), "src")
         shutil.rmtree("___package_name___")
         shutil.rmtree("test_package")
+        remove("install.py")
     else:
         remove(join("src", "main.cpp.tmpl"))
         configure_template(
