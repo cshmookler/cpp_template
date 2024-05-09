@@ -1,19 +1,19 @@
-"""Build this project using Conan"""
+"""Install this library using Conan so other projects can use it"""
 
 from importlib import import_module
 import os
 import subprocess
 
 
-def build(profile: str) -> None:
-    """Build this project using Conan"""
+def install(profile: str) -> None:
+    """Install this project using Conan"""
     venv = import_module("this_venv")
     if not venv.exists():
         venv.create()
     subprocess.run(
         [
             venv.conan,
-            "build",
+            "create",
             "--build=missing",
             "--profile:all",
             profile,
@@ -28,4 +28,4 @@ def build(profile: str) -> None:
 
 if __name__ == "__main__":
     profile = import_module("profile")
-    build(profile.get_profile())
+    install(profile.get_profile())

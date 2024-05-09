@@ -2,11 +2,12 @@
 
 import os
 import subprocess
-import this_venv as venv
+from importlib import import_module
 
 
 def clear_cache() -> None:
     """Clear the Conan cache"""
+    venv = import_module("this_venv")
     if not venv.exists():
         venv.create()
     subprocess.run([venv.conan, "remove", "--confirm", "*"])

@@ -1,6 +1,5 @@
 """___package_name___ test package Conan file"""
 
-
 from os.path import join as join_path
 from typing import List
 
@@ -10,7 +9,8 @@ from conan.tools.files import copy as copy_file
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.meson import Meson, MesonToolchain
 
-required_conan_version = ">=2.0.6"  # pylint: disable=invalid-name
+
+required_conan_version = ">=2.0.0"
 
 
 class ___package_name___TestPackage(ConanFile):
