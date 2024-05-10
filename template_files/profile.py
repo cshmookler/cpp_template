@@ -5,8 +5,8 @@ import os
 from sys import argv as args
 
 
-config_path = "profile.ini"
-default = os.path.join("profiles", "default.profile")
+config_path: str = "profile.ini"
+default_profile: str = os.path.join("profiles", "default.profile")
 
 
 def set_profile(profile: str) -> None:
@@ -23,13 +23,13 @@ def get_profile() -> str:
     parser = ConfigParser()
     parser.read(config_path)
     if not parser.has_option("profile", "profile"):
-        set_profile(default)
-        return default
+        set_profile(default_profile)
+        return default_profile
     return parser["profile"]["profile"]
 
 
 if __name__ == "__main__":
-    previous_profile: str = get_profile()
-    new_profile: str = default if len(args) <= 1 else args[1]
+    old_profile: str = get_profile()
+    new_profile: str = default_profile if len(args) <= 1 else args[1]
     set_profile(new_profile)
-    print(previous_profile + " -> " + new_profile)
+    print(old_profile + " -> " + new_profile)

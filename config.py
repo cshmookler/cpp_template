@@ -177,7 +177,6 @@ def configure_template(path: str, config: Dict[str, str]) -> None:
     active_escape: Union[EscapeInfo, NoneType] = None
     read_so_far: str = ""
     cols_since_newline = 0
-    # newline: int = 0
     newlines_so_far: int = 0
     id_start: int = 0
 
@@ -187,7 +186,6 @@ def configure_template(path: str, config: Dict[str, str]) -> None:
         cols_since_newline += 1
 
         if c == newline_char:
-            # newline = len(read_so_far)
             newlines_so_far += 1
             cols_since_newline = 0
 
@@ -199,9 +197,6 @@ def configure_template(path: str, config: Dict[str, str]) -> None:
                 id_start : -len(active_escape.postfix)
             ].strip()
 
-            # if active_escape.replace_line:
-            #     cutoff_i: int = max(0, newline)
-            # else:
             cutoff_i: int = id_start - len(active_escape.prefix)
 
             if id not in config:
@@ -218,11 +213,7 @@ def configure_template(path: str, config: Dict[str, str]) -> None:
                 )
 
             id_value: str = config[id]
-            # if active_escape.insert_quotations:
-            #     id_value = '"' + id_value + '"'
-
             read_so_far = read_so_far[:cutoff_i] + id_value
-
             active_escape = None
 
         e: EscapeInfo
@@ -309,8 +300,10 @@ def configure():
         join("profiles", "default.profile.tmpl"),
         config,
     )
-    configure_template("clean.py.tmpl", config)
     if config["package_type"] == "application":
+        configure_template("clean-app.py.tmpl", config)
+        rename("clean-app.py", "clean.py")
+        remove("clean-lib.py.tmpl")
         configure_template(
             join("src", "main.cpp.tmpl"),
             config,
@@ -320,6 +313,9 @@ def configure():
         shutil.rmtree("test_package")
         remove("install.py")
     else:
+        configure_template("clean-lib.py.tmpl", config)
+        rename("clean-lib.py", "clean.py")
+        remove("clean-app.py.tmpl")
         remove(join("src", "main.cpp.tmpl"))
         configure_template(
             join("test_package", "conanfile.py.tmpl"),

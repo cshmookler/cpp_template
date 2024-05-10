@@ -1,0 +1,23 @@
+"""Remove build files"""
+
+import os
+from shutil import rmtree
+
+
+def remove(file: str) -> None:
+    """Remove a file and ignore errors"""
+    try:
+        os.remove(file)
+    except FileNotFoundError:
+        pass
+
+
+def clean() -> None:
+    """Remove build files"""
+    rmtree("build", ignore_errors=True)
+    remove(os.path.join("___version_header_dir___", "version.hpp"))
+    remove("compile_commands.json")
+
+
+if __name__ == "__main__":
+    clean()

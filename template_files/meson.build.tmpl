@@ -29,8 +29,7 @@ project_deps = []
 foreach dep : project_dep_strings
     project_deps += dependency(
         dep[0],
-        modules : dep[1],
-        version : dep[2],
+        version : dep[1],
         required : true,
         method : 'auto',
     )

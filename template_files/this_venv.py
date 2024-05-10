@@ -6,10 +6,10 @@ import subprocess
 from venv import EnvBuilder
 
 
-path = ".venv"
-python = os.path.join(path, "bin", "pip")
-pip = os.path.join(path, "bin", "pip")
-conan = os.path.join(path, "bin", "conan")
+path: str = ".venv"
+python: str = os.path.join(path, "bin", "python")
+pip: str = os.path.join(path, "bin", "pip")
+conan: str = os.path.join(path, "bin", "conan")
 
 
 def create() -> None:
