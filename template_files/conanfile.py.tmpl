@@ -1,8 +1,6 @@
 """___package_name___ root Conan file"""
 
-from ast import literal_eval
-from configparser import ConfigParser
-from dataclasses import dataclass, field
+from importlib import import_module
 import os
 from typing import List, Dict
 
@@ -15,15 +13,6 @@ from conan.tools.scm import Git
 
 
 required_conan_version = ">=2.0.0"
-
-
-@dataclass
-class Dependency:
-    """Dependency information"""
-
-    name: str
-    version: str
-    status: bool
 
 
 class ___package_name___(ConanFile):
@@ -42,21 +31,31 @@ class ___package_name___(ConanFile):
     # Configuration
     package_type = "___package_type___"
     settings = "os", "compiler", "build_type", "arch"
-    options = {"shared": [True, False], "fPIC": [True, False]}
-    default_options = {"shared": False, "fPIC": True}
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+        "quit_after_generate": [True, False],
+    }
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+        "quit_after_generate": False,
+    }
     build_policy = "missing"
 
     # Essential files
     exports_sources = (
-        ".git/*",
-        name + "/*",
-        "src/*",
+        os.path.join(".git", "*"),
+        os.path.join(name, "*"),
+        os.path.join("src", "*"),
+        "update_deps.py",
+        "dependencies.ini",
         "meson.build",
         "LICENSE",
     )
 
-    # Other
-    _dependencies: List[str] = ["<< dependencies >>"]
+    # External imports
+    _dep_module = import_module("update_deps")
 
     def set_version(self):
         """Get project version from Git"""
@@ -82,65 +81,42 @@ class ___package_name___(ConanFile):
         self.tool_requires("pkgconf/2.0.3")
 
     def requirements(self):
-        """Declare library dependencies"""
-        for dep in self._dependencies:
-            self.requires(dep)
+        """Resolve and declare dependencies"""
+        dependency_file = os.path.join(self.recipe_folder, "dependencies.ini")
+
+        self._declared_deps = self._dep_module.Dependencies(dependency_file)
+        self._declared_deps.read()
+
+        for dep in self._declared_deps.explicit:
+            if dep.status:
+                self.requires(dep.name + "/" + dep.version)
 
     def layout(self):
         """Set the layout of the build files"""
         self.folders.build = os.path.join(self.recipe_folder, "build")
         self.folders.generators = os.path.join(self.folders.build, "generators")
-        self._dependency_config = os.path.join(
-            self.recipe_folder, "dependencies.ini"
-        )
-
-    def _read_dep_config(self) -> List[Dependency]:
-        """Reads dependency information from the dependency configuration file"""
-        deps: List[Dependency] = []
-        parser = ConfigParser()
-        parser.read(self._dependency_config)
-        section = parser["dependencies"]
-        for dep in section:
-            name = dep.rsplit("/", 1)[0]
-            version = dep.rsplit("/", 1)[1]
-            status = True if section[dep] == "yes" else False
-            deps.append(Dependency(name, version, status))
-        return deps
-
-    def _write_dep_config(self, deps: List[Dependency]) -> None:
-        """Write dependency information to the dependency configuration file"""
-        parser = ConfigParser()
-        parser.add_section("dependencies")
-        for dep in deps:
-            key = dep.name + "/" + dep.version
-            value = "yes" if dep.status else "no"
-            parser["dependencies"][key] = value
-        with open(self._dependency_config, "w") as config_file:
-            parser.write(config_file, space_around_delimiters=True)
 
     def generate(self):
         """Generate the build system"""
         deps = PkgConfigDeps(self)
         deps.generate()
 
-        meson_dep_dict: Dict[str, Dependency] = {}
+        meson_dep_dict = {}
         for package_conf, content in deps.content.items():
             dep_name = content.split("\nName")[1].split("\n")[0].strip(": ")
-            meson_dep_dict[dep_name] = Dependency(
+            meson_dep_dict[dep_name] = self._dep_module.Dependency(
                 dep_name,
                 content.split("\nVersion")[1].split("\n")[0].strip(": "),
                 True,
             )
 
-        if os.path.isfile(self._dependency_config):
-            # Merge dependencies from the configuration file with dependencies from Conan
-            user_deps: List[Dependency] = self._read_dep_config()
-            for dep in user_deps:
-                if dep.name in meson_dep_dict:
-                    meson_dep_dict[dep.name].status = dep.status
+        for dep in self._declared_deps.implicit:
+            if dep.name in meson_dep_dict:
+                meson_dep_dict[dep.name].status = dep.status
 
-        meson_dep_list: List[Dependency] = list(meson_dep_dict.values())
-        self._write_dep_config(meson_dep_list)
+        meson_dep_list = list(meson_dep_dict.values())
+        self._declared_deps.implicit = meson_dep_list
+        self._declared_deps.write()
 
         meson_deps_classless = [
             [dep.name, dep.version] for dep in meson_dep_list if dep.status
@@ -154,6 +130,9 @@ class ___package_name___(ConanFile):
             "_deps": meson_deps_classless,
         }
         toolchain.generate()
+
+        if self.options.quit_after_generate:
+            exit(0)
 
     def build(self):
         """Build the test project"""

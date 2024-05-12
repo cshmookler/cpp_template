@@ -3,8 +3,9 @@
 from ast import literal_eval
 from configparser import ConfigParser
 from dataclasses import dataclass
+from importlib import import_module
 from os import remove, rename, listdir
-from os.path import join
+from os.path import join, dirname
 import platform
 import shutil
 import subprocess
@@ -15,6 +16,7 @@ from types import NoneType
 
 def inline_print(return_val: Any, print_msg: str) -> Any:
     """Prints a given message and returns a given value."""
+    print(print_msg)
     return return_val
 
 
@@ -158,7 +160,6 @@ class InvalidTemplateFile(Exception):
 
 def configure_template(path: str, config: Dict[str, str]) -> None:
     """Insert configuration information into the provided template file."""
-
     template_file_extension = ".tmpl"
     if not path.endswith(template_file_extension):
         raise InvalidTemplateFile(
@@ -227,10 +228,10 @@ def configure_template(path: str, config: Dict[str, str]) -> None:
 
     template.close()
 
-    # Remove template file.
+    # Remove the template file.
     remove(path)
 
-    # Write to new file.
+    # Write to a new file.
     template = open(
         path.removesuffix(template_file_extension),
         mode="w",
@@ -269,8 +270,8 @@ def configure():
     cmd(["git", "init", "--initial-branch", "main"])
 
     # Unpack template files.
-    for f in listdir("template_files"):
-        shutil.move(join("template_files", f), f)
+    for file in listdir("template_files"):
+        shutil.move(join("template_files", file), file)
     shutil.rmtree("template_files")
 
     # Generate a LICENSE file if the selected license is 'Zlib'.
@@ -329,6 +330,18 @@ def configure():
             join("___package_name___"),
             join(config["package_name"]),
         )
+
+    # Declare explicit dependencies
+    dep_module = import_module("update_deps")
+    explicit_deps = []
+    for dep in literal_eval(config["dependencies"]):
+        name, version = dep.rsplit("/", 1)
+        explicit_deps.append(dep_module.Dependency(name, version, True))
+    deps = dep_module.Dependencies(
+        join(dirname(__file__), "dependencies.ini"),
+        explicit=explicit_deps,
+    )
+    deps.write()
 
 
 if __name__ == "__main__":

@@ -3,9 +3,10 @@
 from importlib import import_module
 import os
 import subprocess
+from typing import List
 
 
-def build(profile: str) -> None:
+def build(profile: str, extra_args: List[str] = []) -> None:
     """Build this project using Conan"""
     venv = import_module("this_venv")
     if not venv.exists():
@@ -21,8 +22,9 @@ def build(profile: str) -> None:
             "tools.system.package_manager:mode=install",
             "--conf:host",
             "tools.system.package_manager:sudo=True",
-            os.curdir,
+            os.curdir,  # TODO: os.path.dirname(__file__)
         ]
+        + extra_args
     )
 
 
