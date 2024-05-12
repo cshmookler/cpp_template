@@ -6,7 +6,7 @@ import subprocess
 from venv import EnvBuilder
 
 
-path: str = ".venv"
+path: str = os.path.join(os.path.dirname(__file__), ".venv")
 python: str = os.path.join(path, "bin", "python")
 pip: str = os.path.join(path, "bin", "pip")
 conan: str = os.path.join(path, "bin", "conan")

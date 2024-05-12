@@ -14,6 +14,9 @@ from typing import Dict, List, KeysView, Union, Callable, Any
 from types import NoneType
 
 
+this_dir: str = dirname(__file__)
+
+
 def inline_print(return_val: Any, print_msg: str) -> Any:
     """Prints a given message and returns a given value."""
     print(print_msg)
@@ -76,7 +79,7 @@ def assert_none_missing(
 
 def get_config() -> Dict[str, str]:
     """Retrieve configuration information."""
-    ini_file: str = "template_config.ini"
+    ini_file: str = join(this_dir, "template_config.ini")
     section_name: str = "template_config"
     expected_configs: Dict[str, ConfigInfo] = {
         "operating_system": ConfigInfo(default=platform.system()),
@@ -259,76 +262,80 @@ def configure():
     config = get_config()
 
     # Remove unnecessary files.
-    shutil.rmtree(".git")
-    remove(".gitattributes")
-    remove("config.py")
-    remove("LICENSE")
-    remove("README.md")
-    remove("template_config.ini")
+    shutil.rmtree(join(this_dir, ".git"))
+    remove(join(this_dir, ".gitattributes"))
+    remove(join(this_dir, "config.py"))
+    remove(join(this_dir, "LICENSE"))
+    remove(join(this_dir, "README.md"))
+    remove(join(this_dir, "template_config.ini"))
 
     # Create a fresh git repository.
-    cmd(["git", "init", "--initial-branch", "main"])
+    cmd(["git", "init", "--initial-branch", "main", this_dir])
 
     # Unpack template files.
-    for file in listdir("template_files"):
-        shutil.move(join("template_files", file), file)
-    shutil.rmtree("template_files")
+    for file in listdir(join(this_dir, "template_files")):
+        shutil.move(
+            join(this_dir, "template_files", file), join(this_dir, file)
+        )
+    shutil.rmtree(join(this_dir, "template_files"))
 
     # Generate a LICENSE file if the selected license is 'Zlib'.
     if config["license"] == "Zlib":
-        configure_template("LICENSE.tmpl", config)
+        configure_template(join(this_dir, "LICENSE.tmpl"), config)
     else:
-        remove("LICENSE.tmpl")
+        remove(join(this_dir, "LICENSE.tmpl"))
 
     # Configure templates.
     configure_template(
-        join("___package_name___", "version.hpp.in.tmpl"),
+        join(this_dir, "___package_name___", "version.hpp.in.tmpl"),
         config,
     )
     configure_template(
-        join("src", "version.cpp.tmpl"),
+        join(this_dir, "src", "version.cpp.tmpl"),
         config,
     )
     configure_template(
-        join("src", "version.test.cpp.tmpl"),
+        join(this_dir, "src", "version.test.cpp.tmpl"),
         config,
     )
-    configure_template("conanfile.py.tmpl", config)
-    configure_template("meson.build.tmpl", config)
-    configure_template(".gitignore.tmpl", config)
-    configure_template("README.md.tmpl", config)
+    configure_template(join(this_dir, "conanfile.py.tmpl"), config)
+    configure_template(join(this_dir, "meson.build.tmpl"), config)
+    configure_template(join(this_dir, ".gitignore.tmpl"), config)
+    configure_template(join(this_dir, "README.md.tmpl"), config)
     configure_template(
-        join("profiles", "default.profile.tmpl"),
+        join(this_dir, "profiles", "default.profile.tmpl"),
         config,
     )
     if config["package_type"] == "application":
-        configure_template("clean-app.py.tmpl", config)
-        rename("clean-app.py", "clean.py")
-        remove("clean-lib.py.tmpl")
+        configure_template(join(this_dir, "clean-app.py.tmpl"), config)
+        rename(join(this_dir, "clean-app.py"), join(this_dir, "clean.py"))
+        remove(join(this_dir, "clean-lib.py.tmpl"))
         configure_template(
-            join("src", "main.cpp.tmpl"),
+            join(this_dir, "src", "main.cpp.tmpl"),
             config,
         )
-        shutil.move(join("___package_name___", "version.hpp.in"), "src")
-        shutil.rmtree("___package_name___")
-        shutil.rmtree("test_package")
-        remove("install.py")
+        shutil.move(
+            join(this_dir, "___package_name___", "version.hpp.in"), "src"
+        )
+        shutil.rmtree(join(this_dir, "___package_name___"))
+        shutil.rmtree(join(this_dir, "test_package"))
+        remove(join(this_dir, "install.py"))
     else:
-        configure_template("clean-lib.py.tmpl", config)
-        rename("clean-lib.py", "clean.py")
-        remove("clean-app.py.tmpl")
-        remove(join("src", "main.cpp.tmpl"))
+        configure_template(join(this_dir, "clean-lib.py.tmpl"), config)
+        rename(join(this_dir, "clean-lib.py"), join(this_dir, "clean.py"))
+        remove(join(this_dir, "clean-app.py.tmpl"))
+        remove(join(this_dir, "src", "main.cpp.tmpl"))
         configure_template(
-            join("test_package", "conanfile.py.tmpl"),
+            join(this_dir, "test_package", "conanfile.py.tmpl"),
             config,
         )
         configure_template(
-            join("test_package", "src", "main.cpp.tmpl"),
+            join(this_dir, "test_package", "src", "main.cpp.tmpl"),
             config,
         )
         rename(
-            join("___package_name___"),
-            join(config["package_name"]),
+            join(this_dir, "___package_name___"),
+            join(this_dir, config["package_name"]),
         )
 
     # Declare explicit dependencies
@@ -338,7 +345,7 @@ def configure():
         name, version = dep.rsplit("/", 1)
         explicit_deps.append(dep_module.Dependency(name, version, True))
     deps = dep_module.Dependencies(
-        join(dirname(__file__), "dependencies.ini"),
+        join(this_dir, "dependencies.ini"),
         explicit=explicit_deps,
     )
     deps.write()

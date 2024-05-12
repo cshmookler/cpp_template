@@ -99,8 +99,8 @@ See the official [Conan FAQ](https://docs.conan.io/2/knowledge/faq.html) for hel
 
 - [X] Proper GoogleTest integration.
 - [X] Update the year in the LICENSE file.
-- [ ] Some dependencies fail to build from source (may just be a Conan problem).
+- [X] ~~Some dependencies fail to build from source~~ Resolved by remote recipes adapting to Conan 2.
 - [X] Provide options for controlling what modules are linked from dependencies.
-- [ ] Allow a template to be configured multiple times.
 - [X] Provide a more intuitive method for adding more executables, libraries and tests.
+- [ ] Allow a template to be configured multiple times.
 

@@ -1,6 +1,5 @@
 """Clear the Conan cache"""
 
-import os
 import subprocess
 from importlib import import_module
 

@@ -14,9 +14,11 @@ def remove(file: str) -> None:
 
 def clean() -> None:
     """Remove build files"""
-    rmtree("build", ignore_errors=True)
-    remove(os.path.join("___version_header_dir___", "version.hpp"))
-    remove("compile_commands.json")
+    this_dir: str = os.path.dirname(__file__)
+    rmtree(os.path.join(this_dir, "build"), ignore_errors=True)
+    rmtree(os.path.join(this_dir, "__pycache__"))
+    remove(os.path.join(this_dir, "___version_header_dir___", "version.hpp"))
+    remove(os.path.join(this_dir, "compile_commands.json"))
 
 
 if __name__ == "__main__":

@@ -71,14 +71,16 @@ class Dependencies:
         with open(self.file_path, "w") as config_file:
             config_file.write(
                 "# Find explicit dependencies at https://conan.io/center\n"
-                "# Implicit dependencies are identified during the build process\n\n"
+                "# Implicit dependencies are identified during the build process or by running the update_deps.py script\n\n"
             )
             parser.write(config_file, space_around_delimiters=True)
 
 
 if __name__ == "__main__":
+    """Update implicit dependencies in the dependencies configuration file (dependencies.ini)"""
     build = import_module("build")
     profile = import_module("profile")
     build.build(
-        profile.get_profile(), ["--options:all", "quit_after_generate=True"]
+        profile.get_profile(),
+        extra_args=["--options:all", "quit_after_generate=True"],
     )

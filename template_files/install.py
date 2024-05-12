@@ -5,6 +5,9 @@ import os
 import subprocess
 
 
+this_dir: str = os.path.dirname(__file__)
+
+
 def install(profile: str) -> None:
     """Install this project using Conan"""
     venv = import_module("this_venv")
@@ -21,7 +24,7 @@ def install(profile: str) -> None:
             "tools.system.package_manager:mode=install",
             "--conf:host",
             "tools.system.package_manager:sudo=True",
-            os.curdir,
+            os.path.dirname(__file__),
         ]
     )
 

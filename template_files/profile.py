@@ -5,15 +5,17 @@ import os
 from sys import argv as args
 
 
-config_path: str = "profile.ini"
-default_profile: str = os.path.join("profiles", "default.profile")
+config_path: str = os.path.join(os.path.dirname(__file__), "profile.ini")
+default_profile: str = os.path.join(
+    os.path.dirname(__file__), "profiles", "default.profile"
+)
 
 
 def set_profile(profile: str) -> None:
     """Set the path to the active Conan profile"""
     parser = ConfigParser()
     parser.add_section("profile")
-    parser["profile"]["profile"] = profile
+    parser["profile"]["profile"] = os.path.abspath(profile)
     with open(config_path, "w") as ini_file:
         parser.write(ini_file, space_around_delimiters=True)
 

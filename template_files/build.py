@@ -6,6 +6,9 @@ import subprocess
 from typing import List
 
 
+this_dir: str = os.path.dirname(__file__)
+
+
 def build(profile: str, extra_args: List[str] = []) -> None:
     """Build this project using Conan"""
     venv = import_module("this_venv")
@@ -22,7 +25,7 @@ def build(profile: str, extra_args: List[str] = []) -> None:
             "tools.system.package_manager:mode=install",
             "--conf:host",
             "tools.system.package_manager:sudo=True",
-            os.curdir,  # TODO: os.path.dirname(__file__)
+            os.path.dirname(__file__),
         ]
         + extra_args
     )

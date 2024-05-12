@@ -12,6 +12,8 @@ from conan.tools.meson import Meson, MesonToolchain
 from conan.tools.scm import Git
 
 
+this_dir: str = os.path.dirname(__file__)
+
 required_conan_version = ">=2.0.0"
 
 
@@ -43,18 +45,21 @@ class ___package_name___(ConanFile):
     }
     build_policy = "missing"
 
-    # Essential files
-    exports_sources = (
+    # Files needed by Conan to resolve version and dependencies
+    exports = (
         os.path.join(".git", "*"),
-        os.path.join(name, "*"),
-        os.path.join("src", "*"),
         "update_deps.py",
         "dependencies.ini",
-        "meson.build",
-        "LICENSE",
     )
 
-    # External imports
+    # Files needed by Conan to build from source
+    exports_sources = (
+        os.path.join(name, "*"),
+        os.path.join("src", "*"),
+        "meson.build",
+    )
+
+    # External includes
     _dep_module = import_module("update_deps")
 
     def set_version(self):
