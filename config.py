@@ -4,10 +4,12 @@ from ast import literal_eval
 from configparser import ConfigParser
 from dataclasses import dataclass
 from importlib import import_module
+import os
 from os import remove, rename, listdir
 from os.path import join, dirname
 import platform
 import shutil
+import stat
 import subprocess
 import time
 from typing import Dict, List, KeysView, Union, Callable, Any
@@ -257,17 +259,23 @@ def cmd(args: List[str]) -> None:
         raise CommandFailure("Command failed: " + str(args))
 
 
+def shutil_onerror(func, path, exc_info):
+    """On access error, add write permissions and try again"""
+    if os.access(path, os.W_OK):
+        raise
+    os.chmod(path, stat.S_IWUSR)
+    func(path)
+
+
 def configure():
     """Configure this template project"""
     config = get_config()
 
     # Remove unnecessary files.
-    shutil.rmtree(join(this_dir, ".git"))
+    shutil.rmtree(join(this_dir, ".git"), onerror=shutil_onerror)
     remove(join(this_dir, ".gitattributes"))
-    remove(join(this_dir, "config.py"))
     remove(join(this_dir, "LICENSE"))
     remove(join(this_dir, "README.md"))
-    remove(join(this_dir, "template_config.ini"))
 
     # Create a fresh git repository.
     cmd(["git", "init", "--initial-branch", "main", this_dir])
@@ -349,6 +357,10 @@ def configure():
         explicit=explicit_deps,
     )
     deps.write()
+
+    # Remove this configuration script and the cooresponding .ini file once all previous operations succeeded.
+    remove(join(this_dir, "config.py"))
+    remove(join(this_dir, "template_config.ini"))
 
 
 if __name__ == "__main__":
