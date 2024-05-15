@@ -1,12 +1,18 @@
 """Set the Conan profile for this project"""
 
 from configparser import ConfigParser
+from importlib import import_module
 import os
 from sys import argv as args
 
 
 config_path: str = os.path.join(os.path.dirname(__file__), "profile.ini")
-default_profile: str = os.path.join("default.profile")
+default_profile: str = "default.profile"
+
+
+def abs_path_to_profile(relative_path: str) -> str:
+    """Determines the absolute path to the given profile relative to the profile directory"""
+    return os.path.join(os.path.dirname(__file__), "profiles", relative_path)
 
 
 def set_profile(profile: str) -> None:
@@ -27,7 +33,16 @@ def get_profile() -> str:
     else:
         set_profile(default_profile)
         profile = default_profile
-    return os.path.join(os.path.dirname(__file__), "profiles", profile)
+    return abs_path_to_profile(profile)
+
+
+def generate_default() -> None:
+    """Use Conan to automatically generate the default profile"""
+    """This method requires the Conan API"""
+    with open(abs_path_to_profile(default_profile), "w") as profile:
+        profile.write(
+            import_module("conan.api.conan_api").ProfilesAPI.detect().dumps()
+        )
 
 
 if __name__ == "__main__":
