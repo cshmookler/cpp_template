@@ -84,8 +84,6 @@ def get_config() -> Dict[str, str]:
     ini_file: str = join(this_dir, "template_config.ini")
     section_name: str = "template_config"
     expected_configs: Dict[str, ConfigInfo] = {
-        "operating_system": ConfigInfo(default=platform.system()),
-        "architecture": ConfigInfo(default=platform.machine()),
         "package_name": ConfigInfo(
             default="cpp_template", constraint=valid_identifier_name
         ),
@@ -310,10 +308,6 @@ def configure():
     configure_template(join(this_dir, "meson.build.tmpl"), config)
     configure_template(join(this_dir, ".gitignore.tmpl"), config)
     configure_template(join(this_dir, "README.md.tmpl"), config)
-    configure_template(
-        join(this_dir, "profiles", "default.profile.tmpl"),
-        config,
-    )
     if config["package_type"] == "application":
         configure_template(join(this_dir, "clean-app.py.tmpl"), config)
         rename(join(this_dir, "clean-app.py"), join(this_dir, "clean.py"))
