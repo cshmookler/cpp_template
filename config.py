@@ -346,7 +346,7 @@ def configure():
             join(this_dir, config["package_name"]),
         )
 
-    # Declare explicit dependencies
+    # Declare explicit dependencies.
     dep_module = import_module("update_deps")
     explicit_deps = []
     for dep in literal_eval(config["dependencies"]):
@@ -358,7 +358,7 @@ def configure():
     )
     deps.write()
 
-    # Remove this configuration script and the cooresponding .ini file once all previous operations succeeded.
+    # Remove this configuration script and the cooresponding .ini file once all previous operations have succeeded.
     remove(join(this_dir, "config.py"))
     remove(join(this_dir, "template_config.ini"))
 

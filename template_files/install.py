@@ -15,7 +15,7 @@ def install(profile: str) -> None:
         venv.create()
     subprocess.run(
         [
-            venv.conan,
+            venv.conan(),
             "create",
             "--build=missing",
             "--profile:all",

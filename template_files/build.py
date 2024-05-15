@@ -16,7 +16,7 @@ def build(profile: str, extra_args: List[str] = []) -> None:
         venv.create()
     subprocess.run(
         [
-            venv.conan,
+            venv.conan(),
             "build",
             "--build=missing",
             "--profile:all",
