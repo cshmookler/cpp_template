@@ -304,11 +304,15 @@ def configure():
         join(this_dir, "src", "version.test.cpp.tmpl"),
         config,
     )
-    configure_template(join(this_dir, "conanfile.py.tmpl"), config)
     configure_template(join(this_dir, "meson.build.tmpl"), config)
     configure_template(join(this_dir, ".gitignore.tmpl"), config)
     configure_template(join(this_dir, "README.md.tmpl"), config)
     if config["package_type"] == "application":
+        configure_template(join(this_dir, "conanfile-app.py.tmpl"), config)
+        rename(
+            join(this_dir, "conanfile-app.py"), join(this_dir, "conanfile.py")
+        )
+        remove(join(this_dir, "conanfile-lib.py.tmpl"))
         configure_template(join(this_dir, "clean-app.py.tmpl"), config)
         rename(join(this_dir, "clean-app.py"), join(this_dir, "clean.py"))
         remove(join(this_dir, "clean-lib.py.tmpl"))
@@ -323,6 +327,11 @@ def configure():
         shutil.rmtree(join(this_dir, "test_package"))
         remove(join(this_dir, "install.py"))
     else:
+        configure_template(join(this_dir, "conanfile-lib.py.tmpl"), config)
+        rename(
+            join(this_dir, "conanfile-lib.py"), join(this_dir, "conanfile.py")
+        )
+        remove(join(this_dir, "conanfile-app.py.tmpl"))
         configure_template(join(this_dir, "clean-lib.py.tmpl"), config)
         rename(join(this_dir, "clean-lib.py"), join(this_dir, "clean.py"))
         remove(join(this_dir, "clean-app.py.tmpl"))
