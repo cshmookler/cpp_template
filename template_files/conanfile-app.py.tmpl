@@ -125,7 +125,7 @@ class ___package_name___(ConanFile):
             exit(0)
 
     def build(self):
-        """Build the test project"""
+        """Build this project"""
         self._build_folder = os.path.join(self.recipe_folder, "build")
         meson = Meson(self)
         meson.configure()
@@ -143,12 +143,3 @@ class ___package_name___(ConanFile):
             self.source_folder,
         )
         meson.test()
-
-    def package(self):
-        """Install project headers and compiled libraries"""
-        meson = Meson(self)
-        meson.install()
-
-    def package_info(self):
-        """Package information"""
-        self.cpp_info.bindirs = ["bin"]
