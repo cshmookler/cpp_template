@@ -25,9 +25,9 @@ This project template includes:
 
 ## Setup
 
-#### 1.&nbsp; Install Git, Python, and a C++ compiler
+### 1.&nbsp; Install Git, Python, and a C++ compiler
 
-###### Windows:
+#### Windows:
 
 Install Git and Python:
 
@@ -43,7 +43,7 @@ Install one of the following C++ compilers:
     - Mark "mingw32-gcc-g++" for installation. Then select "Apply Changes" within the "Installation" dropdown.
     - Add the MinGW bin directory (C:\\MinGW\\bin\\) to your [PATH](https://stackoverflow.com/questions/5733220/how-do-i-add-the-mingw-bin-directory-to-my-system-path).
 
-###### Mac:
+#### Mac:
 
 Install [Homebrew](https://brew.sh/) (package manager for Mac) by opening a terminal and entering the following command:
 
@@ -57,19 +57,19 @@ Use Homebrew to install Git, Python, and GCC (C++ compiler):
 brew install git python gcc
 ```
 
-###### Linux (Ubuntu):
+#### Linux (Ubuntu):
 
 ```bash
 sudo apt install git python3 build-essential
 ```
 
-###### Linux (Arch):
+#### Linux (Arch):
 
 ```bash
 sudo pacman -S git python base-devel
 ```
 
-#### 2.&nbsp; Clone this template
+### 2.&nbsp; Clone this template
 
 Open command prompt (Windows) or a shell (Linux & Mac) and enter the commands below. The template will be downloaded to the current working directory.
 
@@ -78,29 +78,29 @@ git clone https://github.com/cshmookler/cpp_template.git
 cd cpp_template
 ```
 
-#### 3.&nbsp; Edit "template_config.ini" to suit your project
+### 3.&nbsp; Edit "template_config.ini" to suit your project
 
 Any text editor (Notepad, TextEdit, Nano, Vim, etc.) can be used as long as the file name and format are not changed.
 
-###### Windows:
+#### Windows:
 
 ```shell
 notepad template_config.ini
 ```
 
-###### Mac:
+#### Mac:
 
 ```zsh
 open -t template_config.ini
 ```
 
-###### Linux:
+#### Linux:
 
 ```bash
 nano template_config.ini
 ```
 
-#### 4.&nbsp; Configure this template
+### 4.&nbsp; Configure this template
 
 Use Python to execute the "config.py" script. Use command prompt (Windows) or a shell (Mac & Linux) so errors are shown.
 
@@ -120,17 +120,17 @@ python build.py
 
 ## Manage Dependencies
 
-#### Add dependencies
+### Add dependencies
 
 Browse [Conan Center](https://conan.io/center/) (the Conan central repository) for dependencies. Use the search bar to find the "name/version" of the dependencies you would like to add (example: "boost/1.85.0").
 
 Open the "dependencies.ini" file and add the dependencies underneath the "[explicit]" tag. Each dependency must be on its own line and be of the form "name/version = yes".
 
-#### Remove dependencies
+### Remove dependencies
 
 Open the "dependencies.ini" file and change the cooresponding "yes" to "no". Alternatively, delete the lines containing the dependencies.
 
-#### Update implicit dependencies
+### Update implicit dependencies
 
 Implicit dependencies are required dependencies of those that are explicitly declared. The list of implicit dependencies in the "dependencies.ini" file is automatically updated after each build.
 
