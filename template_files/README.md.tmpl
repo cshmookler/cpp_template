@@ -2,80 +2,66 @@
 
 ___description___
 
-## **Build and install this project with Conan (for Unix-like systems)**
+## Build from Source
 
-**1.** Install Clang, Git, and Python >=3.7 (Example: Ubuntu).
+#### 1.&nbsp; Install Git, Python, and a C++ compiler
+
+###### Windows:
+
+Install Git and Python:
+
+1. [Git](https://git-scm.com/downloads/) (distributed version control)
+2. [Python](https://python.org/downloads/) (interpreted scripting language)
+    - Select the "Add python.exe to PATH" option.
+
+Install one of the following C++ compilers:
+
+- [Visual Studio's C++ compiler](https://visualstudio.microsoft.com/downloads/) (MSVC)
+    - Select the "Desktop development with C++" option.
+- [MinGW](https://sourceforge.net/projects/mingw/) (GCC for Windows)
+    - Mark "mingw32-gcc-g++" for installation. Then select "Apply Changes" within the "Installation" dropdown.
+    - Add the MinGW bin directory (C:\\MinGW\\bin\\) to your [PATH](https://stackoverflow.com/questions/5733220/how-do-i-add-the-mingw-bin-directory-to-my-system-path).
+
+###### Mac:
+
+Install [Homebrew](https://brew.sh/) (package manager for Mac) by opening a terminal and entering the following command:
+
+```zsh
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
+Use Homebrew to install Git, Python, and GCC (C++ compiler):
+
+```zsh
+brew install git python gcc
+```
+
+###### Linux (Ubuntu):
 
 ```bash
-sudo apt install -y clang git python3
+sudo apt install git python3 build-essential
 ```
 
-**2.** Run the build script.
+###### Linux (Arch):
 
 ```bash
-python3 build.py
+sudo pacman -S git python base-devel
 ```
 
-<details>
-<summary> <strong>Click here if you get an error while building</strong> </summary>
+#### 2.&nbsp; Clone this template
 
-#### Failed to build dependency from source
+Open command prompt (Windows) or a shell (Linux & Mac) and enter the commands below. The template will be downloaded to the current working directory.
 
 ```
-CMake Error at /usr/local/share/cmake-3.26/Modules/CmakeTestCXXCompiler.cmake:60 (message):
-  The C++ compiler
-
-    "/usr/bin/c++"
-
-  is not able to compile a simple test program.
+git clone ___url___
+cd ___package_name___
 ```
 
-<details>
-<summary> <strong>Click here if this is your error</strong> </summary>
+#### 3.&nbsp; Build from source
 
-A dependency likely passed invalid compiler flags. Try using a different compiler.
-
-**1.** Clear the Conan cache.
-
-```bash
-python3 clear_cache.py
 ```
-
-**2.** Remove build files.
-
-```bash
-python3 clean.py
+python build.py
 ```
-
-**3.** Set a different compiler for CMake to use.
-
-- For Clang:
-
-```bash
-export CC=clang
-export CXX=clang++
-```
-
-- For GCC:
-
-```bash
-export CC=gcc
-export CXX=g++
-```
-
-**4.** Rerun the build script.
-
-```bash
-python3 build.py
-```
-
-</details>
-
-#### Conan related error
-
-See the official [Conan FAQ](https://docs.conan.io/2/knowledge/faq.html) for help with common errors.
-
-</details>
 
 ## **TODO**
 
