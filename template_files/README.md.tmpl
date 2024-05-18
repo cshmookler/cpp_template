@@ -4,9 +4,9 @@ ___description___
 
 ## Build from Source
 
-#### 1.&nbsp; Install Git, Python, and a C++ compiler
+### 1.&nbsp; Install Git, Python, and a C++ compiler
 
-###### Windows:
+#### Windows:
 
 Install Git and Python:
 
@@ -22,7 +22,7 @@ Install one of the following C++ compilers:
     - Mark "mingw32-gcc-g++" for installation. Then select "Apply Changes" within the "Installation" dropdown.
     - Add the MinGW bin directory (C:\\MinGW\\bin\\) to your [PATH](https://stackoverflow.com/questions/5733220/how-do-i-add-the-mingw-bin-directory-to-my-system-path).
 
-###### Mac:
+#### Mac:
 
 Install [Homebrew](https://brew.sh/) (package manager for Mac) by opening a terminal and entering the following command:
 
@@ -36,19 +36,19 @@ Use Homebrew to install Git, Python, and GCC (C++ compiler):
 brew install git python gcc
 ```
 
-###### Linux (Ubuntu):
+#### Linux (Ubuntu):
 
 ```bash
 sudo apt install git python3 build-essential
 ```
 
-###### Linux (Arch):
+#### Linux (Arch):
 
 ```bash
 sudo pacman -S git python base-devel
 ```
 
-#### 2.&nbsp; Clone this template
+### 2.&nbsp; Clone this template
 
 Open command prompt (Windows) or a shell (Linux & Mac) and enter the commands below. The template will be downloaded to the current working directory.
 
@@ -57,7 +57,7 @@ git clone ___url___
 cd ___package_name___
 ```
 
-#### 3.&nbsp; Build from source
+### 3.&nbsp; Build from source
 
 ```
 python build.py
