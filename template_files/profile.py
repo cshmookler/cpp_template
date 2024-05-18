@@ -3,16 +3,18 @@
 from configparser import ConfigParser
 from importlib import import_module
 import os
+import subprocess
 from sys import argv as args
 
 
 config_path: str = os.path.join(os.path.dirname(__file__), "profile.ini")
+profile_dir: str = os.path.join(os.path.dirname(__file__), "profiles")
 default_profile: str = "default.profile"
 
 
 def abs_path_to_profile(relative_path: str) -> str:
     """Determines the absolute path to the given profile relative to the profile directory"""
-    return os.path.join(os.path.dirname(__file__), "profiles", relative_path)
+    return os.path.join(profile_dir, relative_path)
 
 
 def set_profile(profile: str) -> None:
@@ -33,16 +35,31 @@ def get_profile() -> str:
     else:
         set_profile(default_profile)
         profile = default_profile
+        if not os.path.isfile(abs_path_to_profile(default_profile)):
+            generate_default()
     return abs_path_to_profile(profile)
 
 
 def generate_default() -> None:
     """Use Conan to automatically generate the default profile"""
-    """This method requires the Conan API"""
-    with open(abs_path_to_profile(default_profile), "w") as profile:
-        profile.write(
-            import_module("conan.api.conan_api").ProfilesAPI.detect().dumps()
-        )
+    venv_module = import_module("this_venv")
+    if not venv_module.exists():
+        venv_module.create()
+    if not os.path.isdir(profile_dir):
+        os.mkdir(profile_dir)
+    subprocess.run(
+        [
+            venv_module.python(),
+            "-c",
+            "from importlib import import_module\n"
+            "with open('"
+            + abs_path_to_profile(default_profile)
+            + "', 'w') as profile:\n"
+            "    profile.write(\n"
+            "        import_module('conan.api.conan_api').ProfilesAPI.detect().dumps()\n"
+            "    )\n",
+        ]
+    )
 
 
 if __name__ == "__main__":

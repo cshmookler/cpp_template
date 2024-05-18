@@ -170,7 +170,7 @@ To change the active Conan profile to another stored in the "profiles" directory
 python profile.py new.profile
 ```
 
-To reset the active profile to the default profile ("default.profile"), execute the "profile.py" script without any arguments.
+To reset the active profile to the default profile ("default.profile"), execute the "profile.py" script without any arguments. If the default profile does not exist, a new one is automatically generated.
 
 ```
 python profile.py
@@ -194,7 +194,7 @@ python install.py
 - [X] Provide a more intuitive method for adding more executables, libraries and tests.
 - [X] Generate different "conanfile.py" files for different package types.
 - [X] Provide more detailed documentation.
-- [ ] Create a script for generating the default profile with Conan.
+- [X] Allow regeneration of the default Conan profile.
 - [ ] Use Jinja for templating.
 - [ ] Add support for different host and build profiles.
 - [ ] Add option for static or dynamic linking of dependencies.

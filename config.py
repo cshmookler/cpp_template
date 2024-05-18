@@ -361,22 +361,6 @@ def configure():
     )
     deps.write()
 
-    # Create the Python virtual environment.
-    venv_module = import_module("this_venv")
-    venv_module.create()
-
-    # Generate the default Conan profile.
-    os.mkdir("profiles")
-    subprocess.run(
-        [
-            venv_module.python(),
-            "-c",
-            "from importlib import import_module\n"
-            "profile_module = import_module('profile')\n"
-            "profile_module.generate_default()\n",
-        ]
-    )
-
     # Remove this configuration script and the cooresponding .ini file once all previous operations have succeeded.
     remove(join(this_dir, "config.py"))
     remove(join(this_dir, "template_config.ini"))
