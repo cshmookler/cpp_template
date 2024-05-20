@@ -48,10 +48,12 @@ def valid_list(list_str: str) -> bool:
 
 
 def optional(_: str) -> bool:
+    """Return True regardless of the given string value."""
     return True
 
 
 def required(given_str: str) -> bool:
+    """Verify that a given string is not empty."""
     return given_str != "" and given_str != None
 
 
@@ -108,11 +110,13 @@ def get_config() -> Dict[str, str]:
         "topics": ConfigInfo(default="[]", constraint=valid_list),
     }
 
+    # Read the configuration file.
     parser = ConfigParser()
     parser.read(ini_file)
     assert_none_missing([section_name], parser.sections(), "sections")
     parsed_configs = parser[section_name]
 
+    # Verify that the given values meet their cooresponding constraints.
     configs: Dict[str, str] = {}
     for k, v in expected_configs.items():
         try:
@@ -134,6 +138,7 @@ def get_config() -> Dict[str, str]:
             )
         )
 
+    # Add options that are derived from others.
     configs["version_header_dir"] = (
         "src"
         if configs["package_type"] == "application"
@@ -144,15 +149,22 @@ def get_config() -> Dict[str, str]:
 
 
 @dataclass
-class EscapeInfo:
-    """Information relating to a specific identifier."""
+class EscapeSequence:
+    """An escape sequence consisting of a specific prefix and postfix that are unlikely to naturally occur in a file"""
 
     prefix: str
     postfix: str
 
 
 class InvalidTemplateFile(Exception):
-    """Exception thrown when a template_file does not have a template file extension"""
+    """Exception thrown when a template file does not have the correct file extension"""
+
+    def __init__(self, message: str) -> None:
+        self.message = message
+
+
+class TemplateParsingError(Exception):
+    """Exception thrown when an error occurs during template parsing"""
 
     def __init__(self, message: str) -> None:
         self.message = message
@@ -160,6 +172,7 @@ class InvalidTemplateFile(Exception):
 
 def configure_template(path: str, config: Dict[str, str]) -> None:
     """Insert configuration information into the provided template file."""
+    # Verify that the template has the correct file extension.
     template_file_extension = ".tmpl"
     if not path.endswith(template_file_extension):
         raise InvalidTemplateFile(
@@ -168,67 +181,89 @@ def configure_template(path: str, config: Dict[str, str]) -> None:
             + ")"
         )
 
-    newline_char: str = "\n"
-    template = open(path, mode="r", newline=newline_char)
-    escape_strings: List[EscapeInfo] = [
-        EscapeInfo("___", "___"),
-        EscapeInfo('["<<', '>>"]'),
+    # A list of escape sequences to search for in the file.
+    escape_strings: List[EscapeSequence] = [
+        EscapeSequence("___", "___"),
+        EscapeSequence('["<<', '>>"]'),
     ]
 
-    active_escape: Union[EscapeInfo, NoneType] = None
+    # The newline character.
+    newline_char: str = "\n"
+
+    # The escape sequence currently being read.
+    active_escape: Union[EscapeSequence, NoneType] = None
+
+    # The entire file that has so far been read.
     read_so_far: str = ""
+
+    # The number of characters encountered since the last newline.
     cols_since_newline = 0
+
+    # The number of newlines encountered so far in the file.
     newlines_so_far: int = 0
+
+    # The index of the beginning of an identifier enclosed within the current escape sequence.
     id_start: int = 0
 
+    # Open the template file in read mode.
+    template = open(path, mode="r", newline=newline_char)
+
+    # Read the entire template file one character at a time.
     c: str
     while c := template.read(1):
+        # Keep track of everything read so far for extracting identifier names.
         read_so_far += c
-        cols_since_newline += 1
 
+        # Keep track of line and column numbers for constructing helpful error messages.
+        cols_since_newline += 1
         if c == newline_char:
             newlines_so_far += 1
             cols_since_newline = 0
 
-        if active_escape is not None:
-            if not read_so_far.endswith(active_escape.postfix):
-                continue
+        if active_escape is None:
+            # Search for an escape sequence prefix.
+            e: EscapeSequence
+            for e in escape_strings:
+                if read_so_far.endswith(e.prefix):
+                    active_escape = e
+                    id_start = len(read_so_far)
+                    break
+            continue
 
-            id: str = read_so_far[
-                id_start : -len(active_escape.postfix)
-            ].strip()
+        # The prefix of an escape sequence was found, so search for its postfix.
+        if not read_so_far.endswith(active_escape.postfix):
+            continue
 
-            cutoff_i: int = id_start - len(active_escape.prefix)
+        # Extract the identifier name once the escape sequence postifx is found.
+        id: str = read_so_far[id_start : -len(active_escape.postfix)].strip()
 
-            if id not in config:
-                raise RuntimeError(
-                    "Unknown identifier '"
-                    + id
-                    + "' at line "
-                    + str(newlines_so_far + 1)
-                    + " column "
-                    + str(cols_since_newline + 1)
-                    + " in '"
-                    + path
-                    + "'"
-                )
+        if id not in config:
+            raise TemplateParsingError(
+                "Unknown identifier '"
+                + id
+                + "' at line "
+                + str(newlines_so_far + 1)
+                + " column "
+                + str(cols_since_newline + 1)
+                + " in '"
+                + path
+                + "'"
+            )
 
-            id_value: str = config[id]
-            read_so_far = read_so_far[:cutoff_i] + id_value
-            active_escape = None
+        # Insert the cooresponding configuration value into the text.
+        id_value: str = config[id]
+        cutoff_i: int = id_start - len(active_escape.prefix)
+        read_so_far = read_so_far[:cutoff_i] + id_value
 
-        e: EscapeInfo
-        for e in escape_strings:
-            if not read_so_far.endswith(e.prefix):
-                continue
+        # Finished reading the escape sequence. Begin searching for another.
+        active_escape = None
 
-            active_escape = e
-            id_start = len(read_so_far)
-            break
+    # Incomplete escape sequences are not allowed.
+    if active_escape is not None:
+        raise TemplateParsingError("EOF encountered while reading identifier")
 
+    # Close and delete the original template file.
     template.close()
-
-    # Remove the template file.
     remove(path)
 
     # Write to a new file.
@@ -305,6 +340,7 @@ def configure():
     configure_template(join(this_dir, ".gitignore.tmpl"), config)
     configure_template(join(this_dir, "README.md.tmpl"), config)
     if config["package_type"] == "library":
+        # Configure this project as a library
         configure_template(join(this_dir, "conanfile-lib.py.tmpl"), config)
         rename(
             join(this_dir, "conanfile-lib.py"), join(this_dir, "conanfile.py")
@@ -327,6 +363,7 @@ def configure():
             join(this_dir, config["package_name"]),
         )
     else:
+        # Configure this project as an application
         configure_template(join(this_dir, "conanfile-app.py.tmpl"), config)
         rename(
             join(this_dir, "conanfile-app.py"), join(this_dir, "conanfile.py")
