@@ -354,7 +354,10 @@ def configure():
     explicit_deps = []
     for dep in literal_eval(config["dependencies"]):
         name, version = dep.rsplit("/", 1)
-        explicit_deps.append(dep_module.Dependency(name, version, True))
+        explicit_deps.append(
+            # name, version, status, link_preference, shared
+            dep_module.Dependency(name, version, True, False, False)
+        )
     deps = dep_module.Dependencies(
         join(this_dir, "dependencies.ini"),
         explicit=explicit_deps,

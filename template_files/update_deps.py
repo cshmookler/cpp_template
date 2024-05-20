@@ -15,6 +15,8 @@ class Dependency:
     name: str
     version: str
     status: bool
+    link_preference: bool
+    shared: bool
 
 
 class Dependencies:
@@ -40,8 +42,12 @@ class Dependencies:
         deps: List[Dependency] = []
         for dep in section:
             name, version = dep.rsplit("/", 1)
-            status = section[dep] == "yes"
-            deps.append(Dependency(name, version, status))
+            status: bool = section[dep] != "no"
+            link_preference: bool = section[dep] != "yes"
+            shared: bool = section[dep] != "static"
+            deps.append(
+                Dependency(name, version, status, link_preference, shared)
+            )
         return deps
 
     def read(self) -> None:
@@ -56,7 +62,16 @@ class Dependencies:
         """Write dependency information to a specific section"""
         for dep in deps:
             key = dep.name + "/" + dep.version
-            value = "yes" if dep.status else "no"
+            if dep.status:
+                if dep.link_preference:
+                    if dep.shared:
+                        value = "shared"
+                    else:
+                        value = "static"
+                else:
+                    value = "yes"
+            else:
+                value = "no"
             section[key] = value
 
     def write(self) -> None:
@@ -71,7 +86,13 @@ class Dependencies:
         with open(self.file_path, "w") as config_file:
             config_file.write(
                 "# Find explicit dependencies at https://conan.io/center\n"
-                "# Implicit dependencies are identified during the build process or by running the update_deps.py script\n\n"
+                "# Implicit dependencies are identified during the build process or by running the update_deps.py script\n"
+                "# Options:\n"
+                '#     "no" -> Disabled\n'
+                '#     "yes" -> Enabled\n'
+                '#     "static" -> Enabled, static linking preferred (not guaranteed)\n'
+                '#     "shared" -> Enabled, dynamic linking preferred (not guaranteed)\n'
+                "# The Conan cache may need to be cleared for changes to take effect (execute the 'clear_cache.py' script)\n\n"
             )
             parser.write(config_file, space_around_delimiters=True)
 

@@ -23,9 +23,6 @@ class ___package_name___TestPackage(ConanFile):
     # Configuration
     settings = "os", "compiler", "build_type", "arch"
 
-    # Other
-    _meson_dependencies: List[str] = []
-
     def build_requirements(self):
         """Declare dependencies of the build system"""
         self.tool_requires("meson/1.2.1")

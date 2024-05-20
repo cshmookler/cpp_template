@@ -27,17 +27,27 @@ endif
 
 project_deps = []
 foreach dep : project_dep_strings
-    project_deps += dependency(
-        dep[0],
-        version : dep[1],
-        required : true,
-        method : 'auto',
-    )
+    if dep[2] # link preference
+        project_deps += dependency(
+            dep[0], # name
+            version : dep[1], # version
+            static : not dep[3], # shared
+            required : true,
+            method : 'auto',
+        )
+    else
+        project_deps += dependency(
+            dep[0], # name
+            version : dep[1], # version
+            required : true,
+            method : 'auto',
+        )
+    endif
 endforeach
 
-include_dir = meson.source_root() / project_name
-src_dir = meson.source_root() / 'src'
-build_dir = meson.build_root()
+include_dir = meson.project_source_root() / project_name
+src_dir = meson.project_source_root() / 'src'
+build_dir = meson.project_build_root()
 
 conf_data = configuration_data()
 conf_data.set('version', project_version)

@@ -124,11 +124,11 @@ python build.py
 
 Browse [Conan Center](https://conan.io/center/) (the Conan central repository) for dependencies. Use the search bar to find the "name/version" of the dependencies you would like to add (example: "boost/1.85.0").
 
-Open the "dependencies.ini" file and add the dependencies underneath the "[explicit]" tag. Each dependency must be on its own line and be of the form "name/version = yes".
+Open the "dependencies.ini" file and add the dependencies underneath the "[explicit]" tag. Each dependency must be on its own line and be of the form "name/version = value" with "value" being one of the following: "no", "yes", "static", or "shared". 
 
 ### Remove dependencies
 
-Open the "dependencies.ini" file and change the cooresponding "yes" to "no". Alternatively, delete the lines containing the dependencies.
+Open the "dependencies.ini" file and change the value of the cooresponding dependency to "no". Alternatively, delete the lines containing the dependencies.
 
 ### Update implicit dependencies
 
@@ -197,7 +197,7 @@ python install.py
 - [X] Allow regeneration of the default Conan profile.
 - [ ] Use Jinja for templating.
 - [ ] Add support for different host and build profiles.
-- [ ] Add option for static or dynamic linking of dependencies.
+- [X] Add option for static or dynamic linking of dependencies.
 - [ ] Add build targets by editing a configuration file instead of manually editing the "meson.build" file.
 - [ ] Add support for clang-analyzer.
 - [ ] Add tests.
