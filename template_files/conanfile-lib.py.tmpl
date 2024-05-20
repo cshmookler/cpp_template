@@ -174,7 +174,7 @@ class ___package_name___(ConanFile):
         meson.test()
 
     def package(self):
-        """Install project headers and compiled libraries"""
+        """Install project headers and compiled binaries"""
         meson = Meson(self)
         meson.install()
 

@@ -92,7 +92,7 @@ class Dependencies:
                 '#     "yes" -> Enabled\n'
                 '#     "static" -> Enabled, static linking preferred (not guaranteed)\n'
                 '#     "shared" -> Enabled, dynamic linking preferred (not guaranteed)\n'
-                "# The Conan cache may need to be cleared for changes to take effect (execute the 'clear_cache.py' script)\n\n"
+                '# For changes to take effect, execute the "clear_cache.py" script\n\n'
             )
             parser.write(config_file, space_around_delimiters=True)
 

@@ -96,9 +96,6 @@ def get_config() -> Dict[str, str]:
             in [
                 "application",
                 "library",
-                "header-library",
-                "shared_library",
-                "static-library",
             ],
         ),
         "dependencies": ConfigInfo(default="[]", constraint=valid_list),
@@ -307,26 +304,7 @@ def configure():
     configure_template(join(this_dir, "meson.build.tmpl"), config)
     configure_template(join(this_dir, ".gitignore.tmpl"), config)
     configure_template(join(this_dir, "README.md.tmpl"), config)
-    if config["package_type"] == "application":
-        configure_template(join(this_dir, "conanfile-app.py.tmpl"), config)
-        rename(
-            join(this_dir, "conanfile-app.py"), join(this_dir, "conanfile.py")
-        )
-        remove(join(this_dir, "conanfile-lib.py.tmpl"))
-        configure_template(join(this_dir, "clean-app.py.tmpl"), config)
-        rename(join(this_dir, "clean-app.py"), join(this_dir, "clean.py"))
-        remove(join(this_dir, "clean-lib.py.tmpl"))
-        configure_template(
-            join(this_dir, "src", "main.cpp.tmpl"),
-            config,
-        )
-        shutil.move(
-            join(this_dir, "___package_name___", "version.hpp.in"), "src"
-        )
-        shutil.rmtree(join(this_dir, "___package_name___"))
-        shutil.rmtree(join(this_dir, "test_package"))
-        remove(join(this_dir, "install.py"))
-    else:
+    if config["package_type"] == "library":
         configure_template(join(this_dir, "conanfile-lib.py.tmpl"), config)
         rename(
             join(this_dir, "conanfile-lib.py"), join(this_dir, "conanfile.py")
@@ -348,6 +326,25 @@ def configure():
             join(this_dir, "___package_name___"),
             join(this_dir, config["package_name"]),
         )
+    else:
+        configure_template(join(this_dir, "conanfile-app.py.tmpl"), config)
+        rename(
+            join(this_dir, "conanfile-app.py"), join(this_dir, "conanfile.py")
+        )
+        remove(join(this_dir, "conanfile-lib.py.tmpl"))
+        configure_template(join(this_dir, "clean-app.py.tmpl"), config)
+        rename(join(this_dir, "clean-app.py"), join(this_dir, "clean.py"))
+        remove(join(this_dir, "clean-lib.py.tmpl"))
+        configure_template(
+            join(this_dir, "src", "main.cpp.tmpl"),
+            config,
+        )
+        shutil.move(
+            join(this_dir, "___package_name___", "version.hpp.in"), "src"
+        )
+        shutil.rmtree(join(this_dir, "___package_name___"))
+        shutil.rmtree(join(this_dir, "test_package"))
+        remove(join(this_dir, "install.py"))
 
     # Declare explicit dependencies.
     dep_module = import_module("update_deps")

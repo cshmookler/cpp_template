@@ -95,7 +95,7 @@ foreach bin : binaries
             dependencies : deps,
             install : true,
         )
-    elif type == 'library' or type == 'header-library'
+    elif type == 'library'
         library(
             name,
             sources,
@@ -104,26 +104,9 @@ foreach bin : binaries
             install : true,
         )
         install_headers(headers, subdir : name)
-    elif type == 'shared-library'
-        shared_library(
-            name,
-            sources,
-            dependencies : deps,
-            version : project_version,
-            install : true,
-        )
-        install_headers(headers, subdir : name)
-    elif type == 'static-library'
-        static_library(
-            name,
-            sources,
-            dependencies : deps,
-            install : true,
-        )
-        install_headers(headers, subdir : name)
     else
         error(
-            'Invalid binary type "' + type + '". Must be one of "application", "library", "header-library", "shared-library", or "static-library".',
+            'Invalid binary type "' + type + '". Must be either "application" or "library".',
         )
     endif
 endforeach
