@@ -5,7 +5,7 @@
 #include "../___version_header_dir___/version.hpp"
 
 TEST(version_test, runtime_version_matches_compiletime_version) {
-    ASSERT_EQ(
+    ASSERT_STREQ(
             ___namespace___::get_runtime_version(),
             ___namespace___::compiletime_version);
 }
