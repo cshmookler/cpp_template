@@ -123,19 +123,36 @@ class ___package_name___(ConanFile):
         # dependencies: Dict["dep_name_and_version", Dict["component_name", Component]] = {}
         resolved_dependencies = {}
         for require, dep in self.dependencies.host.items():
+            # Name and version of the dependency
+            dependency_name_and_version: str = (
+                dep.ref.name + "/" + str(dep.ref.version)
+            )
+
+            # Create a dictionary for storing components of this dependency
+            if dependency_name_and_version not in resolved_dependencies:
+                resolved_dependencies[dependency_name_and_version] = {}
+
+            # This class is used internally by Conan to get dependency component information and generate PkgConfig files
             pc_generator = _PCGenerator(deps, require, dep)
-            # TODO: Ensure that dependencies without any components are included in the implicit dependency list.
+
+            # Add the name of the package as the sole component if it does not have any components
+            if not pc_generator._dep.cpp_info.has_components:
+                sole_component_name: str = pc_generator._package_info().name
+                resolved_dependencies[dependency_name_and_version][
+                    sole_component_name
+                ] = self._binary_config_module.Component(
+                    name=sole_component_name,
+                    enabled=True,
+                )
+
+            # Accumulate all components of the dependency
             for component_info in pc_generator._components_info():
                 component_name: str = component_info.name
-                component_version: str = str(dep.ref.version)
-                dependency_name: str = dep.ref.name + "/" + component_version
-                if dependency_name not in resolved_dependencies:
-                    resolved_dependencies[dependency_name] = {}
-                resolved_dependencies[dependency_name][component_name] = (
-                    self._binary_config_module.Component(
-                        name=component_name,
-                        enabled=True,
-                    )
+                resolved_dependencies[dependency_name_and_version][
+                    component_name
+                ] = self._binary_config_module.Component(
+                    name=component_name,
+                    enabled=True,
                 )
 
         # declared_binaries: Dict[
