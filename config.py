@@ -383,20 +383,50 @@ def configure():
         shutil.rmtree(join(this_dir, "test_package"))
         remove(join(this_dir, "install.py"))
 
-    # Declare explicit dependencies.
-    dep_module = import_module("update_deps")
-    explicit_deps = []
-    for dep in literal_eval(config["dependencies"]):
-        name, version = dep.rsplit("/", 1)
-        explicit_deps.append(
-            # name, version, status, link_preference, shared
-            dep_module.Dependency(name, version, True, False, False)
-        )
-    deps = dep_module.Dependencies(
-        join(this_dir, "dependencies.ini"),
-        explicit=explicit_deps,
+    # Declare binaries
+    binary_config_module = import_module("update_deps")
+    binaries = binary_config_module.Binaries(
+        [
+            binary_config_module.Binary(
+                name=config["package_name"],
+                bin_type=config["package_type"],
+                dependencies=[
+                    binary_config_module.Dependency(
+                        name=dep.rsplit("/", 1)[0],
+                        version=dep.rsplit("/", 1)[1],
+                        enabled=True,
+                        link_preference=False,
+                        dynamic=True,
+                        components=[],
+                    )
+                    for dep in literal_eval(config["dependencies"])
+                ],
+                sources=[["src", "version.cpp"]],
+                main=(
+                    []
+                    if config["package_type"] == "library"
+                    else ["src", "main.cpp"]
+                ),
+            ),
+            binary_config_module.Binary(
+                name="version",
+                bin_type="test",
+                dependencies=[
+                    binary_config_module.Dependency(
+                        name="gtest",
+                        version="1.14.0",
+                        enabled=True,
+                        link_preference=False,
+                        dynamic=True,
+                        components=[],
+                    )
+                ],
+                sources=[["src", "version.test.cpp"], ["src", "version.cpp"]],
+                main=[],
+            ),
+        ]
     )
-    deps.write()
+    binaries.write()
 
     # Remove this configuration script and the cooresponding .ini file once all previous operations have succeeded.
     remove(join(this_dir, "config.py"))

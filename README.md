@@ -124,15 +124,21 @@ python build.py
 
 Browse [Conan Center](https://conan.io/center/) (the Conan central repository) for dependencies. Use the search bar to find the "name/version" of the dependencies you would like to add (example: "boost/1.85.0").
 
-Open the "dependencies.ini" file and add the dependencies underneath the "[explicit]" tag. Each dependency must be on its own line and be of the form "name/version = value" with "value" being one of the following: "no", "yes", "static", or "shared". 
+> TODO: Update instructions for adding dependencies
+
+~~Open the "dependencies.ini" file and add the dependencies underneath the "[explicit]" tag. Each dependency must be on its own line and be of the form "name/version = value" with "value" being one of the following: "no", "yes", "static", or "shared". ~~
 
 ### Remove dependencies
 
-Open the "dependencies.ini" file and change the value of the cooresponding dependency to "no". Alternatively, delete the lines containing the dependencies.
+> TODO: Update instructions for removing dependencies
 
-### Update implicit dependencies
+~~Open the "dependencies.ini" file and change the value of the cooresponding dependency to "no". Alternatively, delete the lines containing the dependencies.~~
 
-Implicit dependencies are required dependencies of those that are explicitly declared. The list of implicit dependencies in the "dependencies.ini" file is automatically updated after each build.
+### Update dependencies
+
+> TODO: Update instructions for updating dependencies
+
+~~Implicit dependencies are required dependencies of those that are explicitly declared. The list of implicit dependencies in the "dependencies.ini" file is automatically updated after each build.~~
 
 To update the list of implicit dependencies without building, use Python to execute the "update_deps.py" script. Use command prompt (Windows) or a shell (Mac & Linux) so errors are shown.
 
@@ -178,6 +184,8 @@ python profile.py
 
 ## Install (for libraries)
 
+> TODO: Fix library installation
+
 Installing a project exports its source files and generated binaries to the Conan cache so that other projects can use it as a dependency.
 
 Use Python to execute the "install.py" script. Use command prompt (Windows) or a shell (Mac & Linux) so errors are shown.
@@ -198,7 +206,7 @@ python install.py
 - [ ] Use Jinja for templating.
 - [ ] Add support for different host and build profiles.
 - [X] Add option for static or dynamic linking of dependencies.
-- [ ] Add build targets by editing a configuration file instead of manually editing the "meson.build" file.
+- [X] Add build targets by editing a configuration file instead of manually editing the "meson.build" file.
 - [ ] Add support for clang-analyzer.
 - [ ] Add tests.
 - [ ] ~~Generate SPDX licenses from templates.~~

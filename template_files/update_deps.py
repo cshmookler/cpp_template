@@ -1,11 +1,23 @@
-"""Manage dependencies"""
+"""Manage binary configuration"""
 
-from configparser import ConfigParser, SectionProxy
 from dataclasses import dataclass
 from importlib import import_module
+import json
 import os
 import subprocess
-from typing import List
+from types import NoneType
+from typing import List, Dict
+
+
+path: str = os.path.join(os.path.dirname(__file__), "binary_config.json")
+
+
+@dataclass
+class Component:
+    """Dependency component information"""
+
+    name: str
+    enabled: bool
 
 
 @dataclass
@@ -14,91 +26,334 @@ class Dependency:
 
     name: str
     version: str
-    status: bool
+    enabled: bool
     link_preference: bool
-    shared: bool
+    dynamic: bool
+    components: List[Component]
 
 
-class Dependencies:
-    """Dependency information for the dependency configuration file"""
+@dataclass
+class Binary:
+    """Binary information"""
 
-    def __init__(
-        self,
-        file_path: str,
-        explicit: List[Dependency] = [],
-        implicit: List[Dependency] = [],
-    ) -> None:
-        self.file_path = file_path
-        self.explicit = explicit
-        self.implicit = implicit
+    name: str
+    bin_type: str
+    dependencies: List[Dependency]
+    sources: List[List[str]]
+    main: List[str]
 
-    def file_exists(self) -> bool:
-        """Returns true if the dependency configuration file exists and false otherwise"""
-        return os.path.isfile(self.file_path)
+
+class BinaryConfigInterpretationError(Exception):
+    """Exception thrown when an error occurs when interpreting the binary configuration file"""
+
+    def __init__(self, message: str) -> None:
+        self.message = message
+
+
+def _assert_type(var, *expected_types) -> None:
+    """Ensure that a given variable has a given expected type"""
+    if type(var) not in expected_types:
+        raise BinaryConfigInterpretationError(
+            "\n\nExpected one of the following types: "
+            + str(expected_types)
+            + ", but encountered type '"
+            + str(type(var))
+            + "' instead\nValue:\n\n"
+            + str(var)
+            + "\n\n"
+        )
+
+
+class Binaries:
+    """Binary information for the binary configuration file"""
+
+    def __init__(self, binaries: List[Binary] = []) -> None:
+        self.binaries = binaries
+
+    def __iter__(self):
+        for binary in self.binaries:
+            yield binary
 
     @staticmethod
-    def _read_section(section: SectionProxy) -> List[Dependency]:
-        """Reads a specific section of the dependency configuration file"""
-        deps: List[Dependency] = []
-        for dep in section:
-            name, version = dep.rsplit("/", 1)
-            status: bool = section[dep] != "no"
-            link_preference: bool = section[dep] != "yes"
-            shared: bool = section[dep] != "static"
-            deps.append(
-                Dependency(name, version, status, link_preference, shared)
+    def file_exists() -> bool:
+        """Returns true if the binary configuration file exists and false otherwise"""
+        return os.path.isfile(path)
+
+    def structured(self, raw_json: dict) -> None:
+        """Converts all binary information to JSON to structured form"""
+        _assert_type(raw_json, dict)
+
+        self.binaries = []
+        for binary_name, binary_info in raw_json.items():
+            _assert_type(binary_name, str)
+            _assert_type(binary_info, dict)
+
+            # Binary type
+            bin_type: str = binary_info["type"]
+            _assert_type(bin_type, str)
+            valid_bin_types: List[str] = ["application", "library", "test"]
+            if bin_type not in valid_bin_types:
+                raise BinaryConfigInterpretationError(
+                    "The binary type '"
+                    + bin_type
+                    + "'must be one of "
+                    + str(valid_bin_types)
+                )
+
+            # Dependencies
+            dependencies: List[Dependency] = []
+            if "dependencies" in binary_info:
+                _assert_type(binary_info["dependencies"], dict)
+                for name_and_version, dep_info in binary_info[
+                    "dependencies"
+                ].items():
+                    _assert_type(name_and_version, str)
+                    _assert_type(dep_info, dict)
+
+                    # Dependency name and version
+                    if name_and_version.find("/") == -1:
+                        raise BinaryConfigInterpretationError(
+                            "Dependencies must be in the form 'name/version', but no '/' symbol was found in '"
+                            + name_and_version
+                            + "'"
+                        )
+                    dep_name, dep_version = name_and_version.rsplit("/", 1)
+
+                    # Dependency status (enabled or not)
+                    enabled: bool = True
+                    if "enabled" in dep_info:
+                        enabled = dep_info["enabled"]
+                        _assert_type(enabled, bool)
+                        if not enabled:
+                            continue
+
+                    # Dependency link preference (static or dynamic)
+                    link_preference: bool = False
+                    dynamic: bool = True
+                    if "dynamic" in dep_info:
+                        prefer_dynamic: bool | None = dep_info["dynamic"]
+                        _assert_type(prefer_dynamic, bool, NoneType)
+                        link_preference = prefer_dynamic is not None
+                        dynamic = (
+                            prefer_dynamic
+                            if prefer_dynamic is not None
+                            else True
+                        )
+
+                    # Dependency component information
+                    components: List[Component] = []
+                    if "components" in dep_info:
+                        declared_components: dict = dep_info["components"]
+                        _assert_type(declared_components, dict)
+                        for (
+                            component_name,
+                            component_enabled,
+                        ) in declared_components.items():
+                            _assert_type(component_name, str)
+                            _assert_type(component_enabled, bool)
+                            components.append(
+                                Component(
+                                    name=component_name,
+                                    enabled=component_enabled,
+                                )
+                            )
+
+                    dependencies.append(
+                        Dependency(
+                            name=dep_name,
+                            version=dep_version,
+                            enabled=enabled,
+                            link_preference=link_preference,
+                            dynamic=dynamic,
+                            components=components,
+                        )
+                    )
+
+            # Sources
+            sources: List[List[str]] = binary_info["sources"]
+            _assert_type(sources, list)
+            for source in sources:
+                _assert_type(source, list)
+                for component in source:
+                    _assert_type(component, str)
+
+            # Source containing the 'main' function (if applicable)
+            if bin_type == "application":
+                main: List[str] = binary_info["main"]
+            elif bin_type == "test":
+                # Some testing libraries (i.e. GoogleTest) do not require tests to have a 'main' function, so 'main' functions are optional for tests.
+                main: List[str] = (
+                    binary_info["main"] if "main" in binary_info else []
+                )
+            else:
+                main: List[str] = []
+                if "main" in binary_info:
+                    print(
+                        "Ignoring 'main' field encountered while interpreting configuration information for binary '"
+                        + binary_name
+                        + "' of type '"
+                        + bin_type
+                        + "'"
+                    )
+
+            self.binaries.append(
+                Binary(
+                    name=binary_name,
+                    bin_type=bin_type,
+                    dependencies=dependencies,
+                    sources=sources,
+                    main=main,
+                )
             )
-        return deps
 
     def read(self) -> None:
-        """Reads dependency information from the dependency configuration file"""
-        parser = ConfigParser()
-        parser.read(self.file_path)
-        self.explicit = Dependencies._read_section(parser["explicit"])
-        self.implicit = Dependencies._read_section(parser["implicit"])
+        """Reads binary information represented as JSON from the binary configuration file"""
+        raw_json: dict = json.load(open(path, "r"))
+        self.structured(raw_json)
 
     @staticmethod
-    def _write_section(section: SectionProxy, deps: List[Dependency]) -> None:
-        """Write dependency information to a specific section"""
-        for dep in deps:
-            key = dep.name + "/" + dep.version
-            if dep.status:
-                if dep.link_preference:
-                    if dep.shared:
-                        value = "shared"
-                    else:
-                        value = "static"
-                else:
-                    value = "yes"
-            else:
-                value = "no"
-            section[key] = value
+    def _json_deps(
+        dependencies: List[Dependency],
+    ) -> Dict[str, Dict[str, Dict[str, bool] | bool | None]]:
+        """Converts dependencies to JSON"""
+        raw_json: Dict[str, Dict[str, Dict[str, bool] | bool | None]] = {}
+        for dep in dependencies:
+            raw_json[dep.name + "/" + dep.version] = {
+                "enabled": dep.enabled,
+                "dynamic": (dep.dynamic if dep.link_preference else None),
+                "components": {
+                    component.name: component.enabled
+                    for component in dep.components
+                },
+            }
+        return raw_json
+
+    def json(self) -> Dict[
+        str,
+        Dict[
+            str,
+            Dict[str, Dict[str, Dict[str, bool] | bool | None]]
+            | List[List[str]]
+            | List[str]
+            | str,
+        ],
+    ]:
+        """Converts all binary information from structured form to JSON"""
+        raw_json: Dict[
+            str,
+            Dict[
+                str,
+                Dict[str, Dict[str, Dict[str, bool] | bool | None]]
+                | List[List[str]]
+                | List[str]
+                | str,
+            ],
+        ] = {}
+        for binary in self.binaries:
+            raw_json[binary.name] = {
+                "type": binary.bin_type,
+                "dependencies": Binaries._json_deps(binary.dependencies),
+                "sources": binary.sources,
+            }
+            if len(binary.main) > 0:
+                raw_json[binary.name]["main"] = binary.main
+        return raw_json
+
+    def unstructured(
+        self,
+    ) -> List[
+        List[
+            str
+            | List[str]
+            | List[List[str]]
+            | List[List[bool | str | List[List[bool | str]]]]
+        ]
+    ]:
+        """Converts all binary information from structured form to unstructured form comprised entirely of lists (no dictionaries)"""
+        raw: List[
+            List[
+                str
+                | List[str]
+                | List[List[str]]
+                | List[List[bool | str | List[List[bool | str]]]]
+            ]
+        ] = []
+
+        for binary in self.binaries:
+            raw.append(
+                [
+                    binary.name,
+                    binary.bin_type,
+                    [
+                        [
+                            dependency.name,
+                            dependency.version,
+                            dependency.enabled,
+                            dependency.link_preference,
+                            dependency.dynamic,
+                            [
+                                [
+                                    component.name,
+                                    component.enabled,
+                                ]
+                                for component in dependency.components
+                            ],
+                        ]
+                        for dependency in binary.dependencies
+                    ],
+                    binary.sources,
+                    binary.main,
+                ]
+            )
+        return raw
+
+        # raw_example = [
+        #     [
+        #         "cpp_template",  # name
+        #         "application",  # type
+        #         [],  # dependencies
+        #         [["src", "version.cpp"]],  # sources
+        #         ["src", "main.cpp"],  # main
+        #     ],
+        #     [
+        #         "version",  # name
+        #         "test",  # type
+        #         [  # dependencies
+        #             [
+        #                 "zlib",  # dep_name
+        #                 "1.3.1",  # dep_version
+        #                 True,  # enabled
+        #                 None,  # dynamic
+        #                 [],  # components
+        #             ],
+        #             [
+        #                 "gtest",  # dep_name
+        #                 "1.14.0",  # dep_version
+        #                 True,  # enabled
+        #                 None,  # dynamic
+        #                 [  # components
+        #                     ["gtest", True],
+        #                     ["gtest_main", True],
+        #                     ["gmock", True],
+        #                     ["gmock_main", True],
+        #                 ],
+        #             ],
+        #         ],
+        #         [  # sources
+        #             ["src", "version.test.cpp"],
+        #             ["src", "version.cpp"],
+        #         ],
+        #         [],  # main
+        #     ],
+        # ]
 
     def write(self) -> None:
-        """Write dependency information to the dependency configuration file"""
-        parser = ConfigParser()
-        parser.add_section("explicit")
-        parser.add_section("implicit")
-
-        Dependencies._write_section(parser["explicit"], self.explicit)
-        Dependencies._write_section(parser["implicit"], self.implicit)
-
-        with open(self.file_path, "w") as config_file:
-            config_file.write(
-                "# Find explicit dependencies at https://conan.io/center\n"
-                "# Implicit dependencies are identified during the build process or by running the update_deps.py script\n"
-                "# Options:\n"
-                '#     "no" -> Disabled\n'
-                '#     "yes" -> Enabled\n'
-                '#     "static" -> Enabled, static linking preferred (not guaranteed)\n'
-                '#     "shared" -> Enabled, dynamic linking preferred (not guaranteed)\n'
-                '# For changes to take effect, execute the "clear_cache.py" script\n\n'
-            )
-            parser.write(config_file, space_around_delimiters=True)
+        """Writes binary information to the binary configuration file represented as JSON"""
+        json.dump(self.json(), open(path, "w"), indent=4)
 
 
 if __name__ == "__main__":
-    """Update implicit dependencies in the dependencies configuration file (dependencies.ini)"""
+    """Update implicit dependencies in the binary configuration file"""
     build = import_module("build")
     profile = import_module("profile")
     build.build(

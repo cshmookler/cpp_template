@@ -1,3 +1,4 @@
+# Declare project information
 project(
     meson.get_external_property('_name', 'unknown'),
     'cpp',
@@ -5,6 +6,7 @@ project(
     default_options : [ 'cpp_std=c++11' ],
 )
 
+# Get project name, version, and binary data
 project_name = meson.project_name()
 if project_name == 'unknown'
     error('Failed to get project name from Conan.')
@@ -15,40 +17,12 @@ if project_version == 'unknown'
     error('Failed to get project version from Conan.')
 endif
 
-project_type = meson.get_external_property('_type', 'unknown')
-if project_type == 'unknown'
-    error('Failed to get project type from Conan.')
+project_binaries = meson.get_external_property('_binaries', [ 'unknown' ])
+if project_binaries == [ 'unknown' ]
+    error('Failed to get project binary data from Conan.')
 endif
 
-project_dep_strings = meson.get_external_property('_deps', [ 'unknown' ])
-if project_dep_strings == [ 'unknown' ]
-    error('Failed to get project dependencies from Conan.')
-endif
-
-project_deps = []
-foreach dep : project_dep_strings
-    if dep[2] # link preference
-        project_deps += dependency(
-            dep[0], # name
-            version : dep[1], # version
-            static : not dep[3], # shared
-            required : true,
-            method : 'auto',
-        )
-    else
-        project_deps += dependency(
-            dep[0], # name
-            version : dep[1], # version
-            required : true,
-            method : 'auto',
-        )
-    endif
-endforeach
-
-include_dir = meson.project_source_root() / project_name
-src_dir = meson.project_source_root() / 'src'
-build_dir = meson.project_build_root()
-
+# Insert the project version into the version header file
 conf_data = configuration_data()
 conf_data.set('version', project_version)
 configure_file(
@@ -57,66 +31,91 @@ configure_file(
     output : 'version.hpp',
 )
 
-binaries = [
-    [
-        project_name, # name
-        project_type, # type
-        project_deps, # dependencies
-        files(build_dir / 'version.hpp'), # headers
-        files(src_dir / 'version.cpp'), # sources
-        src_dir / 'main.cpp', # main
-    ],
-    # Add additional binaries here.
-]
-tests = [
-    [
-        'version', # name
-        files(src_dir / 'version.test.cpp'), # source files
-        project_deps + declare_dependency( # dependencies
-            sources : files(src_dir / 'version.cpp'),
-        ),
-    ],
-    # Add additional tests here.
-]
+# Project root directory
+root_dir = meson.project_source_root()
 
-foreach bin : binaries
-    name = bin[0]
-    type = bin[1]
-    deps = bin[2]
-    headers = bin[3]
-    sources = bin[4]
-    main = bin[5]
+foreach binary : project_binaries
+    # Accumulate binary information
+    binary_name = binary[0]
+    binary_type = binary[1]
+    binary_dependencies = binary[2]
+    binary_components = []
+    foreach dependency : binary_dependencies
+        dependency_name = dependency[0]
+        dependency_version = dependency[1]
+        dependency_enabled = dependency[2]
+        dependency_link_preference = dependency[3]
+        dependency_dynamic = dependency[4]
+        dependency_components = dependency[5]
+        foreach component : dependency_components
+            component_name = component[0]
+            component_enabled = component[1]
+            if dependency_link_preference
+                binary_components += dependency(
+                    component_name,
+                    version : dependency_version,
+                    static : not dependency_dynamic,
+                    required : true,
+                    method : 'auto',
+                )
+            else
+                binary_components += dependency(
+                    component_name,
+                    version : dependency_version,
+                    required : true,
+                    method : 'auto',
+                )
+            endif
+        endforeach
+    endforeach
 
-    if type == 'application'
-        sources += main
+    # Accumulate the paths to the source files for the binary
+    binary_sources = files()
+    foreach source : binary[3]
+        source_path = root_dir
+        foreach source_segment : source
+            source_path = source_path / source_segment
+        endforeach
+        binary_sources += source_path
+    endforeach
+
+    # Accumulate the path to the main file for the binary
+    binary_main = files()
+    main_path = root_dir
+    foreach main_segment : binary[4]
+        main_path = main_path / main_segment
+    endforeach
+    binary_main += main_path
+
+    # Compile the binary
+    if binary_type == 'application'
+        binary_sources += binary_main
         executable(
-            name,
-            sources,
-            dependencies : deps,
+            binary_name,
+            binary_sources,
+            dependencies : binary_components,
             install : true,
         )
-    elif type == 'library'
+    elif binary_type == 'library'
         library(
-            name,
-            sources,
-            dependencies : deps,
+            binary_name,
+            binary_sources,
+            dependencies : binary_components,
             version : project_version,
             install : true,
         )
-        install_headers(headers, subdir : name)
+        # TODO: Install library headers
+        # install_headers(headers, subdir : binary_name)
+    elif binary_type == 'test'
+        test = executable(
+            binary_name,
+            binary_sources,
+            dependencies : binary_components,
+        )
+        test(binary_name, test)
     else
         error(
-            'Invalid binary type "' + type + '". Must be either "application" or "library".',
+            'Invalid binary type "' + binary_type + '". Must either be "application", "library", or "test".',
         )
     endif
 endforeach
-
-foreach test : tests
-    test_exec = executable(
-        test[0], # name
-        test[1], # source files
-        dependencies : test[2], # dependencies
-    )
-    test(test[0], test_exec)
-endforeach
-
