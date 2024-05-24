@@ -39,6 +39,7 @@ class Binary:
     name: str
     bin_type: str
     dependencies: List[Dependency]
+    headers: List[List[str]]
     sources: List[List[str]]
     main: List[str]
 
@@ -169,6 +170,25 @@ class Binaries:
                         )
                     )
 
+            # Headers (if applicable)
+            if bin_type == "library":
+                headers: List[List[str]] = binary_info["headers"]
+                _assert_type(headers, list)
+                for header in headers:
+                    _assert_type(header, list)
+                    for component in header:
+                        _assert_type(component, str)
+            else:
+                headers: List[List[str]] = []
+                if "headers" in binary_info:
+                    print(
+                        "Ignoring 'headers' field encountered while interpreting configuration information for binary '"
+                        + binary_name
+                        + "' of type '"
+                        + bin_type
+                        + "'"
+                    )
+
             # Sources
             sources: List[List[str]] = binary_info["sources"]
             _assert_type(sources, list)
@@ -180,11 +200,17 @@ class Binaries:
             # Source containing the 'main' function (if applicable)
             if bin_type == "application":
                 main: List[str] = binary_info["main"]
+                _assert_type(main, list)
+                for component in main:
+                    _assert_type(component, str)
             elif bin_type == "test":
                 # Some testing libraries (i.e. GoogleTest) do not require tests to have a 'main' function, so 'main' functions are optional for tests.
                 main: List[str] = (
                     binary_info["main"] if "main" in binary_info else []
                 )
+                _assert_type(main, list)
+                for component in main:
+                    _assert_type(component, str)
             else:
                 main: List[str] = []
                 if "main" in binary_info:
@@ -201,6 +227,7 @@ class Binaries:
                     name=binary_name,
                     bin_type=bin_type,
                     dependencies=dependencies,
+                    headers=headers,
                     sources=sources,
                     main=main,
                 )
@@ -250,11 +277,14 @@ class Binaries:
             ],
         ] = {}
         for binary in self.binaries:
-            raw_json[binary.name] = {
-                "type": binary.bin_type,
-                "dependencies": Binaries._json_deps(binary.dependencies),
-                "sources": binary.sources,
-            }
+            raw_json[binary.name] = {}
+            raw_json[binary.name]["type"] = binary.bin_type
+            raw_json[binary.name]["dependencies"] = Binaries._json_deps(
+                binary.dependencies
+            )
+            if binary.bin_type == "library":
+                raw_json[binary.name]["headers"] = binary.headers
+            raw_json[binary.name]["sources"] = binary.sources
             if len(binary.main) > 0:
                 raw_json[binary.name]["main"] = binary.main
         return raw_json
@@ -269,7 +299,7 @@ class Binaries:
             | List[List[bool | str | List[List[bool | str]]]]
         ]
     ]:
-        """Converts all binary information from structured form to unstructured form comprised entirely of lists (no dictionaries)"""
+        """Converts all binary information from structured form to an unstructured form comprised entirely of lists (no dictionaries)"""
         raw: List[
             List[
                 str
@@ -301,6 +331,7 @@ class Binaries:
                         ]
                         for dependency in binary.dependencies
                     ],
+                    binary.headers,
                     binary.sources,
                     binary.main,
                 ]
@@ -312,6 +343,7 @@ class Binaries:
         #         "cpp_template",  # name
         #         "application",  # type
         #         [],  # dependencies
+        #         [],  # headers
         #         [["src", "version.cpp"]],  # sources
         #         ["src", "main.cpp"],  # main
         #     ],
@@ -339,6 +371,7 @@ class Binaries:
         #                 ],
         #             ],
         #         ],
+        #         [],  # headers
         #         [  # sources
         #             ["src", "version.test.cpp"],
         #             ["src", "version.cpp"],

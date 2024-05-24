@@ -401,6 +401,13 @@ def configure():
                     )
                     for dep in literal_eval(config["dependencies"])
                 ],
+                headers=[
+                    (
+                        [config["version_header_dir"], "version.hpp"]
+                        if config["package_type"] == "library"
+                        else []
+                    )
+                ],
                 sources=[["src", "version.cpp"]],
                 main=(
                     []
@@ -421,6 +428,7 @@ def configure():
                         components=[],
                     )
                 ],
+                headers=[],
                 sources=[["src", "version.test.cpp"], ["src", "version.cpp"]],
                 main=[],
             ),

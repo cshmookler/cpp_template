@@ -184,8 +184,6 @@ python profile.py
 
 ## Install (for libraries)
 
-> TODO: Fix library installation
-
 Installing a project exports its source files and generated binaries to the Conan cache so that other projects can use it as a dependency.
 
 Use Python to execute the "install.py" script. Use command prompt (Windows) or a shell (Mac & Linux) so errors are shown.
@@ -207,7 +205,6 @@ python install.py
 - [ ] Add support for different host and build profiles.
 - [X] Add option for static or dynamic linking of dependencies.
 - [X] Add build targets by editing a configuration file instead of manually editing the "meson.build" file.
-- [ ] Add support for clang-analyzer.
 - [ ] Add tests.
 - [ ] ~~Generate SPDX licenses from templates.~~
 - [ ] ~~Allow a template to be configured multiple times.~~

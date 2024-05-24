@@ -51,6 +51,7 @@ class ___package_name___(ConanFile):
 
     # Files needed by Conan to build from source
     exports_sources = (
+        os.path.join("build_scripts", "*"),
         os.path.join("src", "*"),
         "meson.build",
     )
@@ -183,12 +184,6 @@ class ___package_name___(ConanFile):
         self._build_folder = os.path.join(self.recipe_folder, "build")
         meson = Meson(self)
         meson.configure()
-        copy_file(
-            self,
-            "version.hpp",
-            self.build_folder,
-            self.source_folder + "/___version_header_dir___/",
-        )
         meson.build()
         copy_file(
             self,
