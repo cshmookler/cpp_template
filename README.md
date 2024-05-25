@@ -118,29 +118,116 @@ Use Python to execute the "build.py" script. Use command prompt (Windows) or a s
 python build.py
 ```
 
+## Manage Binaries
+
+Binary configuration information is stored in the "binary_config.json" file. This JSON file contains a dictionary of binary names associated with information describing the corresponding binaries.
+
+An example of a "binary_config.json" file annotated with comments prefixed with "//" is shown below. This example file describes a library named "cpp_template" that depends on Zlib and a test named "version" that depends on GoogleTest.
+
+```json
+{
+    "cpp_template": {                   // binary name:
+        "type": "library",              // * binary type:
+                                        //     "application" -- generate an executable
+                                        //     "library"     -- generate a library
+                                        //     "test"        -- generate and execute a test
+        "dependencies": {               // * dependencies (optional):
+            "zlib/1.3.1": {             //   * dependency (example: Zlib):
+                "enabled": true,        //     * enabled (optional):
+                                        //         true  -- (default) link with this binary
+                                        //         false -- do not link with this binary
+                "dynamic": null,        //     * link method (optional):
+                                        //         null  -- (default) no linking preference
+                                        //         true  -- prefer dynamic linking
+                                        //         false -- prefer static linking
+                "components": {         //     * components (optional):
+                    "zlib": true        //       * component (example: "zlib") (optional):
+                                        //           true  -- (default) link with this component
+                                        //           false -- do not link with this component
+                }                       //
+            }                           //
+        },                              //
+        "headers": [                    // * header file paths (only for libraries):
+            [                           //   * header file path:
+                "cpp_template",         //       (represented as a list of path components)
+                "version.hpp"           //
+            ]                           //
+        ],                              //
+        "sources": [                    // * source file paths:
+            [                           //   * source file path:
+                "src",                  //       (represented as a list of path components)
+                "version.cpp"           //
+            ]                           //
+        ],                              //
+        // "main": ["src", "main.cpp"]  // * 'main' function file path:
+                                        //     (only for applications and tests)
+                                        //     (represented as a list of path components)
+    },                                  //
+    "version": {                        // binary name:
+        "type": "test",                 // * binary type:
+                                        //     "application" -- generate an executable
+                                        //     "library"     -- generate a library
+                                        //     "test"        -- generate and execute a test
+        "dependencies": {               // * dependencies (optional):
+            "gtest/1.14.0": {           //   * dependency (example: GoogleTest):
+                "enabled": true,        //     * enabled (optional):
+                                        //         true  -- (default) link with this binary
+                                        //         false -- do not link with this binary
+                "dynamic": null,        //     * link method (optional):
+                                        //         null  -- (default) no linking preference
+                                        //         true  -- prefer dynamic linking
+                                        //         false -- prefer static linking
+                "components": {         //     * components (optional):
+                    "gtest": true,      //       * component (example: "gtest") (optional):
+                                        //           true  -- (default) link with this component
+                                        //           false -- do not link with this component
+                    "gtest_main": true, //       * component (example: "gtest_main") (optional):
+                                        //           true  -- (default) link with this component
+                                        //           false -- do not link with this component
+                    "gmock": true,      //       * component (example: "gmock") (optional):
+                                        //           true  -- (default) link with this component
+                                        //           false -- do not link with this component
+                    "gmock_main": true  //       * component (example: "gmock_main") (optional):
+                                        //           true  -- (default) link with this component
+                                        //           false -- do not link with this component
+                }                       //
+            }                           //
+        },                              //
+        "sources": [                    // * source file paths:
+            [                           //   * source file path:
+                "src",                  //       (represented as a list of path components)
+                "version.test.cpp"      //  
+            ],                          //
+            [                           //   * source file path:
+                "src",                  //       (represented as a list of path components)
+                "version.cpp"           //
+            ]                           //
+        ]                               //
+    }                                   //
+}                                       //
+```
+
 ## Manage Dependencies
 
 ### Add dependencies
 
 Browse [Conan Center](https://conan.io/center/) (the Conan central repository) for dependencies. Use the search bar to find the "name/version" of the dependencies you would like to add (example: "boost/1.85.0").
 
-> TODO: Update instructions for adding dependencies
+Add your chosen dependencies to the "dependencies" field of a binary within the "binary_config.json" file. Examples of dependencies in this file are shown in the [example above](#manage-binaries).
 
-~~Open the "dependencies.ini" file and add the dependencies underneath the "[explicit]" tag. Each dependency must be on its own line and be of the form "name/version = value" with "value" being one of the following: "no", "yes", "static", or "shared". ~~
+> Note: Existing build files may need to be [removed](#remove-build-files) for changes to take effect.
 
 ### Remove dependencies
 
-> TODO: Update instructions for removing dependencies
+Open the "binary_config.json" file and remove the dependencies from the "dependencies" field of a binary.
 
-~~Open the "dependencies.ini" file and change the value of the cooresponding dependency to "no". Alternatively, delete the lines containing the dependencies.~~
+> Note: Existing build files may need to be [removed](#remove-build-files) for changes to take effect.
 
-### Update dependencies
+### Update the lists of dependency components
 
-> TODO: Update instructions for updating dependencies
+Some dependencies contain multiple components that can be individually enabled or disabled. The list of components for dependencies is automatically updated after each build.
 
-~~Implicit dependencies are required dependencies of those that are explicitly declared. The list of implicit dependencies in the "dependencies.ini" file is automatically updated after each build.~~
-
-To update the list of implicit dependencies without building, use Python to execute the "update_deps.py" script. Use command prompt (Windows) or a shell (Mac & Linux) so errors are shown.
+To update the lists of dependency components without building, use Python to execute the "update_deps.py" script. Use command prompt (Windows) or a shell (Mac & Linux) so errors are shown.
 
 ```
 python update_deps.py
@@ -148,7 +235,7 @@ python update_deps.py
 
 ## Remove Build Files
 
-If the build system is changed (the "meson.build" or "conanfile.py" files are edited) then the existing build files may need to be regenerated. Removing the build files forces them to be regenerated once the project is built.
+If the build system is changed (the "binary_config.json", "meson.build", or "conanfile.py" files are edited) then the existing build files may need to be regenerated. Removing the build files forces them to be regenerated when the project is built.
 
 Use Python to execute the "clean.py" script. Use command prompt (Windows) or a shell (Mac & Linux) so errors are shown.
 
@@ -158,7 +245,7 @@ python clean.py
 
 ## Clear the Conan Cache
 
-Clearing the Conan cache removes all downloaded dependencies. Required dependencies will be re-downloaded once the project is built.
+Clearing the Conan cache removes all downloaded dependencies. Required dependencies will be re-downloaded when the project is built.
 
 Use Python to execute the "clear_cache.py" script. Use command prompt (Windows) or a shell (Mac & Linux) so errors are shown.
 

@@ -386,7 +386,7 @@ class Binaries:
 
 
 if __name__ == "__main__":
-    """Update implicit dependencies in the binary configuration file"""
+    """Update dependency information in the binary configuration file"""
     build = import_module("build")
     profile = import_module("profile")
     build.build(
