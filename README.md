@@ -15,9 +15,9 @@ This project template includes:
     - [clang-format](https://clang.llvm.org/docs/ClangFormat.html) -- A code formatter configured by the ".clang-format" file.
     - [clang-tidy](https://clang.llvm.org/extra/clang-tidy/) -- A code linter configured by the ".clang-tidy" file.
 - Dependency management through [Conan](https://conan.io).
-    - Add and remove dependencies by editing the "dependencies.ini" file.
+    - Add and remove dependencies and binaries by editing the "binary_config.json" file.
     - GoogleTest added by default.
-- A [Meson](https://mesonbuild.com/) build file that receives dependency information from Conan.
+- A [Meson](https://mesonbuild.com/) build file that receives dependency and binary information from Conan.
 - A configuration file for the code formatting feature of [muon](https://git.sr.ht/~lattis/muon) (an implementation of Meson with a builtin code formatter and static analyzer).
 - An automatically generated [README.md](https://en.wikipedia.org/wiki/README) file with detailed build instructions.
 - A [gitignore](https://github.com/github/gitignore) file for C++ and Python.
