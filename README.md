@@ -124,7 +124,7 @@ Binary configuration information is stored in the "binary_config.json" file. Thi
 
 An example of a "binary_config.json" file annotated with comments prefixed with "//" is shown below. This example file describes a library named "cpp_template" that depends on Zlib and a test named "version" that depends on GoogleTest.
 
-```json
+```json5
 {
     "cpp_template": {                   // binary name:
         "type": "library",              // * binary type:
