@@ -126,13 +126,13 @@ An example of a "binary_config.json" file annotated with comments prefixed with 
 
 ```json5
 {
-    "cpp_template": {                   // binary name:
+    "cpp_template": {                   // binary name
         "type": "library",              // * binary type:
                                         //     "application" -- generate an executable
                                         //     "library"     -- generate a library
                                         //     "test"        -- generate and execute a test
-        "dependencies": {               // * dependencies (optional):
-            "zlib/1.3.1": {             //   * dependency (example: Zlib):
+        "dependencies": {               // * dependencies (optional)
+            "zlib/1.3.1": {             //   * dependency (example: Zlib)
                 "enabled": true,        //     * enabled (optional):
                                         //         true  -- (default) link with this binary
                                         //         false -- do not link with this binary
@@ -140,20 +140,20 @@ An example of a "binary_config.json" file annotated with comments prefixed with 
                                         //         null  -- (default) no linking preference
                                         //         true  -- prefer dynamic linking
                                         //         false -- prefer static linking
-                "components": {         //     * components (optional):
+                "components": {         //     * components (optional)
                     "zlib": true        //       * component (example: "zlib") (optional):
                                         //           true  -- (default) link with this component
                                         //           false -- do not link with this component
                 }                       //
             }                           //
         },                              //
-        "headers": [                    // * header file paths (only for libraries):
+        "headers": [                    // * header file paths (only for libraries)
             [                           //   * header file path:
                 "cpp_template",         //       (represented as a list of path components)
                 "version.hpp"           //
             ]                           //
         ],                              //
-        "sources": [                    // * source file paths:
+        "sources": [                    // * source file paths
             [                           //   * source file path:
                 "src",                  //       (represented as a list of path components)
                 "version.cpp"           //
@@ -163,13 +163,13 @@ An example of a "binary_config.json" file annotated with comments prefixed with 
                                         //     (only for applications and tests)
                                         //     (represented as a list of path components)
     },                                  //
-    "version": {                        // binary name:
+    "version": {                        // binary name
         "type": "test",                 // * binary type:
                                         //     "application" -- generate an executable
                                         //     "library"     -- generate a library
                                         //     "test"        -- generate and execute a test
-        "dependencies": {               // * dependencies (optional):
-            "gtest/1.14.0": {           //   * dependency (example: GoogleTest):
+        "dependencies": {               // * dependencies (optional)
+            "gtest/1.14.0": {           //   * dependency (example: GoogleTest)
                 "enabled": true,        //     * enabled (optional):
                                         //         true  -- (default) link with this binary
                                         //         false -- do not link with this binary
@@ -177,7 +177,7 @@ An example of a "binary_config.json" file annotated with comments prefixed with 
                                         //         null  -- (default) no linking preference
                                         //         true  -- prefer dynamic linking
                                         //         false -- prefer static linking
-                "components": {         //     * components (optional):
+                "components": {         //     * components (optional)
                     "gtest": true,      //       * component (example: "gtest") (optional):
                                         //           true  -- (default) link with this component
                                         //           false -- do not link with this component
@@ -193,7 +193,7 @@ An example of a "binary_config.json" file annotated with comments prefixed with 
                 }                       //
             }                           //
         },                              //
-        "sources": [                    // * source file paths:
+        "sources": [                    // * source file paths
             [                           //   * source file path:
                 "src",                  //       (represented as a list of path components)
                 "version.test.cpp"      //  
@@ -255,7 +255,7 @@ python clear_cache.py
 
 ## Change the Conan Profile
 
-The active Conan profile lists the system architecture, operating system, C++ compiler, and other configuration information for Conan. All profiles are stored in the "profiles" directory and have a ".profile" extension. The default profile ("default.profile") is automatically generated during setup.
+The active Conan profile lists the system architecture, operating system, C++ compiler, and other configuration information for Conan. All profiles are stored in the "profiles" directory and have a ".profile" extension. The default profile ("default.profile") is automatically generated if it does not exist.
 
 To change the active Conan profile to another stored in the "profiles" directory, edit the "profile.ini" file. Alternatively, use Python to execute the "profile.py" script and provide the name of the new Conan profile as a command line argument ("new.profile" in the example below). Use command prompt (Windows) or a shell (Mac & Linux) to provide the new profile name, show output, and display errors.
 
@@ -264,6 +264,16 @@ python profile.py new.profile
 ```
 
 To reset the active profile to the default profile ("default.profile"), execute the "profile.py" script without any arguments. If the default profile does not exist, a new one is automatically generated.
+
+```
+python profile.py
+```
+
+## Regenerate the Default Conan Profile
+
+The default Conan profile is automatically regenerated if it is the active profile but does not exist when the project is built.
+
+Delete the "default.profile" file in the "profiles" directory. Use python to execute the "profile.py" script without passing any arguments. Use command prompt (Windows) or a shell (Mac & Linux) to show output and display errors.
 
 ```
 python profile.py

@@ -26,20 +26,6 @@ def set_profile(profile: str) -> None:
         parser.write(ini_file, space_around_delimiters=True)
 
 
-def get_profile() -> str:
-    """Get the path to the active Conan profile"""
-    parser = ConfigParser()
-    parser.read(config_path)
-    if parser.has_option("profile", "profile"):
-        profile = parser["profile"]["profile"]
-    else:
-        set_profile(default_profile)
-        profile = default_profile
-        if not os.path.isfile(abs_path_to_profile(default_profile)):
-            generate_default()
-    return abs_path_to_profile(profile)
-
-
 def generate_default() -> None:
     """Use Conan to automatically generate the default profile"""
     venv_module = import_module("this_venv")
@@ -60,6 +46,22 @@ def generate_default() -> None:
             "    )\n",
         ]
     )
+
+
+def get_profile() -> str:
+    """Get the path to the active Conan profile"""
+    parser = ConfigParser()
+    parser.read(config_path)
+    if parser.has_option("profile", "profile"):
+        profile = abs_path_to_profile(parser["profile"]["profile"])
+        if os.path.isfile(profile):
+            return profile
+
+    # Use the default profile if the configuration file is invalid or the profile does not exist.
+    set_profile(default_profile)
+    if not os.path.isfile(abs_path_to_profile(default_profile)):
+        generate_default()
+    return abs_path_to_profile(default_profile)
 
 
 if __name__ == "__main__":
