@@ -298,7 +298,7 @@ python install.py
 - [X] Generate different "conanfile.py" files for different package types.
 - [X] Provide more detailed documentation.
 - [X] Allow regeneration of the default Conan profile.
-- [ ] Use Jinja for templating.
+- [X] Use Jinja for templating.
 - [ ] Add support for different host and build profiles.
 - [X] Add option for static or dynamic linking of dependencies.
 - [X] Add build targets by editing a configuration file instead of manually editing the "meson.build" file.

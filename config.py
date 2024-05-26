@@ -4,6 +4,7 @@ from ast import literal_eval
 from configparser import ConfigParser
 from dataclasses import dataclass
 from importlib import import_module
+import json
 import os
 from os import remove, rename, listdir
 from os.path import join, dirname
@@ -148,147 +149,6 @@ def get_config() -> Dict[str, str]:
     return configs
 
 
-@dataclass
-class EscapeSequence:
-    """An escape sequence consisting of a specific prefix and postfix that are unlikely to naturally occur in a file"""
-
-    prefix: str
-    postfix: str
-
-
-class InvalidTemplateFile(Exception):
-    """Exception thrown when a template file does not have the correct file extension"""
-
-    def __init__(self, message: str) -> None:
-        self.message = message
-
-
-class TemplateParsingError(Exception):
-    """Exception thrown when an error occurs during template parsing"""
-
-    def __init__(self, message: str) -> None:
-        self.message = message
-
-
-def configure_template(path: str, config: Dict[str, str]) -> None:
-    """Insert configuration information into the provided template file."""
-    # Verify that the template has the correct file extension.
-    template_file_extension = ".tmpl"
-    if not path.endswith(template_file_extension):
-        raise InvalidTemplateFile(
-            "Template files must have a template file extension ("
-            + template_file_extension
-            + ")"
-        )
-
-    # A list of escape sequences to search for in the file.
-    escape_strings: List[EscapeSequence] = [
-        EscapeSequence("___", "___"),
-        EscapeSequence('["<<', '>>"]'),
-    ]
-
-    # The newline character.
-    newline_char: str = "\n"
-
-    # The escape sequence currently being read.
-    active_escape: Union[EscapeSequence, NoneType] = None
-
-    # The entire file that has so far been read.
-    read_so_far: str = ""
-
-    # The number of characters encountered since the last newline.
-    cols_since_newline = 0
-
-    # The number of newlines encountered so far in the file.
-    newlines_so_far: int = 0
-
-    # The index of the beginning of an identifier enclosed within the current escape sequence.
-    id_start: int = 0
-
-    # Open the template file in read mode.
-    template = open(path, mode="r", newline=newline_char)
-
-    # Read the entire template file one character at a time.
-    c: str
-    while c := template.read(1):
-        # Keep track of everything read so far for extracting identifier names.
-        read_so_far += c
-
-        # Keep track of line and column numbers for constructing helpful error messages.
-        cols_since_newline += 1
-        if c == newline_char:
-            newlines_so_far += 1
-            cols_since_newline = 0
-
-        if active_escape is None:
-            # Search for an escape sequence prefix.
-            e: EscapeSequence
-            for e in escape_strings:
-                if read_so_far.endswith(e.prefix):
-                    active_escape = e
-                    id_start = len(read_so_far)
-                    break
-            continue
-
-        # The prefix of an escape sequence was found, so search for its postfix.
-        if not read_so_far.endswith(active_escape.postfix):
-            continue
-
-        # Extract the identifier name once the escape sequence postifx is found.
-        id: str = read_so_far[id_start : -len(active_escape.postfix)].strip()
-
-        if id not in config:
-            raise TemplateParsingError(
-                "Unknown identifier '"
-                + id
-                + "' at line "
-                + str(newlines_so_far + 1)
-                + " column "
-                + str(cols_since_newline + 1)
-                + " in '"
-                + path
-                + "'"
-            )
-
-        # Insert the cooresponding configuration value into the text.
-        id_value: str = config[id]
-        cutoff_i: int = id_start - len(active_escape.prefix)
-        read_so_far = read_so_far[:cutoff_i] + id_value
-
-        # Finished reading the escape sequence. Begin searching for another.
-        active_escape = None
-
-    # Incomplete escape sequences are not allowed.
-    if active_escape is not None:
-        raise TemplateParsingError("EOF encountered while reading identifier")
-
-    # Close and delete the original template file.
-    template.close()
-    remove(path)
-
-    # Write to a new file.
-    template = open(
-        path.removesuffix(template_file_extension),
-        mode="w",
-        newline=newline_char,
-    )
-    template.write(read_so_far)
-    template.close()
-
-
-class CommandFailure(Exception):
-    """Exception thrown when a command run in a subprocess fails"""
-
-    def __init__(self, message) -> None:
-        self.message = message
-
-
-def cmd(args: List[str]) -> None:
-    """Execute a command in a subprocess and throw an exception upon failure"""
-    if subprocess.call(args) != 0:
-        raise CommandFailure("Command failed: " + str(args))
-
-
 def shutil_onerror(func, path, exc_info):
     """On access error, add write permissions and try again"""
     if os.access(path, os.W_OK):
@@ -308,7 +168,9 @@ def configure():
     remove(join(this_dir, "README.md"))
 
     # Create a fresh git repository.
-    cmd(["git", "init", "--initial-branch", "main", this_dir])
+    subprocess.run(
+        ["git", "init", "--initial-branch", "main", this_dir], check=True
+    )
 
     # Unpack template files.
     for file in listdir(join(this_dir, "template_files")):
@@ -317,71 +179,19 @@ def configure():
         )
     shutil.rmtree(join(this_dir, "template_files"))
 
-    # Generate a LICENSE file if the selected license is 'Zlib'.
-    if config["license"] == "Zlib":
-        configure_template(join(this_dir, "LICENSE.tmpl"), config)
-    else:
-        remove(join(this_dir, "LICENSE.tmpl"))
+    # Create the virtual environment.
+    venv = import_module("this_venv")
+    venv.create()
 
     # Configure templates.
-    configure_template(
-        join(this_dir, "___package_name___", "version.hpp.in.tmpl"),
-        config,
+    subprocess.run(
+        [
+            venv.python(),
+            join(this_dir, "configure_templates.py"),
+            json.dumps(config),
+        ],
+        check=True,
     )
-    configure_template(
-        join(this_dir, "src", "version.cpp.tmpl"),
-        config,
-    )
-    configure_template(
-        join(this_dir, "src", "version.test.cpp.tmpl"),
-        config,
-    )
-    configure_template(join(this_dir, "meson.build.tmpl"), config)
-    configure_template(join(this_dir, ".gitignore.tmpl"), config)
-    configure_template(join(this_dir, "README.md.tmpl"), config)
-    if config["package_type"] == "library":
-        # Configure this project as a library
-        configure_template(join(this_dir, "conanfile-lib.py.tmpl"), config)
-        rename(
-            join(this_dir, "conanfile-lib.py"), join(this_dir, "conanfile.py")
-        )
-        remove(join(this_dir, "conanfile-app.py.tmpl"))
-        configure_template(join(this_dir, "clean-lib.py.tmpl"), config)
-        rename(join(this_dir, "clean-lib.py"), join(this_dir, "clean.py"))
-        remove(join(this_dir, "clean-app.py.tmpl"))
-        remove(join(this_dir, "src", "main.cpp.tmpl"))
-        configure_template(
-            join(this_dir, "test_package", "conanfile.py.tmpl"),
-            config,
-        )
-        configure_template(
-            join(this_dir, "test_package", "src", "main.cpp.tmpl"),
-            config,
-        )
-        rename(
-            join(this_dir, "___package_name___"),
-            join(this_dir, config["package_name"]),
-        )
-    else:
-        # Configure this project as an application
-        configure_template(join(this_dir, "conanfile-app.py.tmpl"), config)
-        rename(
-            join(this_dir, "conanfile-app.py"), join(this_dir, "conanfile.py")
-        )
-        remove(join(this_dir, "conanfile-lib.py.tmpl"))
-        configure_template(join(this_dir, "clean-app.py.tmpl"), config)
-        rename(join(this_dir, "clean-app.py"), join(this_dir, "clean.py"))
-        remove(join(this_dir, "clean-lib.py.tmpl"))
-        configure_template(
-            join(this_dir, "src", "main.cpp.tmpl"),
-            config,
-        )
-        shutil.move(
-            join(this_dir, "___package_name___", "version.hpp.in"), "src"
-        )
-        shutil.rmtree(join(this_dir, "___package_name___"))
-        shutil.rmtree(join(this_dir, "test_package"))
-        remove(join(this_dir, "install.py"))
 
     # Declare binaries
     binary_config_module = import_module("update_deps")
@@ -436,8 +246,9 @@ def configure():
     )
     binaries.write()
 
-    # Remove this configuration script and the cooresponding .ini file once all previous operations have succeeded.
+    # Remove this configuration script, the templater script, and the cooresponding .ini file once all previous operations have succeeded.
     remove(join(this_dir, "config.py"))
+    remove(join(this_dir, "configure_templates.py"))
     remove(join(this_dir, "template_config.ini"))
 
 

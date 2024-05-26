@@ -1,4 +1,4 @@
-"""___package_name___ test package Conan file"""
+"""{{ package_name }} test package Conan file"""
 
 from os.path import join as join_path
 from typing import List
@@ -13,8 +13,8 @@ from conan.tools.meson import Meson, MesonToolchain
 required_conan_version = ">=2.3.0"
 
 
-class ___package_name___TestPackage(ConanFile):
-    """___package_name___ test package"""
+class {{ package_name }}TestPackage(ConanFile):
+    """{{ package_name }} test package"""
 
     # Required
     name = "test_package"

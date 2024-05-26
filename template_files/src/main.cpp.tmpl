@@ -6,8 +6,8 @@
 
 int main(int argc, char** argv) {
     std::cout << "\nCompiletime Version:\t"
-              << ___namespace___::compiletime_version << "\nRuntime Version:\t"
-              << ___namespace___::get_runtime_version() << "\n\n";
+              << {{ namespace }}::compiletime_version << "\nRuntime Version:\t"
+              << {{ namespace }}::get_runtime_version() << "\n\n";
 
     return 0;
 }

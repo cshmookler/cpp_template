@@ -1,10 +1,10 @@
 // Local includes
-#include "../___version_header_dir___/version.hpp"
+#include "../{{ version_header_dir }}/version.hpp"
 
-namespace ___namespace___ {
+namespace {{ namespace }} {
 
 const char* get_runtime_version() {
-    return ::___namespace___::compiletime_version;
+    return ::{{ namespace }}::compiletime_version;
 }
 
-} // namespace ___namespace___
+} // namespace {{ namespace }}

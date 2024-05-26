@@ -30,7 +30,7 @@ conf_data = configuration_data()
 conf_data.set('version', project_version)
 configure_file(
     configuration : conf_data,
-    input : '___version_header_dir___' / 'version.hpp.in',
+    input : '{{ version_header_dir }}' / 'version.hpp.in',
     output : 'version.hpp',
 )
 
@@ -41,7 +41,7 @@ run_command(
     python,
     root_dir / 'build_scripts' / 'copy.py',
     'version.hpp',
-    '___version_header_dir___' / 'version.hpp',
+    '{{ version_header_dir }}' / 'version.hpp',
     check : true,
 )
 

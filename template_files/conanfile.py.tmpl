@@ -1,4 +1,4 @@
-"""___package_name___ root Conan file"""
+"""{{ package_name }} root Conan file"""
 
 from importlib import import_module
 import os
@@ -18,26 +18,33 @@ this_dir: str = os.path.dirname(__file__)
 required_conan_version = ">=2.3.0"
 
 
-class ___package_name___(ConanFile):
-    """___package_name___"""
+class {{ package_name }}(ConanFile):
 
     # Required
-    name = "___package_name___"
+    name = "{{ package_name }}"
 
     # Metadata
-    license = "___license___"
-    author = "___author___ (___email___)"
-    url = "___url___"
-    description = "___description___"
-    topics = ["<< topics >>"]
+    license = "{{ license }}"
+    author = "{{ author }} ({{ email }})"
+    url = "{{ url }}"
+    description = "{{ description }}"
+    topics = {{ topics }}
 
     # Configuration
-    package_type = "___package_type___"
+    package_type = "{{ package_type }}"
     settings = "os", "compiler", "build_type", "arch"
     options = {
+        {% if package_type == "library" %}
+        "shared": [True, False],
+        "fPIC": [True, False],
+        {% endif %}
         "quit_after_generate": [True, False],
     }
     default_options = {
+        {% if package_type == "library" %}
+        "shared": False,
+        "fPIC": True,
+        {% endif %}
         "quit_after_generate": False,
     }
     build_policy = "missing"
@@ -52,6 +59,9 @@ class ___package_name___(ConanFile):
     # Files needed by Conan to build from source
     exports_sources = (
         os.path.join("build_scripts", "*"),
+        {% if package_type == "library" %}
+        os.path.join(name, "*"),
+        {% endif %}
         os.path.join("src", "*"),
         "meson.build",
     )
@@ -66,6 +76,18 @@ class ___package_name___(ConanFile):
             self.version = git.run("describe --tags").partition("-")[0]
         except ConanException:
             self.version = "0.0.0"
+    {% if package_type == "library" %}
+
+    def config_options(self):
+        """Change available options"""
+        if self.settings.os == "Windows":
+            del self.options.fPIC
+
+    def configure(self):
+        """Change behavior based on set options"""
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+    {% endif %}
 
     def build_requirements(self):
         """Declare dependencies of the build system"""
@@ -209,3 +231,16 @@ class ___package_name___(ConanFile):
             self.source_folder,
         )
         meson.test()
+    {% if package_type == "library" %}
+
+    def package(self):
+        """Install project headers and compiled binaries"""
+        meson = Meson(self)
+        meson.install()
+
+    def package_info(self):
+        """Package information"""
+        self.cpp_info.libs = [self.name]
+        self.cpp_info.includedirs = ["include"]
+        self.cpp_info.bindirs = ["bin"]
+    {% endif %}

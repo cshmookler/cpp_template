@@ -16,8 +16,11 @@ def clean() -> None:
     """Remove build files"""
     this_dir: str = os.path.dirname(__file__)
     rmtree(os.path.join(this_dir, "build"), ignore_errors=True)
+    {% if package_type == "library" %}
+    rmtree(os.path.join(this_dir, "test_package", "build"), ignore_errors=True)
+    {% endif %}
     rmtree(os.path.join(this_dir, "__pycache__"), ignore_errors=True)
-    remove(os.path.join(this_dir, "___version_header_dir___", "version.hpp"))
+    remove(os.path.join(this_dir, "{{ version_header_dir }}", "version.hpp"))
     remove(os.path.join(this_dir, "compile_commands.json"))
 
 
