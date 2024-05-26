@@ -10,7 +10,7 @@ from conan.tools.gnu import PkgConfigDeps
 from conan.tools.meson import Meson, MesonToolchain
 
 
-required_conan_version = ">=2.0.0"
+required_conan_version = ">=2.3.0"
 
 
 class ___package_name___TestPackage(ConanFile):
@@ -25,8 +25,8 @@ class ___package_name___TestPackage(ConanFile):
 
     def build_requirements(self):
         """Declare dependencies of the build system"""
-        self.tool_requires("meson/1.2.1")
-        self.tool_requires("pkgconf/2.0.3")
+        self.tool_requires("meson/1.4.0")
+        self.tool_requires("pkgconf/2.2.0")
 
     def requirements(self):
         """Declare library dependencies"""
