@@ -338,48 +338,6 @@ class Binaries:
             )
         return raw
 
-        # raw_example = [
-        #     [
-        #         "cpp_template",  # name
-        #         "application",  # type
-        #         [],  # dependencies
-        #         [],  # headers
-        #         [["src", "version.cpp"]],  # sources
-        #         ["src", "main.cpp"],  # main
-        #     ],
-        #     [
-        #         "version",  # name
-        #         "test",  # type
-        #         [  # dependencies
-        #             [
-        #                 "zlib",  # dep_name
-        #                 "1.3.1",  # dep_version
-        #                 True,  # enabled
-        #                 None,  # dynamic
-        #                 [],  # components
-        #             ],
-        #             [
-        #                 "gtest",  # dep_name
-        #                 "1.14.0",  # dep_version
-        #                 True,  # enabled
-        #                 None,  # dynamic
-        #                 [  # components
-        #                     ["gtest", True],
-        #                     ["gtest_main", True],
-        #                     ["gmock", True],
-        #                     ["gmock_main", True],
-        #                 ],
-        #             ],
-        #         ],
-        #         [],  # headers
-        #         [  # sources
-        #             ["src", "version.test.cpp"],
-        #             ["src", "version.cpp"],
-        #         ],
-        #         [],  # main
-        #     ],
-        # ]
-
     def write(self) -> None:
         """Writes binary information to the binary configuration file represented as JSON"""
         json.dump(self.json(), open(path, "w"), indent=4)
@@ -388,8 +346,8 @@ class Binaries:
 if __name__ == "__main__":
     """Update dependency information in the binary configuration file"""
     build = import_module("build")
-    profile = import_module("profile")
+    profiles = import_module("profiles")
     build.build(
-        profile.get_profile(),
+        profiles.get_profiles(),
         extra_args=["--options:all", "quit_after_generate=True"],
     )

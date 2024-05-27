@@ -253,30 +253,46 @@ Use Python to execute the "clear_cache.py" script. Use command prompt (Windows) 
 python clear_cache.py
 ```
 
-## Change the Conan Profile
+## Conan Profile Management
 
-The active Conan profile lists the system architecture, operating system, C++ compiler, and other configuration information for Conan. All profiles are stored in the "profiles" directory and have a ".profile" extension. The default profile ("default.profile") is automatically generated if it does not exist.
+The active Conan profiles list system architecture, operating system, C++ compiler, and other configuration information for Conan. All profiles are stored in the "profiles" directory and have a ".profile" extension. The default profile ("default.profile") is automatically generated if it does not exist.
 
-To change the active Conan profile to another stored in the "profiles" directory, edit the "profile.ini" file. Alternatively, use Python to execute the "profile.py" script and provide the name of the new Conan profile as a command line argument ("new.profile" in the example below). Use command prompt (Windows) or a shell (Mac & Linux) to provide the new profile name, show output, and display errors.
+Conan uses two active profiles: build and host. The build profile defines the platform where the binaries are built, and the host profile defines the platform where the binaries are executed. Using different build and host profiles is useful for [cross-compiling](https://docs.conan.io/2/tutorial/consuming_packages/cross_building_with_conan.html).
 
-```
-python profile.py new.profile
-```
+### View the active profiles
 
-To reset the active profile to the default profile ("default.profile"), execute the "profile.py" script without any arguments. If the default profile does not exist, a new one is automatically generated.
+The paths to the active profiles are stored in the "profiles.ini" configuration file. If either of those profiles do not exist when the project is built, then the default profile is used instead.
 
-```
-python profile.py
-```
-
-## Regenerate the Default Conan Profile
-
-The default Conan profile is automatically regenerated if it is the active profile but does not exist when the project is built.
-
-Delete the "default.profile" file in the "profiles" directory. Use python to execute the "profile.py" script without passing any arguments. Use command prompt (Windows) or a shell (Mac & Linux) to show output and display errors.
+To view the paths to the profiles that will actually be used when the project is built, use Python to execute the "profiles.py" script without any arguments. Use command prompt (Windows) or a shell (Mac & Linux) to show output and display errors.
 
 ```
-python profile.py
+python profiles.py
+```
+
+### Switch profiles
+
+To change the active build profile, use Python to execute the "profiles.py" script with the new profile path following the "--build" option. Use command prompt (Windows) or a shell (Mac & Linux) to show output and display errors. The example below sets the active build profile to "new-build.profile".
+
+```
+python profiles.py --build new-build.profile
+```
+
+> Note: The new profile must exist in the "profiles" directory else the default profile will be used instead.
+
+To change the active host profile, use the "--host" option instead. The example below sets the active host profile to "new-host.profile".
+
+```
+python profiles.py --host new-host.profile
+```
+
+### Regenerate the default profile
+
+The default Conan profile is automatically regenerated if it is an active profile but does not exist when the project is built.
+
+Delete the "default.profile" file in the "profiles" directory. Delete the "profiles.ini" file as well to ensure that the default profile is selected as an active profile. Use python to execute the "profiles.py" script without passing any arguments. Use command prompt (Windows) or a shell (Mac & Linux) to show output and display errors.
+
+```
+python profiles.py
 ```
 
 ## Install (for libraries)
@@ -299,7 +315,7 @@ python install.py
 - [X] Provide more detailed documentation.
 - [X] Allow regeneration of the default Conan profile.
 - [X] Use Jinja for templating.
-- [ ] Add support for different host and build profiles.
+- [X] Add support for different host and build profiles.
 - [X] Add option for static or dynamic linking of dependencies.
 - [X] Add build targets by editing a configuration file instead of manually editing the "meson.build" file.
 - [ ] Add tests.

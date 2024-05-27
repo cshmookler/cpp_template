@@ -8,7 +8,7 @@ import subprocess
 this_dir: str = os.path.dirname(__file__)
 
 
-def install(profile: str) -> None:
+def install(profiles) -> None:
     """Install this project using Conan"""
     venv = import_module("this_venv")
     if not venv.exists():
@@ -18,8 +18,10 @@ def install(profile: str) -> None:
             venv.conan(),
             "create",
             "--build=missing",
-            "--profile:all",
-            profile,
+            "--profile:build",
+            profiles.build,
+            "--profile:host",
+            profiles.host,
             "--conf:host",
             "tools.system.package_manager:mode=install",
             "--conf:host",
@@ -30,5 +32,5 @@ def install(profile: str) -> None:
 
 
 if __name__ == "__main__":
-    profile = import_module("profile")
-    install(profile.get_profile())
+    profiles = import_module("profiles")
+    install(profiles.get_profiles())
