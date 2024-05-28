@@ -17,7 +17,9 @@ class Component:
     """Dependency component information"""
 
     name: str
+    version: str | None
     enabled: bool
+    exclude_version_from_json: bool = False
 
 
 @dataclass
@@ -72,15 +74,123 @@ class Binaries:
         self.binaries = binaries
 
     def __iter__(self):
-        for binary in self.binaries:
-            yield binary
+        yield from self.binaries
 
     @staticmethod
     def file_exists() -> bool:
         """Returns true if the binary configuration file exists and false otherwise"""
         return os.path.isfile(path)
 
-    def structured(self, raw_json: dict) -> None:
+    @staticmethod
+    def _structured_components(
+        raw_json: dict, mark_temporary_versions: bool
+    ) -> List[Component]:
+        """Converts JSON to components"""
+        _assert_type(raw_json, dict)
+
+        components: List[Component] = []
+
+        for component_name, component_info in raw_json.items():
+            _assert_type(component_name, str)
+            _assert_type(component_info, bool, dict)
+
+            component_version: str | NoneType = None
+            component_enabled: bool = True
+            component_exclude_version_from_json: bool = False
+
+            if type(component_info) == dict:
+                if "version" in component_info:
+                    component_version = component_info["version"]
+                    _assert_type(component_version, str)
+                if "enabled" in component_info:
+                    component_enabled = component_info["enabled"]
+                if (
+                    mark_temporary_versions
+                    and "exclude_version_from_json" in component_info
+                ):
+                    component_exclude_version_from_json = component_info[
+                        "exclude_version_from_json"
+                    ]
+            else:
+                component_enabled = component_info
+
+            _assert_type(component_enabled, bool)
+            _assert_type(component_exclude_version_from_json, bool)
+
+            components.append(
+                Component(
+                    name=component_name,
+                    version=component_version,
+                    enabled=component_enabled,
+                    exclude_version_from_json=component_exclude_version_from_json,
+                )
+            )
+
+        return components
+
+    @staticmethod
+    def _structured_dependencies(
+        raw_json: dict, mark_temporary_versions: bool
+    ) -> List[Dependency]:
+        """Converts JSON to dependencies"""
+        _assert_type(raw_json, dict)
+
+        dependencies: List[Dependency] = []
+
+        for name_and_version, dep_info in raw_json.items():
+            _assert_type(name_and_version, str)
+            _assert_type(dep_info, dict)
+
+            # Dependency name and version
+            if name_and_version.find("/") == -1:
+                raise BinaryConfigInterpretationError(
+                    "Dependencies must be in the form 'name/version', but no '/' symbol was found in '"
+                    + name_and_version
+                    + "'"
+                )
+            dep_name, dep_version = name_and_version.rsplit("/", 1)
+
+            # Dependency status (enabled or not)
+            enabled: bool = True
+            if "enabled" in dep_info:
+                enabled = dep_info["enabled"]
+                _assert_type(enabled, bool)
+                if not enabled:
+                    continue
+
+            # Dependency link preference (static or dynamic)
+            link_preference: bool = False
+            dynamic: bool = True
+            if "dynamic" in dep_info:
+                prefer_dynamic: bool | NoneType = dep_info["dynamic"]
+                _assert_type(prefer_dynamic, bool, NoneType)
+                link_preference = prefer_dynamic is not None
+                dynamic = prefer_dynamic if prefer_dynamic is not None else True
+
+            # Dependency component information
+            components: List[Component] = []
+            if "components" in dep_info:
+                components = Binaries._structured_components(
+                    dep_info["components"],
+                    mark_temporary_versions=mark_temporary_versions,
+                )
+
+            dependencies.append(
+                Dependency(
+                    name=dep_name,
+                    version=dep_version,
+                    enabled=enabled,
+                    link_preference=link_preference,
+                    dynamic=dynamic,
+                    components=components,
+                )
+            )
+
+        return dependencies
+
+    def structured(
+        self, raw_json: dict, mark_temporary_versions: bool = False
+    ) -> None:
         """Converts all binary information to JSON to structured form"""
         _assert_type(raw_json, dict)
 
@@ -104,71 +214,10 @@ class Binaries:
             # Dependencies
             dependencies: List[Dependency] = []
             if "dependencies" in binary_info:
-                _assert_type(binary_info["dependencies"], dict)
-                for name_and_version, dep_info in binary_info[
-                    "dependencies"
-                ].items():
-                    _assert_type(name_and_version, str)
-                    _assert_type(dep_info, dict)
-
-                    # Dependency name and version
-                    if name_and_version.find("/") == -1:
-                        raise BinaryConfigInterpretationError(
-                            "Dependencies must be in the form 'name/version', but no '/' symbol was found in '"
-                            + name_and_version
-                            + "'"
-                        )
-                    dep_name, dep_version = name_and_version.rsplit("/", 1)
-
-                    # Dependency status (enabled or not)
-                    enabled: bool = True
-                    if "enabled" in dep_info:
-                        enabled = dep_info["enabled"]
-                        _assert_type(enabled, bool)
-                        if not enabled:
-                            continue
-
-                    # Dependency link preference (static or dynamic)
-                    link_preference: bool = False
-                    dynamic: bool = True
-                    if "dynamic" in dep_info:
-                        prefer_dynamic: bool | None = dep_info["dynamic"]
-                        _assert_type(prefer_dynamic, bool, NoneType)
-                        link_preference = prefer_dynamic is not None
-                        dynamic = (
-                            prefer_dynamic
-                            if prefer_dynamic is not None
-                            else True
-                        )
-
-                    # Dependency component information
-                    components: List[Component] = []
-                    if "components" in dep_info:
-                        declared_components: dict = dep_info["components"]
-                        _assert_type(declared_components, dict)
-                        for (
-                            component_name,
-                            component_enabled,
-                        ) in declared_components.items():
-                            _assert_type(component_name, str)
-                            _assert_type(component_enabled, bool)
-                            components.append(
-                                Component(
-                                    name=component_name,
-                                    enabled=component_enabled,
-                                )
-                            )
-
-                    dependencies.append(
-                        Dependency(
-                            name=dep_name,
-                            version=dep_version,
-                            enabled=enabled,
-                            link_preference=link_preference,
-                            dynamic=dynamic,
-                            components=components,
-                        )
-                    )
+                dependencies = Binaries._structured_dependencies(
+                    binary_info["dependencies"],
+                    mark_temporary_versions=mark_temporary_versions,
+                )
 
             # Headers (if applicable)
             if bin_type == "library":
@@ -239,47 +288,36 @@ class Binaries:
         self.structured(raw_json)
 
     @staticmethod
-    def _json_deps(
-        dependencies: List[Dependency],
-    ) -> Dict[str, Dict[str, Dict[str, bool] | bool | None]]:
+    def _json_dependencies(dependencies: List[Dependency]) -> dict:
         """Converts dependencies to JSON"""
-        raw_json: Dict[str, Dict[str, Dict[str, bool] | bool | None]] = {}
+        raw_json: dict = {}
         for dep in dependencies:
+            components = {}
+            for component in dep.components:
+                if (
+                    component.version == None
+                    or component.exclude_version_from_json
+                ):
+                    components[component.name] = component.enabled
+                else:
+                    components[component.name] = {
+                        "version": component.version,
+                        "enabled": component.enabled,
+                    }
             raw_json[dep.name + "/" + dep.version] = {
                 "enabled": dep.enabled,
                 "dynamic": (dep.dynamic if dep.link_preference else None),
-                "components": {
-                    component.name: component.enabled
-                    for component in dep.components
-                },
+                "components": components,
             }
         return raw_json
 
-    def json(self) -> Dict[
-        str,
-        Dict[
-            str,
-            Dict[str, Dict[str, Dict[str, bool] | bool | None]]
-            | List[List[str]]
-            | List[str]
-            | str,
-        ],
-    ]:
+    def json(self) -> dict:
         """Converts all binary information from structured form to JSON"""
-        raw_json: Dict[
-            str,
-            Dict[
-                str,
-                Dict[str, Dict[str, Dict[str, bool] | bool | None]]
-                | List[List[str]]
-                | List[str]
-                | str,
-            ],
-        ] = {}
+        raw_json: dict = {}
         for binary in self.binaries:
             raw_json[binary.name] = {}
             raw_json[binary.name]["type"] = binary.bin_type
-            raw_json[binary.name]["dependencies"] = Binaries._json_deps(
+            raw_json[binary.name]["dependencies"] = Binaries._json_dependencies(
                 binary.dependencies
             )
             if binary.bin_type == "library":
@@ -291,52 +329,43 @@ class Binaries:
 
     def unstructured(
         self,
-    ) -> List[
-        List[
-            str
-            | List[str]
-            | List[List[str]]
-            | List[List[bool | str | List[List[bool | str]]]]
-        ]
-    ]:
+    ) -> list:
         """Converts all binary information from structured form to an unstructured form comprised entirely of lists (no dictionaries)"""
-        raw: List[
-            List[
-                str
-                | List[str]
-                | List[List[str]]
-                | List[List[bool | str | List[List[bool | str]]]]
-            ]
-        ] = []
+        binaries = []
 
         for binary in self.binaries:
-            raw.append(
+            dependencies = []
+            for dependency in binary.dependencies:
+                components = []
+                for component in dependency.components:
+                    components.append(
+                        [
+                            component.name,
+                            component.version,
+                            component.enabled,
+                        ]
+                    )
+                dependencies.append(
+                    [
+                        dependency.name,
+                        dependency.version,
+                        dependency.enabled,
+                        dependency.link_preference,
+                        dependency.dynamic,
+                        components,
+                    ]
+                )
+            binaries.append(
                 [
                     binary.name,
                     binary.bin_type,
-                    [
-                        [
-                            dependency.name,
-                            dependency.version,
-                            dependency.enabled,
-                            dependency.link_preference,
-                            dependency.dynamic,
-                            [
-                                [
-                                    component.name,
-                                    component.enabled,
-                                ]
-                                for component in dependency.components
-                            ],
-                        ]
-                        for dependency in binary.dependencies
-                    ],
+                    dependencies,
                     binary.headers,
                     binary.sources,
                     binary.main,
                 ]
             )
-        return raw
+        return binaries
 
     def write(self) -> None:
         """Writes binary information to the binary configuration file represented as JSON"""

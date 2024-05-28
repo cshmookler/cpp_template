@@ -60,14 +60,15 @@ foreach binary : project_binaries
         dependency_components = dependency[5]
         foreach component : dependency_components
             component_name = component[0]
-            component_enabled = component[1]
+            component_version = component[1]
+            component_enabled = component[2]
             if not component_enabled
                 continue
             endif
             if dependency_link_preference
                 binary_components += dependency(
                     component_name,
-                    version : dependency_version,
+                    version : component_version,
                     static : not dependency_dynamic,
                     required : true,
                     method : 'auto',
@@ -75,7 +76,7 @@ foreach binary : project_binaries
             else
                 binary_components += dependency(
                     component_name,
-                    version : dependency_version,
+                    version : component_version,
                     required : true,
                     method : 'auto',
                 )

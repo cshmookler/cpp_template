@@ -144,6 +144,7 @@ An example of a "binary_config.json" file annotated with comments prefixed with 
                     "zlib": true        //       * component (example: "zlib") (optional):
                                         //           true  -- (default) link with this component
                                         //           false -- do not link with this component
+                                        //           {dict} -- provide more detailed component information
                 }                       //
             }                           //
         },                              //
@@ -181,15 +182,25 @@ An example of a "binary_config.json" file annotated with comments prefixed with 
                     "gtest": true,      //       * component (example: "gtest") (optional):
                                         //           true  -- (default) link with this component
                                         //           false -- do not link with this component
+                                        //           {dict} -- provide more detailed component information
                     "gtest_main": true, //       * component (example: "gtest_main") (optional):
                                         //           true  -- (default) link with this component
                                         //           false -- do not link with this component
+                                        //           {dict} -- provide more detailed component information
                     "gmock": true,      //       * component (example: "gmock") (optional):
                                         //           true  -- (default) link with this component
                                         //           false -- do not link with this component
-                    "gmock_main": true  //       * component (example: "gmock_main") (optional):
-                                        //           true  -- (default) link with this component
-                                        //           false -- do not link with this component
+                                        //           {dict} -- provide more detailed component information
+                    "gmock_main": {     //       * component (example: "gmock_main") (optional):
+                                        //           true   -- (default) link with this component
+                                        //           false  -- do not link with this component
+                                        //           {dict} -- provide more detailed component information:
+                      "version": "1.0", //               * component version
+                      "enabled": false  //               * component enabled:
+                                        //                   true  -- link with this component
+                                        //                   false -- do not link with this component
+                                        //
+                    }                   //
                 }                       //
             }                           //
         },                              //
@@ -318,6 +329,7 @@ python install.py
 - [X] Add support for different host and build profiles.
 - [X] Add option for static or dynamic linking of dependencies.
 - [X] Add build targets by editing a configuration file instead of manually editing the "meson.build" file.
+- [X] Record dependency component versions independently from the overall dependency version.
 - [ ] Add tests.
 - [ ] ~~Generate SPDX licenses from templates.~~
 - [ ] ~~Allow a template to be configured multiple times.~~
