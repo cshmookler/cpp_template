@@ -20,12 +20,6 @@ from types import NoneType
 this_dir: str = dirname(__file__)
 
 
-def inline_print(return_val: Any, print_msg: str) -> Any:
-    """Prints a given message and returns a given value."""
-    print(print_msg)
-    return return_val
-
-
 def valid_identifier_name(name: str) -> bool:
     """Verify that a given string is a valid C++ identifier name."""
     # At least one character and starts with a letter.
@@ -124,20 +118,19 @@ def get_config() -> Dict[str, str]:
             pv: str = parsed_configs[k]
         except KeyError:
             pv = v.default
-        configs[k] = (
-            pv
-            if v.constraint(pv)
-            else inline_print(
-                v.default,
+        if v.constraint(pv):
+            configs[k] = pv
+        else:
+            configs[k] = v.default
+            print(
                 "Warning: Invalid option '"
                 + pv
                 + "' for '"
                 + k
                 + "'. Using '"
                 + v.default
-                + "' instead.",
+                + "' instead."
             )
-        )
 
     # Add options that are derived from others.
     configs["version_header_dir"] = (
@@ -149,7 +142,7 @@ def get_config() -> Dict[str, str]:
     return configs
 
 
-def shutil_onerror(func, path, exc_info):
+def shutil_onerror(func, path, exc_info) -> None:
     """On access error, add write permissions and try again"""
     if os.access(path, os.W_OK):
         raise
@@ -157,12 +150,13 @@ def shutil_onerror(func, path, exc_info):
     func(path)
 
 
-def configure():
+def configure() -> None:
     """Configure this template project"""
     config = get_config()
 
     # Remove unnecessary files.
     shutil.rmtree(join(this_dir, ".git"), onerror=shutil_onerror)
+    shutil.rmtree(join(this_dir, "tests"))
     remove(join(this_dir, ".gitattributes"))
     remove(join(this_dir, "LICENSE"))
     remove(join(this_dir, "README.md"))

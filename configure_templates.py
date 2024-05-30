@@ -44,12 +44,13 @@ class TemplateConfigurer:
         # Render the template and save it to the filesystem
         template = self.env.get_template(path)
         with open(
-            path.removesuffix(template_file_extension), "w"
+            os.path.join(this_dir, path.removesuffix(template_file_extension)),
+            "w",
         ) as configured:
             configured.write(template.render(self.config))
 
         # Remove the original template file
-        os.remove(path)
+        os.remove(os.path.join(this_dir, path))
 
 
 if __name__ == "__main__":
@@ -103,7 +104,7 @@ if __name__ == "__main__":
         templater.configure(os.path.join("src", "main.cpp.tmpl"))
         shutil.move(
             os.path.join(this_dir, "{{ package_name }}", "version.hpp.in"),
-            "src",
+            os.path.join(this_dir, "src"),
         )
         shutil.rmtree(os.path.join(this_dir, "{{ package_name }}"))
         shutil.rmtree(os.path.join(this_dir, "test_package"))
