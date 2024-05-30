@@ -29,7 +29,8 @@ def build(profiles, extra_args: List[str] = []) -> None:
             "tools.system.package_manager:sudo=True",
             os.path.dirname(__file__),
         ]
-        + extra_args
+        + extra_args,
+        check=True,
     )
 
 

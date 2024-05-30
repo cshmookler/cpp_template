@@ -61,7 +61,7 @@ def create() -> None:
     print("Creating virtual environment in " + path())
     venv = EnvBuilder(with_pip=True)
     venv.create(path())
-    subprocess.run([pip(), "install", "conan>=2.3.0"])
+    subprocess.run([pip(), "install", "conan>=2.3.0"], check=True)
 
 
 def exists() -> bool:

@@ -4,7 +4,6 @@ from dataclasses import dataclass
 from importlib import import_module
 import json
 import os
-import subprocess
 from types import NoneType
 from typing import List, Dict
 

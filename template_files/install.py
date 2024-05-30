@@ -27,7 +27,8 @@ def install(profiles) -> None:
             "--conf:host",
             "tools.system.package_manager:sudo=True",
             os.path.dirname(__file__),
-        ]
+        ],
+        check=True,
     )
 
 

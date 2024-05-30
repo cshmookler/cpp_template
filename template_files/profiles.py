@@ -86,7 +86,8 @@ def generate_default() -> None:
             "    profile.write(\n"
             "        import_module('conan.api.conan_api').ProfilesAPI.detect().dumps()\n"
             "    )\n",
-        ]
+        ],
+        check=True,
     )
 
 
