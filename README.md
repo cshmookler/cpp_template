@@ -110,12 +110,19 @@ python config.py
 
 If errors occur, troubleshoot to isolate the issue and repeat steps 2-4.
 
-## Build
+## Build from Source
 
 Use Python to execute the "build.py" script. Use command prompt (Windows) or a shell (Mac & Linux) so errors are shown.
 
 ```
 python build.py
+```
+
+The "build.py" script updates the build system, active profiles, binary configuration, and dependencies before building. If none of these are modified (the build system is the same, the active profile is not changed, and the "binary_config.json" file is untouched), then directly invoking the Meson backend (Ninja) is the fastest way to rebuild binaries.
+
+```
+cd build
+ninja
 ```
 
 ## Manage Binaries
