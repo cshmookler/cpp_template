@@ -1,3 +1,6 @@
 # output files from tests
-tests/*
-!tests/test.py
+tests/**/files/
+tests/**/logs/
+
+# byte-compiled python files
+__pycache__/

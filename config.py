@@ -157,6 +157,7 @@ def configure() -> None:
     # Remove unnecessary files.
     shutil.rmtree(join(this_dir, ".git"), onerror=shutil_onerror)
     shutil.rmtree(join(this_dir, "tests"))
+    remove(join(this_dir, ".gitignore"))
     remove(join(this_dir, ".gitattributes"))
     remove(join(this_dir, "LICENSE"))
     remove(join(this_dir, "README.md"))

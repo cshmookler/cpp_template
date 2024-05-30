@@ -4,8 +4,8 @@ import os
 import shutil
 import stat
 import subprocess
+from sys import argv
 from typing import List
-import colorama
 
 
 this_dir: str = os.path.dirname(__file__)
@@ -14,108 +14,113 @@ root_dir: str = os.path.abspath(os.path.join(this_dir, os.path.pardir))
 
 def _shutil_onerror(func, path, exc_info) -> None:
     """On access error, add write permissions and try again"""
+
     if os.access(path, os.W_OK):
         raise
     os.chmod(path, stat.S_IWUSR)
     func(path)
 
 
-class Tester:
-    """Tester class for this template project"""
+class Test:
+    """Testing class for this template project"""
 
-    def __init__(self, name: str):
-        print(name + ":")
+    def __init__(self, test_dir: str):
+        print(os.path.basename(test_dir))
 
-        self.root_dir = os.path.join(this_dir, name)
-        self.test_dir = os.path.join(self.root_dir, "files")
-        self.log_dir = os.path.join(self.root_dir, "logs")
+        self.test_dir = test_dir
+        self.files_dir = os.path.join(self.test_dir, "files")
+        self.log_dir = os.path.join(self.test_dir, "logs")
 
         self._prepare()
 
     def _prepare(self) -> None:
-        """Prepare a fresh copy of this template project for the test"""
+        """Prepare a fresh copy of this template project in the 'files' directory"""
 
-        # Remove the root directory for this test if it already exists
-        if os.path.exists(self.root_dir):
+        # Remove old files in the 'files' directory
+        if os.path.exists(self.files_dir):
             shutil.rmtree(
-                self.root_dir, onerror=_shutil_onerror, ignore_errors=True
+                self.files_dir, onerror=_shutil_onerror, ignore_errors=True
+            )
+
+        # Remove old files in the 'log' directory
+        if os.path.exists(self.log_dir):
+            shutil.rmtree(
+                self.log_dir, onerror=_shutil_onerror, ignore_errors=True
             )
 
         # Create directories
-        os.mkdir(self.root_dir)
-        os.mkdir(self.test_dir)
+        os.mkdir(self.files_dir)
         os.mkdir(self.log_dir)
 
-        # Copy all template files to the test directory
+        # Copy all template files to the 'files' directory
         for file_name in os.listdir(root_dir):
             file_abs_path = os.path.join(root_dir, file_name)
 
             # Do not copy the 'tests' directory
             if file_abs_path == this_dir:
                 # Create a placeholder 'tests' directory in the test directory
-                os.mkdir(os.path.join(self.test_dir, file_name))
+                os.mkdir(os.path.join(self.files_dir, file_name))
                 continue
 
             if os.path.isdir(file_abs_path):
                 shutil.copytree(
-                    file_abs_path, os.path.join(self.test_dir, file_name)
+                    file_abs_path, os.path.join(self.files_dir, file_name)
                 )
             else:
                 shutil.copy(
-                    file_abs_path, os.path.join(self.test_dir, file_name)
+                    file_abs_path, os.path.join(self.files_dir, file_name)
                 )
 
-    def run(self, log_file: str, script: str, *args: str) -> bool:
-        """Execute a given python script in the test directory and append output to a given log file in the log directory"""
+    def run(self, log_file: str, script: str, *args: str) -> None:
+        """Execute a given python script in the 'files' directory and append output to a given log file in the 'log' directory"""
+
+        # Construct the command to execute
         cmd: List[str] = [
             "python",
-            os.path.join(self.test_dir, script),
+            os.path.join(self.files_dir, script),
         ] + list(args)
 
-        print("    executing script '" + log_file + "':\n        ", end="")
+        # Write the command to stdout for debug purposes
+        print("    " + log_file + "\n        ", end="")
         for arg in cmd:
             print(arg + " ", end="")
         print("\n", end="")
 
+        # Execute the command and write output to the log file
         log_path = os.path.join(self.log_dir, log_file)
         with open(log_path, "a+") as log:
-            status = subprocess.run(cmd, stdout=log, stderr=log).returncode
-
-        success: bool = status == 0
-
-        if success:
-            print(
-                "        "
-                + colorama.Fore.GREEN
-                + "success"
-                + colorama.Fore.RESET
-            )
-        else:
-            print(
-                "        "
-                + colorama.Fore.RED
-                + "failure"
-                + colorama.Fore.RESET
-                + " (return code: "
-                + str(status)
-                + ")"
-            )
-
-        return success
+            subprocess.run(cmd, stdout=log, stderr=log, check=True)
 
 
 if __name__ == "__main__":
-    colorama.init()
+    # Set the working directory to the project root so tests can be executed as modules and use relative importing to import from this script
+    working_dir: str = os.path.dirname(this_dir)
+    os.chdir(working_dir)
 
-    tester = Tester("test_default_application")
+    if len(argv) > 1:
+        # If given arguments on the command line, interpret them as the names of tests to execute
+        dirs = argv[1:]
+    else:
+        # If not given arguments on the command line, execute all tests
+        dirs = os.listdir(this_dir)
 
-    if not tester.run("config", "config.py"):
-        exit(1)
-    if not tester.run("clear_cache", "clear_cache.py"):
-        exit(1)
-    if not tester.run("first_build", "build.py"):
-        exit(1)
-    if not tester.run("clean", "clean.py"):
-        exit(1)
-    if not tester.run("second_build", "build.py"):
-        exit(1)
+    for dir_name in dirs:
+        dir_abs_path = os.path.join(this_dir, dir_name)
+
+        # Verify that the given path is valid
+        if not os.path.exists(dir_abs_path):
+            raise RuntimeError("Invalid test name: " + dir_name)
+
+        # Search for test directories
+        if not os.path.isdir(dir_abs_path) or dir_name == "__pycache__":
+            continue
+
+        # Execute the test in the discovered test directory
+        subprocess.run(
+            [
+                "python",
+                "-m",
+                os.path.basename(this_dir) + "." + dir_name + ".test",
+            ],
+            check=True,
+        )
