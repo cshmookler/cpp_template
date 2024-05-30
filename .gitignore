@@ -1,0 +1,3 @@
+# output files from tests
+tests/*
+!tests/test.py
