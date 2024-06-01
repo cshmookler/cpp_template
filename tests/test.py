@@ -91,6 +91,16 @@ class Test:
         with open(log_path, "a+") as log:
             subprocess.run(cmd, stdout=log, stderr=log, check=True)
 
+    def copy(self, src: str, dest: str = "") -> None:
+        """Copy a file from the test directory to the 'files' directory"""
+
+        src_abs_path = os.path.join(self.test_dir, src)
+        dest_abs_path = os.path.join(self.files_dir, dest)
+
+        print("    " + src_abs_path + " -> " + dest_abs_path)
+
+        shutil.copy(src_abs_path, dest_abs_path)
+
 
 if __name__ == "__main__":
     # Set the working directory to the project root so tests can be executed as modules and use relative importing to import from this script
@@ -104,6 +114,8 @@ if __name__ == "__main__":
         # If not given arguments on the command line, execute all tests
         dirs = os.listdir(this_dir)
 
+    tests = {}
+
     for dir_name in dirs:
         dir_abs_path = os.path.join(this_dir, dir_name)
 
@@ -116,11 +128,19 @@ if __name__ == "__main__":
             continue
 
         # Execute the test in the discovered test directory
-        subprocess.run(
+        returncode = subprocess.run(
             [
                 "python",
                 "-m",
                 os.path.basename(this_dir) + "." + dir_name + ".test",
-            ],
-            check=True,
-        )
+            ]
+        ).returncode
+
+        # Record whether the test succeeded or failed
+        tests[dir_name] = returncode == 0
+
+    # Report of the status of each executed test to stdout
+    print("\n", end="")
+    for test, success in tests.items():
+        status_msg = "~~SUCCESS~~" if success else "//FAILURE//"
+        print(test + ": " + status_msg)

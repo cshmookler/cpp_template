@@ -1,4 +1,4 @@
-# output files from tests
+# files generated from tests
 tests/**/files/
 tests/**/logs/
 

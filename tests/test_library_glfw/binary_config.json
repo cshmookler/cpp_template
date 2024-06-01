@@ -1,0 +1,52 @@
+{
+    "my_lib": {
+        "type": "library",
+        "dependencies": {
+            "glfw/3.4": {
+                "enabled": true,
+                "dynamic": null,
+                "components": {}
+            }
+        },
+        "headers": [
+            [
+                "my_lib",
+                "version.hpp"
+            ],
+            [
+                "my_lib",
+                "window.hpp"
+            ]
+        ],
+        "sources": [
+            [
+                "src",
+                "version.cpp"
+            ],
+            [
+                "src",
+                "window.cpp"
+            ]
+        ]
+    },
+    "version": {
+        "type": "test",
+        "dependencies": {
+            "gtest/1.14.0": {
+                "enabled": true,
+                "dynamic": null,
+                "components": {}
+            }
+        },
+        "sources": [
+            [
+                "src",
+                "version.test.cpp"
+            ],
+            [
+                "src",
+                "version.cpp"
+            ]
+        ]
+    }
+}

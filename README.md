@@ -337,7 +337,4 @@ python install.py
 - [X] Add option for static or dynamic linking of dependencies.
 - [X] Add build targets by editing a configuration file instead of manually editing the "meson.build" file.
 - [X] Record dependency component versions independently from the overall dependency version.
-- [ ] Add tests.
-- [ ] ~~Generate SPDX licenses from templates.~~
-- [ ] ~~Allow a template to be configured multiple times.~~
-
+- [X] Add tests for verifying the integrity and functionality of this template.
