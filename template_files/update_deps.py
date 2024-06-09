@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from importlib import import_module
 import json
 import os
+from sys import argv
 from types import NoneType
 from typing import List, Dict
 
@@ -377,5 +378,6 @@ if __name__ == "__main__":
     profiles = import_module("profiles")
     build.build(
         profiles.get_profiles(),
-        extra_args=["--options:all", "quit_after_generate=True"],
+        extra_args=["--options:all", "quit_after_generate=True"]
+        + list(argv)[1:],
     )

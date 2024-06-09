@@ -3,6 +3,7 @@
 from importlib import import_module
 import os
 import subprocess
+from sys import argv
 from typing import List
 
 
@@ -36,4 +37,4 @@ def build(profiles, extra_args: List[str] = []) -> None:
 
 if __name__ == "__main__":
     profiles = import_module("profiles")
-    build(profiles.get_profiles())
+    build(profiles.get_profiles(), list(argv)[1:])
