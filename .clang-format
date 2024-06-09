@@ -72,11 +72,11 @@ AllowAllConstructorInitializersOnNextLine : true                #  9.x      # (b
 AllowAllParametersOfDeclarationOnNextLine : true                #  3.3      # (boolean)
 # AllowBreakBeforeNoexceptSpecifier : OnlyWithParen               # 18.x      # Never, OnlyWithParen, Always
 AllowShortBlocksOnASingleLine : Empty                           #  3.5      # Never, Empty, Always
-AllowShortCaseLabelsOnASingleLine : true                        #  3.6      # (boolean)
+AllowShortCaseLabelsOnASingleLine : false                       #  3.6      # (boolean)
 AllowShortEnumsOnASingleLine : false                            # 11.x      # (boolean)
-AllowShortFunctionsOnASingleLine : Inline                       #  3.5      # None, InlineOnly, Empty, Inline, All
+AllowShortFunctionsOnASingleLine : Empty                        #  3.5      # None, InlineOnly, Empty, Inline, All
 AllowShortIfStatementsOnASingleLine : Never                     #  3.3      # Never, WithoutElse, OnlyFirstIf, AllIfsAndElse
-AllowShortLambdasOnASingleLine : All                            #  9.x      # None, Empty, Inline, All
+AllowShortLambdasOnASingleLine : Empty                          #  9.x      # None, Empty, Inline, All
 AllowShortLoopsOnASingleLine : false                            #  3.7      # (boolean)
 AlwaysBreakAfterDefinitionReturnType : None                     #  3.7      # None, All, TopLevel  # Deprecated and only kept for use with older versions of Clang-Format.
 AlwaysBreakAfterReturnType : None                               #  3.8      # None, All, TopLevel, AllDefinitions, TopLevelDefinitions
