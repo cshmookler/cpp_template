@@ -14,9 +14,11 @@ ColumnLimit : 80                                                #  3.7      # (u
 UseTab : Never                                                  #  3.7      # Never, ForIndentation, ForContinuationAndIndentation, AlignWithSpaces, Always
 TabWidth : 4                                                    #  3.7      # (unsigned integer)  # Irrelevent if UseTab : Never.
 IndentWidth : 4                                                 #  3.7      # (unsigned integer)
+PPIndentWidth : 4                                               # 13.x      # (integer)
+ObjCBlockIndentWidth : 4                                        #  3.7      # (unsigned integer)
 # BracedInitializerIndentWidth : 4                                # 17.x      # (unsigned integer)
 ConstructorInitializerIndentWidth : 0                           #  3.7      # (unsigned integer)
-ContinuationIndentWidth : 8                                     #  3.7      # (unsigned integer)
+ContinuationIndentWidth : 0                                     #  3.7      # (unsigned integer)
 IndentAccessModifiers : false                                   # 13.x      # (boolean)
 AccessModifierOffset : -2                                       #  3.3      # (integer)
 IndentCaseBlocks : false                                        # 11.x      # (boolean)
@@ -24,17 +26,15 @@ IndentCaseLabels : true                                         #  3.3      # (b
 IndentExternBlock : Indent                                      # 11.x      # AfterExternBlock, NoIndent, Indent
 IndentGotoLabels : true                                         # 10.x      # (boolean)
 IndentPPDirectives : BeforeHash                                 #  6.x      # None, AfterHash, BeforeHash
-PPIndentWidth : 4                                               # 13.x      (integer)
 # IndentRequiresClause : false                                    # 15.x      # (boolean)  # Successor of IndentRequires
 IndentRequires : false                                          # 12.x      # (boolean)
 IndentWrappedFunctionNames : false                              #  3.7      # (boolean)
 NamespaceIndentation : None                                     #  3.7      # None, Inner, All
 LambdaBodyIndentation : OuterScope                              # 13.x      # Signature, OuterScope
 # RequiresExpressionIndentation : OuterScope                      # 16.x      # OuterScope, Keyword
-ObjCBlockIndentWidth : 4                                        #  3.7      # (unsigned integer)
 #-------------------------------------------#     Alignment     #-----------#-----------------------------------------------------------------------------------------------------------------#
-AlignAfterOpenBracket : AlwaysBreak                             #  3.8      # (boolean), Align, DontAlign, AlwaysBreak, BlockIndent
-AlignArrayOfStructures : Right                                  # 13.x      # Left, Right, None
+AlignAfterOpenBracket : DontAlign                               #  3.8      # (boolean), Align, DontAlign, AlwaysBreak, BlockIndent
+AlignArrayOfStructures : None                                   # 13.x      # Left, Right, None
 AlignConsecutiveAssignments : None                              #  3.8      # (see documentation), None, Consecutive, AcrossEmptyLines, AcrossComments, AcrossEmptyLinesAndComments
     # Enabled : false                                                         # (boolean)
     # AcrossEmptyLines : false                                                # (boolean)
@@ -59,7 +59,7 @@ AlignConsecutiveMacros : None                                   #  9.x      # (s
 #     AcrossComments : false                                                  # (boolean)
 #     AlignCaseColons : false                                                 # (boolean)
 AlignEscapedNewlines : Right                                    #  5.x      # DontAlign, Left, Right
-AlignOperands : Align                                           #  3.5      # (boolean), DontAlign, Align, AlignAfterOperator
+AlignOperands : DontAlign                                         #  3.5      # (boolean), DontAlign, Align, AlignAfterOperator
 AlignTrailingComments : true                                    #  3.7      # (see documentation), (boolean)
     # Kind : Always                                               # 16.x      # Leave, Always, Never
     # OverEmptyLines : 0                                          # 16.x      # (unsigned integer)
@@ -94,7 +94,7 @@ BraceWrapping :                                                 #  3.8      # (s
     AfterStruct : false                                                     # (boolean)
     AfterUnion : false                                                      # (boolean)
     AfterExternBlock : false                                                # (boolean)
-    BeforeCatch : true                                                      # (boolean)
+    BeforeCatch : false                                                     # (boolean)
     BeforeElse : false                                                      # (boolean)
     BeforeLambdaBody : false                                                # (boolean)
     BeforeWhile : false                                                     # (boolean)
