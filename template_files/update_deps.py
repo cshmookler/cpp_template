@@ -327,9 +327,7 @@ class Binaries:
                 raw_json[binary.name]["main"] = binary.main
         return raw_json
 
-    def unstructured(
-        self,
-    ) -> list:
+    def unstructured(self) -> list:
         """Converts all binary information from structured form to an unstructured form comprised entirely of lists (no dictionaries)"""
         binaries = []
 

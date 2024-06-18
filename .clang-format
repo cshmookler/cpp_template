@@ -8,7 +8,7 @@ DisableFormat : false                                           #  3.7      # (b
 #-------------------------------------------#      General      #-----------#-----------------------------------------------------------------------------------------------------------------#
 Language : Cpp                                                  #  3.5      # None, Cpp, CSharp, Java, JavaScript, Json, ObjC, Proto, TableGen, TextProto, Verilog
 Standard : Latest                                               #  3.7      # c++03, c++11, c++14, c++17, c++20, Latest, Auto
-BasedOnStyle : Chromium                                                     # LLVM, Google, Chromium, Mozilla, WebKit, Microsoft, GNU, InheritParentConfig
+BasedOnStyle : Microsoft                                                    # LLVM, Google, Chromium, Mozilla, WebKit, Microsoft, GNU, InheritParentConfig
 ColumnLimit : 80                                                #  3.7      # (unsigned integer)
 #-------------------------------------------#    Indentation    #-----------#-----------------------------------------------------------------------------------------------------------------#
 UseTab : Never                                                  #  3.7      # Never, ForIndentation, ForContinuationAndIndentation, AlignWithSpaces, Always
@@ -18,7 +18,7 @@ PPIndentWidth : 4                                               # 13.x      # (i
 ObjCBlockIndentWidth : 4                                        #  3.7      # (unsigned integer)
 # BracedInitializerIndentWidth : 4                                # 17.x      # (unsigned integer)
 ConstructorInitializerIndentWidth : 0                           #  3.7      # (unsigned integer)
-ContinuationIndentWidth : 0                                     #  3.7      # (unsigned integer)
+ContinuationIndentWidth : 2                                     #  3.7      # (unsigned integer)
 IndentAccessModifiers : false                                   # 13.x      # (boolean)
 AccessModifierOffset : -2                                       #  3.3      # (integer)
 IndentCaseBlocks : false                                        # 11.x      # (boolean)
@@ -71,12 +71,12 @@ AllowAllArgumentsOnNextLine : true                              #  9.x      # (b
 AllowAllConstructorInitializersOnNextLine : true                #  9.x      # (boolean)  # Deprecated and only kept for use with older versions of Clang-Format.
 AllowAllParametersOfDeclarationOnNextLine : true                #  3.3      # (boolean)
 # AllowBreakBeforeNoexceptSpecifier : OnlyWithParen               # 18.x      # Never, OnlyWithParen, Always
-AllowShortBlocksOnASingleLine : Empty                           #  3.5      # Never, Empty, Always
+AllowShortBlocksOnASingleLine : Never                           #  3.5      # Never, Empty, Always
 AllowShortCaseLabelsOnASingleLine : false                       #  3.6      # (boolean)
 AllowShortEnumsOnASingleLine : false                            # 11.x      # (boolean)
-AllowShortFunctionsOnASingleLine : Empty                        #  3.5      # None, InlineOnly, Empty, Inline, All
+AllowShortFunctionsOnASingleLine : None                         #  3.5      # None, InlineOnly, Empty, Inline, All
 AllowShortIfStatementsOnASingleLine : Never                     #  3.3      # Never, WithoutElse, OnlyFirstIf, AllIfsAndElse
-AllowShortLambdasOnASingleLine : Empty                          #  9.x      # None, Empty, Inline, All
+AllowShortLambdasOnASingleLine : None                           #  9.x      # None, Empty, Inline, All
 AllowShortLoopsOnASingleLine : false                            #  3.7      # (boolean)
 AlwaysBreakAfterDefinitionReturnType : None                     #  3.7      # None, All, TopLevel  # Deprecated and only kept for use with older versions of Clang-Format.
 AlwaysBreakAfterReturnType : None                               #  3.8      # None, All, TopLevel, AllDefinitions, TopLevelDefinitions
@@ -99,9 +99,9 @@ BraceWrapping :                                                 #  3.8      # (s
     BeforeLambdaBody : false                                                # (boolean)
     BeforeWhile : false                                                     # (boolean)
     IndentBraces : false                                                    # (boolean)
-    SplitEmptyFunction : false                                              # (boolean)
-    SplitEmptyRecord : false                                                # (boolean)
-    SplitEmptyNamespace : false                                             # (boolean)
+    SplitEmptyFunction : true                                               # (boolean)
+    SplitEmptyRecord : true                                                 # (boolean)
+    SplitEmptyNamespace : true                                              # (boolean)
 # BreakAfterAttributes : Never                                    # 16.x      # Always, Leave, Never
 # BreakArrays : false                                             # 16.x      # (boolean)  # Currently only for formatting JSON
 BreakBeforeBinaryOperators : NonAssignment                      #  3.6      # None, NonAssignment, All
