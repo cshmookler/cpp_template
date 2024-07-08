@@ -80,7 +80,7 @@ def generate_default() -> None:
             venv_module.python(),
             "-c",
             "from importlib import import_module\n"
-            "with open('"
+            "with open(r'"
             + abs_path_to_profile(default_profile)
             + "', 'w') as profile:\n"
             "    profile.write(\n"
