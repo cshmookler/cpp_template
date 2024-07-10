@@ -58,8 +58,8 @@ def get_profiles() -> Profiles:
 
     # Verify that the existing profile paths are valid. If either are invalid, replace them with the default profile.
     profiles = Profiles(
-        _get_profile(parser, profile_build_type),
-        _get_profile(parser, profile_host_type),
+        host=_get_profile(parser, profile_host_type),
+        build=_get_profile(parser, profile_build_type),
     )
 
     # Ensure that the configuration file is updated if changes were made to the profile paths.
