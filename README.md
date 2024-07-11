@@ -338,3 +338,5 @@ python install.py
 - [X] Add build targets by editing a configuration file instead of manually editing the "meson.build" file.
 - [X] Record dependency component versions independently from the overall dependency version.
 - [X] Add tests for verifying the integrity and functionality of this template.
+- [X] Make Conan and Git optional (for a stripped-down template with minimal features).
+- [ ] List dependency version, user, channel, and recipe revision separately from the dependency name within the binary_config.json file.

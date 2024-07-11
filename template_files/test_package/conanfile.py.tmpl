@@ -44,9 +44,9 @@ class {{ package_name }}TestPackage(ConanFile):
         deps.generate()
         toolchain = MesonToolchain(self)
         toolchain.properties = {
-            "name": self.name,
-            "version": self.version,
-            "deps": self._meson_dependencies,
+            "_name": self.name,
+            "_version": self.version,
+            "_deps": self._meson_dependencies,
         }
         toolchain.generate()
 

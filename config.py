@@ -87,6 +87,9 @@ def get_config() -> Dict[str, str]:
         "namespace": ConfigInfo(
             default="tmpl", constraint=valid_identifier_name
         ),
+        "author": ConfigInfo(default=""),
+        "description": ConfigInfo(default=""),
+        "license": ConfigInfo(default=""),
         "package_type": ConfigInfo(
             default="application",
             constraint=lambda s: s
@@ -95,14 +98,19 @@ def get_config() -> Dict[str, str]:
                 "library",
             ],
         ),
+        "conan": ConfigInfo(
+            default="true",
+            constraint=lambda s: s
+            in [
+                "true",
+                "false",
+            ],
+        ),
         "dependencies": ConfigInfo(default="[]", constraint=valid_list),
-        "current_year": ConfigInfo(default=str(time.localtime().tm_year)),
-        "author": ConfigInfo(default=""),
         "email": ConfigInfo(default=""),
-        "license": ConfigInfo(default=""),
         "url": ConfigInfo(default=""),
-        "description": ConfigInfo(default=""),
         "topics": ConfigInfo(default="[]", constraint=valid_list),
+        "current_year": ConfigInfo(default=str(time.localtime().tm_year)),
     }
 
     # Read the configuration file.
@@ -133,11 +141,18 @@ def get_config() -> Dict[str, str]:
             )
 
     # Add options that are derived from others.
-    configs["version_header_dir"] = (
-        "src"
-        if configs["package_type"] == "application"
-        else configs["package_name"]
-    )
+    # configs["version_header_dir"] = (
+    #     "src"
+    #     if configs["package_type"] == "application"
+    #     else configs["package_name"]
+    # )
+    if configs["conan"] == "true":
+        if configs["package_type"] == "application":
+            configs["version_header_dir"] = "src"
+        else:
+            configs["version_header_dir"] = configs["package_name"]
+    else:
+        configs["version_header_dir"] = "build"
 
     return configs
 
@@ -174,6 +189,10 @@ def configure() -> None:
         )
     shutil.rmtree(join(this_dir, "template_files"))
 
+    # Remove the VERSION file if Conan is used.
+    if config["conan"] == "true":
+        remove(join(this_dir, "VERSION"))
+
     # Create the virtual environment.
     venv = import_module("this_venv")
     venv.create()
@@ -188,63 +207,102 @@ def configure() -> None:
         check=True,
     )
 
-    # Declare binaries
-    binary_config_module = import_module("update_deps")
-    binaries = binary_config_module.Binaries(
-        [
-            binary_config_module.Binary(
-                name=config["package_name"],
-                bin_type=config["package_type"],
-                dependencies=[
-                    binary_config_module.Dependency(
-                        name=dep.rsplit("/", 1)[0],
-                        version=dep.rsplit("/", 1)[1],
-                        enabled=True,
-                        link_preference=False,
-                        dynamic=True,
-                        components=[],
-                    )
-                    for dep in literal_eval(config["dependencies"])
-                ],
-                headers=[
-                    (
-                        [config["version_header_dir"], "version.hpp"]
-                        if config["package_type"] == "library"
-                        else []
-                    )
-                ],
-                sources=[["src", "version.cpp"]],
-                main=(
-                    []
-                    if config["package_type"] == "library"
-                    else ["src", "main.cpp"]
-                ),
-            ),
-            binary_config_module.Binary(
-                name="version",
-                bin_type="test",
-                dependencies=[
-                    binary_config_module.Dependency(
-                        name="gtest",
-                        version="1.14.0",
-                        enabled=True,
-                        link_preference=False,
-                        dynamic=True,
-                        components=[],
-                    )
-                ],
-                headers=[],
-                sources=[["src", "version.test.cpp"], ["src", "version.cpp"]],
-                main=[],
-            ),
-        ]
-    )
-    binaries.write()
+    # Remove files dependent on the package type.
+    if config["package_type"] == "library":
+        remove(join(this_dir, "src", "main.cpp.tmpl"))
+        rename(
+            join(this_dir, "{{ package_name }}"),
+            join(this_dir, config["package_name"]),
+        )
+        if config["conan"] != "true":
+            shutil.rmtree(join(this_dir, "test_package"))
+            remove(join(this_dir, "install.py"))
+    else:
+        shutil.move(
+            join(this_dir, "{{ package_name }}", "version.hpp.in"),
+            join(this_dir, "src"),
+        )
+        shutil.rmtree(join(this_dir, "{{ package_name }}"))
+        shutil.rmtree(join(this_dir, "test_package"))
+        remove(join(this_dir, "install.py"))
 
-    # Remove this configuration script, the templater script, and the cooresponding .ini file once all previous operations have succeeded.
+    # Remove files dependent on support for Conan.
+    if config["conan"] != "true":
+        shutil.rmtree(join(this_dir, "build_scripts"))
+        remove(join(this_dir, "conanfile.py.tmpl"))
+        remove(join(this_dir, "clean.py.tmpl"))
+        remove(join(this_dir, "build.py"))
+        remove(join(this_dir, "clear_cache.py"))
+        remove(join(this_dir, "profiles.py"))
+        remove(join(this_dir, "this_venv.py"))
+        remove(join(this_dir, "update_deps.py"))
+
+    # Declare binaries
+    if config["conan"] == "true":
+        binary_config_module = import_module("update_deps")
+        binaries = binary_config_module.Binaries(
+            [
+                binary_config_module.Binary(
+                    name=config["package_name"],
+                    bin_type=config["package_type"],
+                    dependencies=[
+                        binary_config_module.Dependency(
+                            name=dep.rsplit("/", 1)[0],
+                            version=dep.rsplit("/", 1)[1],
+                            enabled=True,
+                            link_preference=False,
+                            dynamic=True,
+                            components=[],
+                        )
+                        for dep in literal_eval(config["dependencies"])
+                    ],
+                    headers=[
+                        (
+                            [config["version_header_dir"], "version.hpp"]
+                            if config["package_type"] == "library"
+                            else []
+                        )
+                    ],
+                    sources=[["src", "version.cpp"]],
+                    main=(
+                        []
+                        if config["package_type"] == "library"
+                        else ["src", "main.cpp"]
+                    ),
+                ),
+                binary_config_module.Binary(
+                    name="version",
+                    bin_type="test",
+                    dependencies=[
+                        binary_config_module.Dependency(
+                            name="gtest",
+                            version="1.14.0",
+                            enabled=True,
+                            link_preference=False,
+                            dynamic=True,
+                            components=[],
+                        )
+                    ],
+                    headers=[],
+                    sources=[
+                        ["src", "version.test.cpp"],
+                        ["src", "version.cpp"],
+                    ],
+                    main=[],
+                ),
+            ]
+        )
+        binaries.write()
+
+    # Remove this configuration script, the templater script, and the cooresponding .ini file once project configuration is complete.
     remove(join(this_dir, "config.py"))
     remove(join(this_dir, "configure_templates.py"))
     remove(join(this_dir, "template_config.ini"))
+
+    # Remove the virtual environment and pre-compiled Python bytecode if Conan is not used.
+    if config["conan"] != "true":
+        shutil.rmtree(join(this_dir, venv.name))
+        shutil.rmtree(join(this_dir, "__pycache__"))
 
 
 if __name__ == "__main__":

@@ -79,11 +79,13 @@ if __name__ == "__main__":
     templater.configure(os.path.join("src", "version.test.cpp.tmpl"))
 
     # Configure build-related templates.
-    templater.configure("conanfile.py.tmpl")
+    if config["conan"] == "true":
+        templater.configure("conanfile.py.tmpl")
     templater.configure("meson.build.tmpl")
 
     # Configure script templates.
-    templater.configure("clean.py.tmpl")
+    if config["conan"] == "true":
+        templater.configure("clean.py.tmpl")
 
     # Configure miscellaneous templates.
     templater.configure(".gitignore.tmpl")
@@ -91,21 +93,12 @@ if __name__ == "__main__":
 
     # Perform operations dependent on the package type.
     if config["package_type"] == "library":
-        os.remove(os.path.join(this_dir, "src", "main.cpp.tmpl"))
-        templater.configure(os.path.join("test_package", "conanfile.py.tmpl"))
-        templater.configure(
-            os.path.join("test_package", "src", "main.cpp.tmpl")
-        )
-        os.rename(
-            os.path.join(this_dir, "{{ package_name }}"),
-            os.path.join(this_dir, config["package_name"]),
-        )
+        if config["conan"] == "true":
+            templater.configure(
+                os.path.join("test_package", "conanfile.py.tmpl")
+            )
+            templater.configure(
+                os.path.join("test_package", "src", "main.cpp.tmpl")
+            )
     else:
         templater.configure(os.path.join("src", "main.cpp.tmpl"))
-        shutil.move(
-            os.path.join(this_dir, "{{ package_name }}", "version.hpp.in"),
-            os.path.join(this_dir, "src"),
-        )
-        shutil.rmtree(os.path.join(this_dir, "{{ package_name }}"))
-        shutil.rmtree(os.path.join(this_dir, "test_package"))
-        os.remove(os.path.join(this_dir, "install.py"))

@@ -1,9 +1,10 @@
+{% if conan == "true" %}
 # Declare project information
 project(
     meson.get_external_property('_name', 'unknown'),
     'cpp',
     version : meson.get_external_property('_version', 'unknown'),
-    default_options : [ 'cpp_std=c++11' ],
+    default_options : [ 'cpp_std=c++17' ],
 )
 
 # Get project name, version, and binary data
@@ -30,7 +31,11 @@ conf_data = configuration_data()
 conf_data.set('version', project_version)
 configure_file(
     configuration : conf_data,
-    input : '{{ version_header_dir }}' / 'version.hpp.in',
+    {% if package_type == "application" %}
+    input : 'src' / 'version.hpp.in',
+    {% else %}
+    input : '{{ package_name }}' / 'version.hpp.in',
+    {% endif %}
     output : 'version.hpp',
 )
 
@@ -154,3 +159,67 @@ foreach binary : project_binaries
         )
     endif
 endforeach
+{% else %}
+# Declare project information
+project(
+    '{{ package_name }}',
+    'cpp',
+    version : files('VERSION'),
+    default_options : [ 'cpp_std=c++17' ],
+)
+
+# Project root and build directories
+root_dir = meson.project_source_root()
+build_dir = meson.project_build_root()
+
+# Insert the project version into the version header file
+conf_data = configuration_data()
+conf_data.set('version', meson.project_version())
+configure_file(
+    configuration : conf_data,
+    {% if package_type == "application" %}
+    input : 'src' / 'version.hpp.in',
+    {% else %}
+    input : '{{ package_name }}' / 'version.hpp.in',
+    {% endif %}
+    output : 'version.hpp',
+)
+
+{% if package_type == "application" %}
+exe_{{ package_name }} = executable(
+    '{{ package_name }}',
+    files(
+        root_dir / 'src' / 'main.cpp',
+        root_dir / 'src' / 'version.cpp',
+    ),
+    install : true,
+)
+{% else %}
+lib_{{ package_name }}_headers = files(
+    build_dir / 'version.hpp'
+)
+lib_{{ package_name }} = library(
+    '{{ package_name }}',
+    files(
+        'src' / 'version.cpp',
+    ),
+    version : meson.project_version(),
+    install : true,
+)
+install_headers(lib_{{ package_name }}_headers, subdir : '{{ package_name }}')
+{% endif %}
+
+test_version = executable(
+    'version',
+    files(
+        'src' / 'version.test.cpp',
+        'src' / 'version.cpp',
+    ),
+    dependencies : dependency(
+        'gtest_main',
+        required : true,
+        method : 'auto',
+    ),
+)
+test('version', test_version)
+{% endif %}

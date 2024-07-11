@@ -71,14 +71,8 @@ class Test:
                     file_abs_path, os.path.join(self.files_dir, file_name)
                 )
 
-    def run(self, log_file: str, script: str, *args: str) -> None:
-        """Execute a given python script in the 'files' directory and append output to a given log file in the 'log' directory"""
-
-        # Construct the command to execute
-        cmd: List[str] = [
-            "python",
-            os.path.join(self.files_dir, script),
-        ] + list(args)
+    def call(self, log_file: str, cmd: List[str] = []) -> None:
+        """Execute a given program with the given arguments in the 'files' directory and append output to a given log file in the 'log' directory"""
 
         # Write the command to stdout for debug purposes
         print("    " + log_file + "\n        ", end="")
@@ -90,6 +84,17 @@ class Test:
         log_path = os.path.join(self.log_dir, log_file)
         with open(log_path, "a+") as log:
             subprocess.run(cmd, stdout=log, stderr=log, check=True)
+
+    def run(self, log_file: str, script: str, args: List[str] = []) -> None:
+        """Execute a given python script in the 'files' directory and append output to a given log file in the 'log' directory"""
+
+        # Construct the command to execute
+        cmd: List[str] = [
+            "python",
+            os.path.join(self.files_dir, script),
+        ] + list(args)
+
+        self.call(log_file, cmd)
 
     def copy(self, src: str, dest: str = "") -> None:
         """Copy a file from the test directory to the 'files' directory"""
