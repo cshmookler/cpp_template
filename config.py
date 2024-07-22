@@ -121,25 +121,19 @@ def get_config() -> Dict[str, str]:
 
     # Verify that the given values meet their cooresponding constraints.
     configs: Dict[str, str] = {}
-    for k, v in expected_configs.items():
+    for key, value in expected_configs.items():
         try:
-            pv: str = parsed_configs[k]
+            parsed_value: str = parsed_configs[key]
         except KeyError:
-            pv = v.default
+            parsed_value = value.default
 
-        if not v.constraint(pv):
-            configs[k] = v.default
+        if not value.constraint(parsed_value):
+            configs[key] = value.default
             raise RuntimeError(
-                "Invalid option '"
-                + pv
-                + "' for '"
-                + k
-                + "'. Using '"
-                + v.default
-                + "' instead."
+                "Invalid option '" + parsed_value + "' for '" + key + "'."
             )
 
-        configs[k] = pv
+        configs[key] = parsed_value
 
     # Add options that are derived from others.
     if configs["conan"] == "true":

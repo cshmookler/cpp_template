@@ -24,12 +24,14 @@ def _shutil_onerror(func, path, exc_info) -> None:
 class Test:
     """Testing class for this template project"""
 
-    def __init__(self, test_dir: str):
+    def __init__(self, test_dir: str, expect_failure: bool = False):
         print(os.path.basename(test_dir))
 
         self.test_dir = test_dir
         self.files_dir = os.path.join(self.test_dir, "files")
         self.log_dir = os.path.join(self.test_dir, "logs")
+
+        self.expect_failure = expect_failure
 
         self._prepare()
 
@@ -87,7 +89,7 @@ class Test:
                 cmd, stdout=log, stderr=log
             ).returncode
 
-            if returncode != 0:
+            if bool(returncode != 0) ^ bool(self.expect_failure):
                 exit(1)
 
     def run(self, log_file: str, script: str, args: List[str] = []) -> None:
