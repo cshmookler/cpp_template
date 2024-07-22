@@ -126,12 +126,11 @@ def get_config() -> Dict[str, str]:
             pv: str = parsed_configs[k]
         except KeyError:
             pv = v.default
-        if v.constraint(pv):
-            configs[k] = pv
-        else:
+
+        if not v.constraint(pv):
             configs[k] = v.default
-            print(
-                "Warning: Invalid option '"
+            raise RuntimeError(
+                "Invalid option '"
                 + pv
                 + "' for '"
                 + k
@@ -140,12 +139,9 @@ def get_config() -> Dict[str, str]:
                 + "' instead."
             )
 
+        configs[k] = pv
+
     # Add options that are derived from others.
-    # configs["version_header_dir"] = (
-    #     "src"
-    #     if configs["package_type"] == "application"
-    #     else configs["package_name"]
-    # )
     if configs["conan"] == "true":
         if configs["package_type"] == "application":
             configs["version_header_dir"] = "src"
