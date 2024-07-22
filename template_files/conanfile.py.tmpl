@@ -136,9 +136,9 @@ class {{ package_name }}(ConanFile):
         for require, dep in self.dependencies.host.items():
             dep_name = str(dep.ref.name)
 
+            # Ignore dependencies that are not declared in dependency configuration file.
             if dep_name not in dep_config:
-                # TODO: Raise an exception if a dependency is not found in the dependency configuration file
-                pass
+                continue
 
             # Record the resolved version for this dependency
             dep_config[dep_name].resolved_version = str(dep.ref.version)
@@ -167,6 +167,17 @@ class {{ package_name }}(ConanFile):
         # Add missing components to the dependencies listed in the binary configuration file
         for binary_name, binary in binary_config.items():
             for dep_name, components in binary.dependencies.items():
+
+                # Verify that all dependencies in the binary configuration file are also declared in the dependency configuration file.
+                if dep_name not in dep_config:
+                    raise RuntimeError(
+                        '"'
+                        + dep_name
+                        + '" was not found in "'
+                        + self._deps.path
+                        + '"'
+                    )
+
                 for component_name in dep_config[dep_name].components.keys():
                     if component_name not in components:
                         binary.dependencies[dep_name][component_name] = True
