@@ -83,7 +83,12 @@ class Test:
         # Execute the command and write output to the log file
         log_path = os.path.join(self.log_dir, log_file)
         with open(log_path, "a+") as log:
-            subprocess.run(cmd, stdout=log, stderr=log, check=True)
+            returncode: int = subprocess.run(
+                cmd, stdout=log, stderr=log
+            ).returncode
+
+            if returncode != 0:
+                exit(1)
 
     def run(self, log_file: str, script: str, args: List[str] = []) -> None:
         """Execute a given python script in the 'files' directory and append output to a given log file in the 'log' directory"""

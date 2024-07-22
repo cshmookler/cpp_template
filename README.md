@@ -118,41 +118,96 @@ Use Python to execute the "build.py" script. Use command prompt (Windows) or a s
 python build.py
 ```
 
-The "build.py" script updates the build system, active profiles, binary configuration, and dependencies before building. If none of these are modified (the build system is the same, the active profile is not changed, and the "binary_config.json" file is untouched), then directly invoking the Meson backend (Ninja) is the fastest way to rebuild binaries.
+The "build.py" script updates the build system, active profiles, dependencies, and binary configuration before building. If none of these are modified (the build system is the same, the active profile is not changed, the "dependency_config.json" file is untouched, and the "binary_config.json" file is untouched), then directly invoking the Meson backend (Ninja) is the fastest way to rebuild binaries.
 
 ```
 cd build
 ninja
 ```
 
+## Manage Dependencies
+
+Dependency configuration information is stored in the "dependency_config.json" file. This JSON file contains a dictionary of dependency names associated with information describing them. The listed dependencies are installed by Conan when the project is built.
+
+An example of a "dependency_config.json" file annotated with comments prefixed with "//" is shown below. This example file installs GoogleTest 1.14.0 (dynamically) and Zlib 1.3.1 (no link preference) from [Conan Center](https://conan.io/center/). 
+
+```json5
+{                                       //
+    "gtest": {                          // dependency name
+        "version": "1.14.0",            // * dependency version for Conan (optional)
+        "user": "",                     // * dependency user for Conan (optional)
+                                        //     "" -- (default) search Conan Center for this dependency
+        "channel": "",                  // * dependency channel for Conan (optional)
+                                        //     "" -- (default) search Conan Center's default channel for this dependency
+        "dynamic": true                 // * link method (optional)
+                                        //     null  -- (default) no linking preference
+                                        //     true  -- prefer dynamic linking
+                                        //     false -- prefer static linking
+    },                                  //
+    "zlib": {                           // dependency name
+        "version": "1.3.1",             // * dependency version for Conan (optional)
+        "user": "",                     // * dependency user for Conan (optional)
+                                        //     "" -- (default) search Conan Center for this dependency
+        "channel": "",                  // * dependency channel for Conan (optional)
+                                        //     "" -- (default) search Conan Center's default channel for this dependency
+        "dynamic": null                 // * link method (optional)
+                                        //     null  -- (default) no linking preference
+                                        //     true  -- prefer dynamic linking
+                                        //     false -- prefer static linking
+    }                                   //
+}                                       //
+```
+
+> Note: Read the official [Conan documentation](https://docs.conan.io/2/reference/conanfile/attributes.html#version-ranges-reference) for more information on dependency versions, users, and channels.
+
+### Add dependencies
+
+Browse [Conan Center](https://conan.io/center/) (the Conan central repository) for dependencies. Use the search bar to find the "name/version" of the dependencies you would like to add (example: "boost/1.85.0").
+
+Add a new entry to the "dependency_config.json" file like in the example below. Examples of dependencies in this file are shown in the [example above](#manage-dependencies).
+
+```json5
+{
+    // ...
+
+    "boost": {
+        "version": "1.14.0"
+    }
+    
+    // ...
+}
+```
+
+> Note: Installed dependencies must be explicitly linked with specific binaries. Read the [next section](#manage-binaries) for information on linking dependencies.
+
+> Note: Existing build files may need to be [removed](#remove-build-files) for changes to take effect.
+
+### Remove dependencies
+
+Open the "dependency.json" file and remove the cooresponding entries.
+
+> Note: All references to the removed dependency in the [binary configuration file](#manage-binaries) must also be removed or the next build will fail.
+
+> Note: Existing build files may need to be [removed](#remove-build-files) for changes to take effect.
+
 ## Manage Binaries
 
 Binary configuration information is stored in the "binary_config.json" file. This JSON file contains a dictionary of binary names associated with information describing the corresponding binaries.
 
-An example of a "binary_config.json" file annotated with comments prefixed with "//" is shown below. This example file describes a library named "cpp_template" that depends on Zlib and a test named "version" that depends on GoogleTest.
+An example of a "binary_config.json" file annotated with comments prefixed with "//" is shown below. This example file describes a library named "cpp_template" that depends on Zlib and a test named "version" that depends on GoogleTest. Using this example requires that GoogleTest and Zlib be listed in the dependency configuration file.
 
 ```json5
-{
+{                                       //
     "cpp_template": {                   // binary name
         "type": "library",              // * binary type:
                                         //     "application" -- generate an executable
                                         //     "library"     -- generate a library
                                         //     "test"        -- generate and execute a test
         "dependencies": {               // * dependencies (optional)
-            "zlib/1.3.1": {             //   * dependency (example: Zlib)
-                "enabled": true,        //     * enabled (optional):
-                                        //         true  -- (default) link with this binary
-                                        //         false -- do not link with this binary
-                "dynamic": null,        //     * link method (optional):
-                                        //         null  -- (default) no linking preference
-                                        //         true  -- prefer dynamic linking
-                                        //         false -- prefer static linking
-                "components": {         //     * components (optional)
-                    "zlib": true        //       * component (example: "zlib") (optional):
+            "zlib": {                   //   * dependency (example: Zlib)
+                "zlib": true            //       * component (example: "zlib") (optional):
                                         //           true  -- (default) link with this component
                                         //           false -- do not link with this component
-                                        //           {dict} -- provide more detailed component information
-                }                       //
             }                           //
         },                              //
         "headers": [                    // * header file paths (only for libraries)
@@ -177,38 +232,19 @@ An example of a "binary_config.json" file annotated with comments prefixed with 
                                         //     "library"     -- generate a library
                                         //     "test"        -- generate and execute a test
         "dependencies": {               // * dependencies (optional)
-            "gtest/1.14.0": {           //   * dependency (example: GoogleTest)
-                "enabled": true,        //     * enabled (optional):
-                                        //         true  -- (default) link with this binary
-                                        //         false -- do not link with this binary
-                "dynamic": null,        //     * link method (optional):
-                                        //         null  -- (default) no linking preference
-                                        //         true  -- prefer dynamic linking
-                                        //         false -- prefer static linking
-                "components": {         //     * components (optional)
-                    "gtest": true,      //       * component (example: "gtest") (optional):
+            "gtest": {                  //   * dependency (example: GoogleTest)
+                "gtest": true,          //       * component (example: "gtest") (optional):
                                         //           true  -- (default) link with this component
                                         //           false -- do not link with this component
-                                        //           {dict} -- provide more detailed component information
-                    "gtest_main": true, //       * component (example: "gtest_main") (optional):
+                "gtest_main": true,     //       * component (example: "gtest_main") (optional):
                                         //           true  -- (default) link with this component
                                         //           false -- do not link with this component
-                                        //           {dict} -- provide more detailed component information
-                    "gmock": true,      //       * component (example: "gmock") (optional):
+                "gmock": false,         //       * component (example: "gmock") (optional):
                                         //           true  -- (default) link with this component
                                         //           false -- do not link with this component
-                                        //           {dict} -- provide more detailed component information
-                    "gmock_main": {     //       * component (example: "gmock_main") (optional):
+                "gmock_main": false     //       * component (example: "gmock_main") (optional):
                                         //           true   -- (default) link with this component
                                         //           false  -- do not link with this component
-                                        //           {dict} -- provide more detailed component information:
-                      "version": "1.0", //               * component version
-                      "enabled": false  //               * component enabled:
-                                        //                   true  -- link with this component
-                                        //                   false -- do not link with this component
-                                        //
-                    }                   //
-                }                       //
             }                           //
         },                              //
         "sources": [                    // * source file paths
@@ -225,22 +261,6 @@ An example of a "binary_config.json" file annotated with comments prefixed with 
 }                                       //
 ```
 
-## Manage Dependencies
-
-### Add dependencies
-
-Browse [Conan Center](https://conan.io/center/) (the Conan central repository) for dependencies. Use the search bar to find the "name/version" of the dependencies you would like to add (example: "boost/1.85.0").
-
-Add your chosen dependencies to the "dependencies" field of a binary within the "binary_config.json" file. Examples of dependencies in this file are shown in the [example above](#manage-binaries).
-
-> Note: Existing build files may need to be [removed](#remove-build-files) for changes to take effect.
-
-### Remove dependencies
-
-Open the "binary_config.json" file and remove the dependencies from the "dependencies" field of a binary.
-
-> Note: Existing build files may need to be [removed](#remove-build-files) for changes to take effect.
-
 ### Update the lists of dependency components
 
 Some dependencies contain multiple components that can be individually enabled or disabled. The list of components for dependencies is automatically updated after each build.
@@ -253,7 +273,7 @@ python update_deps.py
 
 ## Remove Build Files
 
-If the build system is changed (the "binary_config.json", "meson.build", or "conanfile.py" files are edited) then the existing build files may need to be regenerated. Removing the build files forces them to be regenerated when the project is built.
+If the build system is changed (the "binary_config.json", "dependency_config.json", "meson.build", or "conanfile.py" files are edited) then the existing build files may need to be regenerated. Removing the build files forces them to be regenerated when the project is built.
 
 Use Python to execute the "clean.py" script. Use command prompt (Windows) or a shell (Mac & Linux) so errors are shown.
 
@@ -339,4 +359,4 @@ python install.py
 - [X] Record dependency component versions independently from the overall dependency version.
 - [X] Add tests for verifying the integrity and functionality of this template.
 - [X] Make Conan and Git optional (for a stripped-down template with minimal features).
-- [ ] List dependency version, user, channel, and recipe revision separately from the dependency name within the binary_config.json file.
+- [X] List dependency version, user, _and_ channel~~, and recipe revision~~ separately from the dependency name within the binary_config.json file.

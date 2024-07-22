@@ -59,10 +59,9 @@ foreach binary : project_binaries
     foreach dependency : binary_dependencies
         dependency_name = dependency[0]
         dependency_version = dependency[1]
-        dependency_enabled = dependency[2]
-        dependency_link_preference = dependency[3]
-        dependency_dynamic = dependency[4]
-        dependency_components = dependency[5]
+        dependency_link_preference = dependency[2]
+        dependency_dynamic = dependency[3]
+        dependency_components = dependency[4]
         foreach component : dependency_components
             component_name = component[0]
             component_version = component[1]

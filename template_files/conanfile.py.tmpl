@@ -55,6 +55,7 @@ class {{ package_name }}(ConanFile):
     exports = (
         os.path.join(".git", "*"),
         "update_deps.py",
+        "dependency_config.json",
         "binary_config.json",
     )
 
@@ -69,7 +70,7 @@ class {{ package_name }}(ConanFile):
     )
 
     # External includes
-    _binary_config_module = import_module("update_deps")
+    _config_module = import_module("update_deps")
 
     def set_version(self):
         """Get project version from Git"""
@@ -94,28 +95,28 @@ class {{ package_name }}(ConanFile):
 
     def build_requirements(self):
         """Declare dependencies of the build system"""
+        # TODO: Update meson and pkgconf versions
         self.tool_requires("meson/1.4.0")
         self.tool_requires("pkgconf/2.2.0")
 
     def requirements(self):
         """Resolve and declare dependencies"""
-        self._binaries = self._binary_config_module.Binaries()
+        # Read the binary configuration file
+        self._binaries = self._config_module.Binaries()
         self._binaries.read()
+        binary_config = self._binaries.get()
 
-        for binary in self._binaries:
-            for dep in binary.dependencies:
-                # Ignore deactivated dependencies
-                if not dep.enabled:
-                    continue
+        # Read the dependency configuration file
+        self._deps = self._config_module.Dependencies()
+        self._deps.read()
+        dep_config = self._deps.get()
 
-                # Declare dependencies
-                if not dep.link_preference:
-                    self.requires(dep.name + "/" + dep.version)
-                else:
-                    self.requires(
-                        dep.name + "/" + dep.version,
-                        options={"shared": dep.dynamic},
-                    )
+        # Declare dependencies
+        for dep_name, dep in dep_config.items():
+            if not dep.link_preference:
+                self.requires(dep.recipe)
+            else:
+                self.requires(dep.recipe, options={"shared": dep.dynamic})
 
     def layout(self):
         """Set the layout of the build files"""
@@ -124,112 +125,63 @@ class {{ package_name }}(ConanFile):
 
     def generate(self):
         """Generate the build system"""
+        # Get the binary and dependency data in structured form
+        binary_config = self._binaries.get()
+        dep_config = self._deps.get()
+
         # Generate .pc files for dependencies
-        deps = PkgConfigDeps(self)
-        deps.generate()
+        pkgconfig_deps = PkgConfigDeps(self)
+        pkgconfig_deps.generate()
 
-        # Resolve dependency components
-        resolved_dependencies = {}
         for require, dep in self.dependencies.host.items():
-            # Name and version of the dependency
-            dependency_name_and_version: str = (
-                dep.ref.name + "/" + str(dep.ref.version)
-            )
+            dep_name = str(dep.ref.name)
 
-            # Create a dictionary for storing components of this dependency
-            if dependency_name_and_version not in resolved_dependencies:
-                resolved_dependencies[dependency_name_and_version] = {}
+            if dep_name not in dep_config:
+                # TODO: Raise an exception if a dependency is not found in the dependency configuration file
+                pass
+
+            # Record the resolved version for this dependency
+            dep_config[dep_name].resolved_version = str(dep.ref.version)
 
             # This class is used internally by Conan to get dependency component information and generate PkgConfig files
-            pc_generator = _PCGenerator(deps, require, dep)
+            pc_generator = _PCGenerator(pkgconfig_deps, require, dep)
 
-            # Add the name of the package as the sole component if it does not have any components
-            if not pc_generator._dep.cpp_info.has_components:
-                sole_component_pc_info = (
-                    pc_generator._content_generator._get_context(
-                        pc_generator._package_info()
-                    )
-                )
-                sole_component_name = str(sole_component_pc_info["name"])
-                sole_component_version = str(sole_component_pc_info["version"])
-                resolved_dependencies[dependency_name_and_version][
-                    sole_component_name
-                ] = self._binary_config_module.Component(
-                    name=sole_component_name,
-                    version=sole_component_version,
-                    enabled=True,
-                )
-
-            # Accumulate all components of the dependency
-            for component_info in pc_generator._components_info():
+            def record_component(component):
                 component_pc_info = (
-                    pc_generator._content_generator._get_context(component_info)
+                    pc_generator._content_generator._get_context(component)
                 )
                 component_name = str(component_pc_info["name"])
                 component_version = str(component_pc_info["version"])
-                resolved_dependencies[dependency_name_and_version][
+                dep_config[dep_name].components[
                     component_name
-                ] = self._binary_config_module.Component(
-                    name=component_name,
-                    version=component_version,
-                    enabled=True,
-                )
+                ] = component_version
+                
+            # Add the name of the package as the sole component if it does not have any components
+            if not pc_generator._dep.cpp_info.has_components:
+                record_component(pc_generator._package_info())
 
-        # Explicitly declared binaries and their respective dependencies
-        declared_binaries: dict = self._binaries.json()
+            # Accumulate all components of the dependency
+            for component in pc_generator._components_info():
+                record_component(component)
 
-        # Merge resolved dependency components with dependency components explicitly declared within the binary configuration
-        for binary, binary_info in declared_binaries.items():
-            for dep_name_and_version, dep_info in binary_info[
-                "dependencies"
-            ].items():
-                if dep_name_and_version not in resolved_dependencies:
-                    continue
+        # Add missing components to the dependencies listed in the binary configuration file
+        for binary_name, binary in binary_config.items():
+            for dep_name, components in binary.dependencies.items():
+                for component_name in dep_config[dep_name].components.keys():
+                    if component_name not in components:
+                        binary.dependencies[dep_name][component_name] = True
 
-                # Remove components from the list of declared components that do not exist within the resolved components list
-                for component_name, component_info in dep_info["components"].items():
-                    if (
-                        component_name
-                        not in resolved_dependencies[dep_name_and_version]
-                    ):
-                        dep_info["components"].pop(component_name)
-
-                # Add missing components to the list of declared components
-                # Add a temporary version to components that don't have one
-                # Temporary versions are excluded from the JSON output
-                for component_name, component_info in resolved_dependencies[
-                    dep_name_and_version
-                ].items():
-                    if component_name not in dep_info["components"]:
-                        # Add the missing component with a temporary version
-                        dep_info["components"][component_name] = {
-                            "version": component_info.version,
-                            "enabled": component_info.enabled,
-                            "exclude_version_from_json": True,
-                        }
-                        continue
-
-                    declared_component_info = dep_info["components"][component_name]
-                    if type(declared_component_info) == bool:
-                        # Add a temporary version to an existing component
-                        dep_info["components"][component_name] = {
-                            "version": component_info.version,
-                            "enabled": declared_component_info,
-                            "exclude_version_from_json": True,
-                        }
-                        
-
-        self._binaries.structured(
-            raw_json=declared_binaries,
-            mark_temporary_versions=True,
-        )
+        # Update the binary and dependency configuration files
         self._binaries.write()
+        self._deps.write()
 
         toolchain = MesonToolchain(self)
         toolchain.properties = {
             "_name": self.name,
             "_version": self.version,
-            "_binaries": self._binaries.unstructured(),
+            "_binaries": self._config_module.unstructured(
+                binary_config, dep_config
+            ),
         }
         toolchain.generate()
 

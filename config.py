@@ -237,25 +237,35 @@ def configure() -> None:
         remove(join(this_dir, "this_venv.py"))
         remove(join(this_dir, "update_deps.py"))
 
-    # Declare binaries
     if config["conan"] == "true":
-        binary_config_module = import_module("update_deps")
-        binaries = binary_config_module.Binaries(
-            [
-                binary_config_module.Binary(
+        config_module = import_module("update_deps")
+
+        # Accumulate all dependencies and their cooresponding versions
+        raw_project_deps = literal_eval(config["dependencies"])
+        structured_project_deps: dict = {}
+        for dep in raw_project_deps:
+            dep_name, dep_version = dep.rsplit("/", 1)
+            structured_project_deps[dep_name] = config_module.Dependency(
+                name=dep_name,
+                version=dep_version,
+            )
+
+        # Create the dependency configuration file
+        deps = config_module.Dependencies(structured_project_deps)
+        deps.write()
+
+        # Accumulate all dependency names
+        dep_names: Dict[str, dict] = {}
+        for dep_name in structured_project_deps.keys():
+            dep_names[dep_name] = {}
+
+        # Create the binary configuration file
+        binaries = config_module.Binaries(
+            {
+                config["package_name"]: config_module.Binary(
                     name=config["package_name"],
                     bin_type=config["package_type"],
-                    dependencies=[
-                        binary_config_module.Dependency(
-                            name=dep.rsplit("/", 1)[0],
-                            version=dep.rsplit("/", 1)[1],
-                            enabled=True,
-                            link_preference=False,
-                            dynamic=True,
-                            components=[],
-                        )
-                        for dep in literal_eval(config["dependencies"])
-                    ],
+                    dependencies=dep_names,
                     headers=[
                         (
                             [config["version_header_dir"], "version.hpp"]
@@ -270,19 +280,10 @@ def configure() -> None:
                         else ["src", "main.cpp"]
                     ),
                 ),
-                binary_config_module.Binary(
+                "version": config_module.Binary(
                     name="version",
                     bin_type="test",
-                    dependencies=[
-                        binary_config_module.Dependency(
-                            name="gtest",
-                            version="1.14.0",
-                            enabled=True,
-                            link_preference=False,
-                            dynamic=True,
-                            components=[],
-                        )
-                    ],
+                    dependencies={"gtest": {}},
                     headers=[],
                     sources=[
                         ["src", "version.test.cpp"],
@@ -290,7 +291,7 @@ def configure() -> None:
                     ],
                     main=[],
                 ),
-            ]
+            }
         )
         binaries.write()
 
