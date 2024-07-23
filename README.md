@@ -359,4 +359,5 @@ python install.py
 - [X] Record dependency component versions independently from the overall dependency version.
 - [X] Add tests for verifying the integrity and functionality of this template.
 - [X] Make Conan and Git optional (for a stripped-down template with minimal features).
-- [X] List dependency version, user, _and_ channel~~, and recipe revision~~ separately from the dependency name within the binary_config.json file.
+- [X] List dependency version, user, and channel ~~and recipe revision~~ separately from the dependency name within the binary_config.json file.
+- [ ] Improve documentation.
