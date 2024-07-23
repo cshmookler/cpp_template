@@ -85,18 +85,18 @@ sudo pacman -S git meson base-devel
 Open command prompt (Windows) or a shell (Linux & Mac) and enter the commands below. This project will be downloaded to the current working directory.
 
 ```
-git clone {{ url }}
+git clone {{ git_url }}
 cd {{ package_name }}
 ```
 
 > NOTE: This project must be cloned with Git. Do NOT download this project from a hosting platform (e.g. GitHub) because the .git folder will not be included. Project versioning depends on the contents of the .git folder. If the .git folder is missing or corrupted (or Git is not installed) this project will be assigned a null version of "0.0.0".
 {% else %}
-This project can be downloaded online [here]({{ url }}).
+This project can be downloaded online [here]({{ website_url }}).
 
 Alternatively, if you have [Git](https://git-scm.com/downloads/) installed, open command prompt (Windows) or a shell (Linux & Mac) and enter the commands below.  This project will be downloaded to the current working directory.
 
 ```
-git clone {{ url }}
+git clone {{ git_url }}
 cd {{ package_name }}
 ```
 {% endif %}

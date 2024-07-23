@@ -108,7 +108,8 @@ def get_config() -> Dict[str, str]:
         ),
         "dependencies": ConfigInfo(default="[]", constraint=valid_list),
         "email": ConfigInfo(default=""),
-        "url": ConfigInfo(default=""),
+        "website_url": ConfigInfo(default=""),
+        "git_url": ConfigInfo(default=""),
         "topics": ConfigInfo(default="[]", constraint=valid_list),
         "current_year": ConfigInfo(default=str(time.localtime().tm_year)),
     }
