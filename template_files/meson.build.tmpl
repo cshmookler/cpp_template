@@ -207,18 +207,23 @@ lib_{{ package_name }} = library(
 )
 install_headers(lib_{{ package_name }}_headers, subdir : '{{ package_name }}')
 {% endif %}
-
-test_version = executable(
-    'version',
-    files(
-        'src' / 'version.test.cpp',
-        'src' / 'version.cpp',
-    ),
-    dependencies : dependency(
-        'gtest_main',
-        required : true,
-        method : 'auto',
-    ),
+dep_gtest_main = dependency(
+    'gtest_main',
+    required : false,
+    method : 'auto',
 )
-test('version', test_version)
+
+if dep_gtest_main.found()
+    test_version = executable(
+        'version',
+        files(
+            'src' / 'version.test.cpp',
+            'src' / 'version.cpp',
+        ),
+        dependencies : dep_gtest_main,
+    )
+    test('version', test_version)
+else
+    warning('Skipping tests due to missing dependencies')
+endif
 {% endif %}
