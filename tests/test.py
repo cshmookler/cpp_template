@@ -21,34 +21,42 @@ def _shutil_onerror(func, path, exc_info) -> None:
     func(path)
 
 
+def rmtree(dir_path: str) -> None:
+    """Recursively delete a given directory with shutil.rmtree while ignoring all errors"""
+
+    shutil.rmtree(dir_path, onerror=_shutil_onerror, ignore_errors=True)
+
+
 class Test:
     """Testing class for this template project"""
 
-    def __init__(self, test_dir: str, expect_failure: bool = False):
-        print(os.path.basename(test_dir))
-
+    def __init__(
+        self,
+        test_dir: str,
+        expect_failure: bool = False,
+        prepare: bool = True,
+    ):
         self.test_dir = test_dir
         self.files_dir = os.path.join(self.test_dir, "files")
         self.log_dir = os.path.join(self.test_dir, "logs")
+        self._pycache_dir = os.path.join(self.test_dir, "__pycache__")
 
         self.expect_failure = expect_failure
 
-        self._prepare()
+        if prepare:
+            print(os.path.basename(test_dir))
+            self.clean()
+            self.setup()
 
-    def _prepare(self) -> None:
+    def clean(self) -> None:
+        """Remove old files from a previous test"""
+
+        rmtree(self.files_dir)
+        rmtree(self.log_dir)
+        rmtree(self._pycache_dir)
+
+    def setup(self) -> None:
         """Prepare a fresh copy of this template project in the 'files' directory"""
-
-        # Remove old files in the 'files' directory
-        if os.path.exists(self.files_dir):
-            shutil.rmtree(
-                self.files_dir, onerror=_shutil_onerror, ignore_errors=True
-            )
-
-        # Remove old files in the 'log' directory
-        if os.path.exists(self.log_dir):
-            shutil.rmtree(
-                self.log_dir, onerror=_shutil_onerror, ignore_errors=True
-            )
 
         # Create directories
         os.mkdir(self.files_dir)
@@ -123,40 +131,60 @@ if __name__ == "__main__":
     working_dir: str = os.path.dirname(this_dir)
     os.chdir(working_dir)
 
-    if len(argv) > 1:
-        # If given arguments on the command line, interpret them as the names of tests to execute
-        dirs = argv[1:]
-    else:
-        # If not given arguments on the command line, execute all tests
-        dirs = os.listdir(this_dir)
+    # Remove the name of this script from the argument list
+    args: list = argv[1:]
+
+    # Search for the optional 'clean' flag
+    cleaning: bool = False
+    if len(args) >= 1:
+        cleaning = args[0] == "-c" or args[0] == "--clean"
+
+        if cleaning:
+            args = args[1:]
+
+    # Use all tests if no arguments are given
+    if len(args) == 0:
+        if cleaning:
+            # If cleaning, remove the '__pycache__' directory
+            rmtree(os.path.join(this_dir, "__pycache__"))
+
+        args = os.listdir(this_dir)
 
     tests = {}
 
-    for dir_name in dirs:
+    for dir_name in args:
         dir_abs_path = os.path.join(this_dir, dir_name)
 
         # Verify that the given path is valid
         if not os.path.exists(dir_abs_path):
             raise RuntimeError("Invalid test name: " + dir_name)
 
-        # Search for test directories
+        # Ignore files and directories that are not tests
         if not os.path.isdir(dir_abs_path) or dir_name == "__pycache__":
             continue
 
-        # Execute the test in the discovered test directory
-        returncode = subprocess.run(
-            [
-                "python",
-                "-m",
-                os.path.basename(this_dir) + "." + dir_name + ".test",
-            ]
-        ).returncode
+        if cleaning:
+            # Clean the test
+            Test(os.path.join(this_dir, dir_name), prepare=False).clean()
+        else:
+            # Execute the test
+            returncode = subprocess.run(
+                [
+                    "python",
+                    "-m",
+                    os.path.basename(this_dir)
+                    + "."
+                    + dir_name.removesuffix(os.sep)
+                    + ".test",
+                ]
+            ).returncode
 
-        # Record whether the test succeeded or failed
-        tests[dir_name] = returncode == 0
+            # Record whether the test succeeded or failed
+            tests[dir_name] = returncode == 0
 
-    # Report of the status of each executed test to stdout
-    print("\n", end="")
-    for test, success in tests.items():
-        status_msg = "~~SUCCESS~~" if success else "//FAILURE//"
-        print(test + ": " + status_msg)
+    if not cleaning:
+        # Report of the status of each executed test to stdout
+        print("\n", end="")
+        for test, success in tests.items():
+            status_msg = "~~SUCCESS~~" if success else "//FAILURE//"
+            print(test + ": " + status_msg)
