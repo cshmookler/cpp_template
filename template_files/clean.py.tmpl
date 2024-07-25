@@ -21,7 +21,6 @@ def clean() -> None:
     {% endif %}
     rmtree(os.path.join(this_dir, "__pycache__"), ignore_errors=True)
     remove(os.path.join(this_dir, "{{ version_header_dir }}", "version.hpp"))
-    remove(os.path.join(this_dir, "compile_commands.json"))
 
 
 if __name__ == "__main__":

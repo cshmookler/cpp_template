@@ -66,11 +66,15 @@ class Test:
 
             if os.path.isdir(file_abs_path):
                 shutil.copytree(
-                    file_abs_path, os.path.join(self.files_dir, file_name)
+                    file_abs_path,
+                    os.path.join(self.files_dir, file_name),
+                    symlinks=True,
                 )
             else:
                 shutil.copy(
-                    file_abs_path, os.path.join(self.files_dir, file_name)
+                    file_abs_path,
+                    os.path.join(self.files_dir, file_name),
+                    follow_symlinks=False,
                 )
 
     def call(self, log_file: str, cmd: List[str] = []) -> None:
@@ -111,7 +115,7 @@ class Test:
 
         print("    " + src_abs_path + " -> " + dest_abs_path)
 
-        shutil.copy(src_abs_path, dest_abs_path)
+        shutil.copy(src_abs_path, dest_abs_path, follow_symlinks=False)
 
 
 if __name__ == "__main__":

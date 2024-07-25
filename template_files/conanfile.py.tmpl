@@ -186,6 +186,7 @@ class {{ package_name }}(ConanFile):
         self._binaries.write()
         self._deps.write()
 
+        # Generate the Meson toolchain
         toolchain = MesonToolchain(self)
         toolchain.properties = {
             "_name": self.name,
@@ -205,12 +206,6 @@ class {{ package_name }}(ConanFile):
         meson = Meson(self)
         meson.configure()
         meson.build()
-        copy_file(
-            self,
-            "compile_commands.json",
-            self.build_folder,
-            self.source_folder,
-        )
         meson.test()
     {% if package_type == "library" %}
 
