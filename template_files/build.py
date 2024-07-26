@@ -10,15 +10,15 @@ from typing import List
 this_dir: str = os.path.dirname(__file__)
 
 
-def build(profiles, extra_args: List[str] = []) -> None:
-    """Build this project using Conan"""
+def conan(command: str, profiles, extra_args: List[str] = []) -> None:
+    """Execute Conan with the given command, profiles, and extra arguments"""
     venv = import_module("this_venv")
     if not venv.exists():
         venv.create()
     subprocess.run(
         [
             venv.conan(),
-            "build",
+            command,
             "--build=missing",
             "--profile:build",
             profiles.build,
@@ -28,7 +28,7 @@ def build(profiles, extra_args: List[str] = []) -> None:
             "tools.system.package_manager:mode=install",
             "--conf:host",
             "tools.system.package_manager:sudo=True",
-            os.path.dirname(__file__),
+            this_dir,
         ]
         + extra_args,
         check=True,
@@ -37,4 +37,4 @@ def build(profiles, extra_args: List[str] = []) -> None:
 
 if __name__ == "__main__":
     profiles = import_module("profiles")
-    build(profiles.get_profiles(), list(argv)[1:])
+    conan("build", profiles.get_profiles(), list(argv)[1:])

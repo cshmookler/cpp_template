@@ -345,7 +345,8 @@ if __name__ == "__main__":
     """Update dependency information in the binary configuration file"""
     build = import_module("build")
     profiles = import_module("profiles")
-    build.build(
+    build.conan(
+        "build",
         profiles.get_profiles(),
         extra_args=["--options:all", "quit_after_generate=True"]
         + list(argv)[1:],
