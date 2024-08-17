@@ -207,6 +207,7 @@ lib_{{ package_name }} = library(
 )
 install_headers(lib_{{ package_name }}_headers, subdir : '{{ package_name }}')
 {% endif %}
+
 dep_gtest_main = dependency(
     'gtest_main',
     required : false,
