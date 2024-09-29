@@ -76,7 +76,7 @@ if __name__ == "__main__":
         os.path.join("{{ package_name }}", "version.hpp.in.tmpl")
     )
     templater.configure(os.path.join("src", "version.cpp.tmpl"))
-    templater.configure(os.path.join("src", "version.test.cpp.tmpl"))
+    templater.configure(os.path.join("tests", "version.test.cpp.tmpl"))
 
     # Configure build-related templates.
     if config["conan"] == "true":

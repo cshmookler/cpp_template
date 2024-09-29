@@ -32,7 +32,7 @@
         },
         "sources": [
             [
-                "src",
+                "tests",
                 "version.test.cpp"
             ],
             [

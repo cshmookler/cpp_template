@@ -277,7 +277,7 @@ def configure() -> None:
                     dependencies={"gtest": {}},
                     headers=[],
                     sources=[
-                        ["src", "version.test.cpp"],
+                        ["tests", "version.test.cpp"],
                         ["src", "version.cpp"],
                     ],
                     main=[],

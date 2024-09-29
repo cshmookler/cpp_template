@@ -66,6 +66,7 @@ class {{ package_name }}(ConanFile):
         os.path.join(name, "*"),
         {% endif %}
         os.path.join("src", "*"),
+        os.path.join("tests", "*"),
         "meson.build",
     )
 
