@@ -249,7 +249,7 @@ An example of a "binary_config.json" file annotated with comments prefixed with 
         },                              //
         "sources": [                    // * source file paths
             [                           //   * source file path:
-                "src",                  //       (represented as a list of path components)
+                "tests",                //       (represented as a list of path components)
                 "version.test.cpp"      //  
             ],                          //
             [                           //   * source file path:
