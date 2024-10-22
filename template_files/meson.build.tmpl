@@ -25,6 +25,7 @@ endif
 
 # Project root directory
 root_dir = meson.project_source_root()
+src_dir = root_dir / 'src'
 
 # Insert the project version into the version header file
 conf_data = configuration_data()
@@ -32,7 +33,7 @@ conf_data.set('version', project_version)
 configure_file(
     configuration : conf_data,
     {% if package_type == "application" %}
-    input : 'src' / 'version.hpp.in',
+    input : src_dir / 'version.hpp.in',
     {% else %}
     input : '{{ package_name }}' / 'version.hpp.in',
     {% endif %}
