@@ -1,20 +1,18 @@
 """Configure this template project"""
 
-from ast import literal_eval
-from configparser import ConfigParser
-from dataclasses import dataclass
-from importlib import import_module
 import json
 import os
-from os import remove, rename, listdir
-from os.path import join, dirname
-import platform
 import shutil
 import stat
 import subprocess
 import time
-from typing import Dict, List, KeysView, Union, Callable, Any
-from types import NoneType
+from ast import literal_eval
+from configparser import ConfigParser
+from dataclasses import dataclass
+from importlib import import_module
+from os import listdir, remove, rename
+from os.path import dirname, join
+from typing import Callable, Dict, KeysView, List, Union
 
 
 this_dir: str = dirname(__file__)
@@ -49,7 +47,7 @@ def optional(_: str) -> bool:
 
 def required(given_str: str) -> bool:
     """Verify that a given string is not empty."""
-    return given_str != "" and given_str != None
+    return given_str != "" and given_str is not None
 
 
 @dataclass
@@ -84,9 +82,7 @@ def get_config() -> Dict[str, str]:
         "package_name": ConfigInfo(
             default="cpp_template", constraint=valid_identifier_name
         ),
-        "namespace": ConfigInfo(
-            default="tmpl", constraint=valid_identifier_name
-        ),
+        "namespace": ConfigInfo(default="tmpl", constraint=valid_identifier_name),
         "author": ConfigInfo(default=""),
         "description": ConfigInfo(default=""),
         "license": ConfigInfo(default=""),
@@ -169,19 +165,15 @@ def configure() -> None:
     remove(join(this_dir, "README.md"))
 
     # Create a fresh git repository.
-    subprocess.run(
-        ["git", "init", "--initial-branch", "main", this_dir], check=True
-    )
+    subprocess.run(["git", "init", "--initial-branch", "main", this_dir], check=True)
 
     # Unpack template files.
     for file in listdir(join(this_dir, "template_files")):
-        shutil.move(
-            join(this_dir, "template_files", file), join(this_dir, file)
-        )
+        shutil.move(join(this_dir, "template_files", file), join(this_dir, file))
     shutil.rmtree(join(this_dir, "template_files"))
 
-    # Remove the VERSION file if Conan is used.
     if config["conan"] == "true":
+        # The VERSION file is unnecessary if Conan is used.
         remove(join(this_dir, "VERSION"))
 
     # Create the virtual environment.

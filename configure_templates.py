@@ -1,11 +1,12 @@
 """Process template files with Jinja"""
 
-from jinja2 import Environment, FileSystemLoader
 import json
 import os
 import shutil
 from sys import argv
 from typing import Dict
+
+from jinja2 import Environment, FileSystemLoader
 
 
 this_dir: str = os.path.dirname(__file__)
@@ -72,9 +73,7 @@ if __name__ == "__main__":
         os.remove(os.path.join(this_dir, "LICENSE.tmpl"))
 
     # Configure C++ source file templates.
-    templater.configure(
-        os.path.join("{{ package_name }}", "version.hpp.in.tmpl")
-    )
+    templater.configure(os.path.join("{{ package_name }}", "version.hpp.in.tmpl"))
     templater.configure(os.path.join("src", "version.cpp.tmpl"))
     templater.configure(os.path.join("tests", "version.test.cpp.tmpl"))
 
@@ -94,11 +93,7 @@ if __name__ == "__main__":
     # Perform operations dependent on the package type.
     if config["package_type"] == "library":
         if config["conan"] == "true":
-            templater.configure(
-                os.path.join("test_package", "conanfile.py.tmpl")
-            )
-            templater.configure(
-                os.path.join("test_package", "src", "main.cpp.tmpl")
-            )
+            templater.configure(os.path.join("test_package", "conanfile.py.tmpl"))
+            templater.configure(os.path.join("test_package", "src", "main.cpp.tmpl"))
     else:
         templater.configure(os.path.join("src", "main.cpp.tmpl"))
