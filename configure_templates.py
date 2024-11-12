@@ -2,7 +2,6 @@
 
 import json
 import os
-import shutil
 from sys import argv
 from typing import Dict
 
