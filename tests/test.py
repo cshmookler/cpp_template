@@ -84,17 +84,15 @@ class Test:
     def call(self, log_file: str, cmd: List[str] = []) -> None:
         """Execute a given program with the given arguments in the 'files' directory and append output to a given log file in the 'log' directory"""
         # Write the command to stdout for debug purposes
-        print("    " + log_file + "\n        ", end="")
+        print("    " + log_file + " -- '", end="")
         for arg in cmd:
             print(arg + " ", end="")
-        print("\n", end="")
+        print("'\n", end="")
 
         # Execute the command and write output to the log file
         log_path = os.path.join(self.log_dir, log_file)
         with open(log_path, "a+") as log:
-            returncode: int = subprocess.run(
-                cmd, stdout=log, stderr=log
-            ).returncode
+            returncode: int = subprocess.run(cmd, stdout=log, stderr=log).returncode
 
             if bool(returncode != 0) ^ bool(self.expect_failure):
                 exit(1)
@@ -179,5 +177,7 @@ if __name__ == "__main__":
         # Report of the status of each executed test to stdout
         print("\n", end="")
         for test, success in tests.items():
-            status_msg = "~~SUCCESS~~" if success else "//FAILURE//"
+            status_msg = (
+                "\033[32;1mSUCCESS\033[0m" if success else "\033[31;1mFAILURE\033[0m"
+            )
             print(test + ": " + status_msg)

@@ -1,0 +1,13 @@
+{
+    "my_lib": {
+        "type": "library",
+        "dependencies": {},
+        "sources": [],
+        "headers": [
+            [
+                "my_lib",
+                "version.hpp"
+            ]
+        ]
+    }
+}

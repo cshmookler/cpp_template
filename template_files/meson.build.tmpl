@@ -135,13 +135,15 @@ foreach binary : project_binaries
             install : true,
         )
     elif binary_type == 'library'
-        library(
-            binary_name,
-            binary_sources,
-            dependencies : binary_components,
-            version : project_version,
-            install : true,
-        )
+        if binary_sources.length() != 0
+            library(
+                binary_name,
+                binary_sources,
+                dependencies : binary_components,
+                version : project_version,
+                install : true,
+            )
+        endif
         install_headers(binary_headers, subdir : binary_name)
     elif binary_type == 'test'
         if binary_has_main
