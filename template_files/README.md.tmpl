@@ -113,6 +113,16 @@ ninja
 {% endif %}
 ```
 
+### 4.&nbsp; (Optional) Install this project globally.
+
+```
+{% if conan == "true" %}
+python install.py
+{% else %}
+meson install
+{% endif %}
+```
+
 ## **TODO**
 
 - [ ] Start development.
