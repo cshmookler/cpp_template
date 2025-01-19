@@ -42,7 +42,7 @@ class Test:
         self.expect_failure = expect_failure
 
         if prepare:
-            print(os.path.basename(test_dir))
+            print("\033[34;1m" + os.path.basename(test_dir) + "\033[0m")
             self.clean()
             self.setup()
 
@@ -180,4 +180,4 @@ if __name__ == "__main__":
             status_msg = (
                 "\033[32;1mSUCCESS\033[0m" if success else "\033[31;1mFAILURE\033[0m"
             )
-            print(test + ": " + status_msg)
+            print("\033[34;1m" + test + "\033[0m: " + status_msg)

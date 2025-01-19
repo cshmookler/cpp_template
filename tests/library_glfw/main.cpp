@@ -12,11 +12,12 @@ class timer {
 
   public:
     explicit timer(size_t seconds)
-    : start_time_(std::chrono::system_clock::now()), time_to_wait_(seconds) {}
+    : start_time_(std::chrono::system_clock::now()), time_to_wait_(seconds) {
+    }
 
     bool done() {
         return std::chrono::system_clock::now() - this->start_time_
-               > this->time_to_wait_;
+          > this->time_to_wait_;
     }
 };
 

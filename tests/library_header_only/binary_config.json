@@ -5,7 +5,7 @@
         "sources": [],
         "headers": [
             [
-                "my_lib",
+                "include",
                 "version.hpp"
             ]
         ]

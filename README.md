@@ -212,7 +212,7 @@ An example of a "binary_config.json" file annotated with comments prefixed with 
         },                              //
         "headers": [                    // * header file paths (only for libraries)
             [                           //   * header file path:
-                "cpp_template",         //       (represented as a list of path components)
+                "include",              //       (represented as a list of path components)
                 "version.hpp"           //
             ]                           //
         ],                              //
@@ -360,4 +360,4 @@ python install.py
 - [X] Add tests for verifying the integrity and functionality of this template.
 - [X] Make Conan and Git optional (for a stripped-down template with minimal features).
 - [X] List dependency version, user, and channel ~~and recipe revision~~ separately from the dependency name within the binary_config.json file.
-- [ ] Improve documentation.
+- [X] Improve documentation.

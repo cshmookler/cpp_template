@@ -2,7 +2,7 @@
 #include <stdexcept>
 
 // Local includes
-#include "../my_lib/window.hpp"
+#include "../include/window.hpp"
 
 namespace myl {
 
@@ -21,7 +21,8 @@ void poll_events() {
 }
 
 window::window(int width, int height, const char* title)
-: window_ptr_(glfwCreateWindow(width, height, title, nullptr, nullptr)) {}
+: window_ptr_(glfwCreateWindow(width, height, title, nullptr, nullptr)) {
+}
 
 window::~window() {
     glfwDestroyWindow(this->window_ptr_);

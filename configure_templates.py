@@ -72,7 +72,7 @@ if __name__ == "__main__":
         os.remove(os.path.join(this_dir, "LICENSE.tmpl"))
 
     # Configure C++ source file templates.
-    templater.configure(os.path.join("{{ package_name }}", "version.hpp.in.tmpl"))
+    templater.configure(os.path.join("include", "version.hpp.in.tmpl"))
     templater.configure(os.path.join("src", "version.cpp.tmpl"))
     templater.configure(os.path.join("tests", "version.test.cpp.tmpl"))
 

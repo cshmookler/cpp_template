@@ -32,11 +32,7 @@ conf_data = configuration_data()
 conf_data.set('version', project_version)
 configure_file(
     configuration : conf_data,
-    {% if package_type == "application" %}
-    input : src_dir / 'version.hpp.in',
-    {% else %}
-    input : '{{ package_name }}' / 'version.hpp.in',
-    {% endif %}
+    input : root_dir / '{{ version_header_dir }}' / 'version.hpp.in',
     output : 'version.hpp',
 )
 
@@ -174,7 +170,7 @@ project(
 root_dir = meson.project_source_root()
 build_dir = meson.project_build_root()
 {% if package_type != "application" %}
-include_dir = root_dir / '{{ package_name }}'
+include_dir = root_dir / 'include'
 {% endif %}
 src_dir = root_dir / 'src'
 tests_dir = root_dir / 'tests'
@@ -187,7 +183,7 @@ configure_file(
     {% if package_type == "application" %}
     input : src_dir / 'version.hpp.in',
     {% else %}
-    input : '{{ package_name }}' / 'version.hpp.in',
+    input : include_dir / 'version.hpp.in',
     {% endif %}
     output : 'version.hpp',
 )

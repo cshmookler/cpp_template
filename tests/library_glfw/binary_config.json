@@ -6,11 +6,11 @@
         },
         "headers": [
             [
-                "my_lib",
+                "include",
                 "version.hpp"
             ],
             [
-                "my_lib",
+                "include",
                 "window.hpp"
             ]
         ],

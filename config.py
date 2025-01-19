@@ -137,7 +137,7 @@ def get_config() -> Dict[str, str]:
         if configs["package_type"] == "application":
             configs["version_header_dir"] = "src"
         else:
-            configs["version_header_dir"] = configs["package_name"]
+            configs["version_header_dir"] = "include"
     else:
         configs["version_header_dir"] = "build"
 
@@ -193,19 +193,15 @@ def configure() -> None:
     # Remove files dependent on the package type.
     if config["package_type"] == "library":
         remove(join(this_dir, "src", "main.cpp.tmpl"))
-        rename(
-            join(this_dir, "{{ package_name }}"),
-            join(this_dir, config["package_name"]),
-        )
         if config["conan"] != "true":
             shutil.rmtree(join(this_dir, "test_package"))
             remove(join(this_dir, "install.py"))
     else:
         shutil.move(
-            join(this_dir, "{{ package_name }}", "version.hpp.in"),
+            join(this_dir, "include", "version.hpp.in"),
             join(this_dir, "src"),
         )
-        shutil.rmtree(join(this_dir, "{{ package_name }}"))
+        shutil.rmtree(join(this_dir, "include"))
         shutil.rmtree(join(this_dir, "test_package"))
         remove(join(this_dir, "install.py"))
 
