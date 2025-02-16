@@ -97,7 +97,7 @@ class {{ package_name }}(ConanFile):
     def build_requirements(self):
         """Declare dependencies of the build system"""
         # TODO: Update meson and pkgconf versions
-        self.tool_requires("meson/1.4.0")
+        self.tool_requires("meson/1.6.0")
         self.tool_requires("pkgconf/2.2.0")
 
     def requirements(self):

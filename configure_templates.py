@@ -2,6 +2,7 @@
 
 import json
 import os
+import posixpath
 from sys import argv
 from typing import Dict
 
@@ -33,6 +34,7 @@ class TemplateConfigurer:
 
     def configure(self, path: str) -> None:
         """Uses Jinja to render a template file and replace the original on the filesystem"""
+
         # Verify that the template has the correct file extension.
         if not path.endswith(template_file_extension):
             raise InvalidTemplateFile(
@@ -43,14 +45,15 @@ class TemplateConfigurer:
 
         # Render the template and save it to the filesystem
         template = self.env.get_template(path)
+        abs_path: str = os.path.join(this_dir, path)
         with open(
-            os.path.join(this_dir, path.removesuffix(template_file_extension)),
+            abs_path.removesuffix(template_file_extension),
             "w",
         ) as configured:
             configured.write(template.render(self.config))
 
         # Remove the original template file
-        os.remove(os.path.join(this_dir, path))
+        os.remove(abs_path)
 
 
 if __name__ == "__main__":
@@ -58,6 +61,9 @@ if __name__ == "__main__":
         raise RuntimeError(
             "Not enough arguments. Execute the 'config.py' script instead."
         )
+
+    # Use POSIX file paths when referring to the relative location of Jinja2 templates.
+    # https://github.com/pallets/jinja/pull/303#issuecomment-45355697
 
     # Get the configuration information.
     config = json.loads(argv[1])
@@ -72,9 +78,9 @@ if __name__ == "__main__":
         os.remove(os.path.join(this_dir, "LICENSE.tmpl"))
 
     # Configure C++ source file templates.
-    templater.configure(os.path.join("include", "version.hpp.in.tmpl"))
-    templater.configure(os.path.join("src", "version.cpp.tmpl"))
-    templater.configure(os.path.join("tests", "version.test.cpp.tmpl"))
+    templater.configure(posixpath.join("include", "version.hpp.in.tmpl"))
+    templater.configure(posixpath.join("src", "version.cpp.tmpl"))
+    templater.configure(posixpath.join("tests", "version.test.cpp.tmpl"))
 
     # Configure build-related templates.
     if config["conan"] == "true":
@@ -92,7 +98,7 @@ if __name__ == "__main__":
     # Perform operations dependent on the package type.
     if config["package_type"] == "library":
         if config["conan"] == "true":
-            templater.configure(os.path.join("test_package", "conanfile.py.tmpl"))
-            templater.configure(os.path.join("test_package", "src", "main.cpp.tmpl"))
+            templater.configure(posixpath.join("test_package", "conanfile.py.tmpl"))
+            templater.configure(posixpath.join("test_package", "src", "main.cpp.tmpl"))
     else:
-        templater.configure(os.path.join("src", "main.cpp.tmpl"))
+        templater.configure(posixpath.join("src", "main.cpp.tmpl"))
