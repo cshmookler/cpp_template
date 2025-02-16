@@ -8,7 +8,7 @@ from conan import ConanFile
 from conan.errors import ConanException
 from conan.tools.files import copy as copy_file
 from conan.tools.gnu import PkgConfigDeps
-from conan.tools.gnu.pkgconfigdeps import _PCGenerator, _PCContentGenerator
+from conan.tools.gnu.pkgconfigdeps import _PCGenerator, _PCInfo
 from conan.tools.meson import Meson, MesonToolchain
 from conan.tools.scm import Git
 
@@ -147,12 +147,9 @@ class {{ package_name }}(ConanFile):
             # This class is used internally by Conan to get dependency component information and generate PkgConfig files
             pc_generator = _PCGenerator(pkgconfig_deps, require, dep)
 
-            def record_component(component):
-                component_pc_info = (
-                    pc_generator._content_generator._get_context(component)
-                )
-                component_name = str(component_pc_info["name"])
-                component_version = str(component_pc_info["version"])
+            def record_component(component: _PCInfo):
+                component_name = str(component.name)
+                component_version = str(component.version)
                 dep_config[dep_name].components[
                     component_name
                 ] = component_version
