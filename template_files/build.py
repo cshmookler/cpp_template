@@ -12,6 +12,7 @@ this_dir: str = os.path.dirname(__file__)
 
 def conan(command: str, profiles, extra_args: List[str] = []) -> None:
     """Execute Conan with the given command, profiles, and extra arguments"""
+
     venv = import_module("this_venv")
     if not venv.exists():
         venv.create()

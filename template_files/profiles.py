@@ -24,11 +24,13 @@ class Profiles:
 
 def abs_path_to_profile(relative_path: str) -> str:
     """Determines the absolute path to the given profile relative to the profile directory"""
+
     return os.path.join(profile_dir, relative_path)
 
 
 def set_profiles(profiles: Profiles) -> None:
     """Set the active Conan profile for a given type ('host' or 'build')"""
+
     parser = ConfigParser()
     parser.add_section(profile_section)
     parser[profile_section][profile_build_type] = profiles.build
@@ -38,6 +40,7 @@ def set_profiles(profiles: Profiles) -> None:
 
 def _get_profile(parser: ConfigParser, profile_type: str) -> str:
     """Get the path to one of the active Conan profiles"""
+
     if parser.has_option(profile_section, profile_type):
         profile = abs_path_to_profile(parser[profile_section][profile_type])
         if os.path.isfile(profile):
@@ -52,6 +55,7 @@ def _get_profile(parser: ConfigParser, profile_type: str) -> str:
 
 def get_profiles() -> Profiles:
     """Get the paths to the active Conan host and build profiles"""
+
     # Read the existing profile paths listed in the configuration file
     parser = ConfigParser()
     parser.read(config_path)
@@ -70,6 +74,7 @@ def get_profiles() -> Profiles:
 
 def generate_default() -> None:
     """Use Conan to automatically generate the default profile"""
+
     venv_module = import_module("this_venv")
     if not venv_module.exists():
         venv_module.create()

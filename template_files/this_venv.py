@@ -13,27 +13,32 @@ name: str = ".venv"
 
 def _abs_path(path: str):
     """Returns the absolute form of the given path relative to the directory containing this file"""
+
     return os.path.join(os.path.dirname(__file__), path)
 
 
 def path() -> str:
     """Returns the absolute path to this virtual environment"""
+
     return _abs_path(name)
 
 
 def _context() -> SimpleNamespace:
     """Returns context information related to this virtual environment"""
+
     venv = EnvBuilder(with_pip=True)
     return venv.ensure_directories(path())
 
 
 def python() -> str:
     """Returns the absolute path to the python executable within this virtual environment"""
+
     return _abs_path(_context().env_exe)
 
 
 def _exe_path(name_without_extension: str) -> str:
     """Returns the absolute path to a given executable within this virtual environment"""
+
     bin_path, python_path = os.path.split(python())
     python_split_by_extension: List[str] = python_path.split(".", 1)
     exe_extension: str = (
@@ -46,16 +51,19 @@ def _exe_path(name_without_extension: str) -> str:
 
 def pip() -> str:
     """Returns the absolute path to the pip executable within this virtual environment"""
+
     return _exe_path("pip")
 
 
 def conan() -> str:
     """Returns the absolute path to the conan executable within this virtual environment"""
+
     return _exe_path("conan")
 
 
 def create() -> None:
     """Create a Python virtual environment and install Conan"""
+
     if os.path.isdir(path()):
         shutil.rmtree(path())
     print("Creating virtual environment in " + path())
@@ -66,6 +74,7 @@ def create() -> None:
 
 def exists() -> bool:
     """Return true if the virtual environment exists and contains critical files. Return false otherwise"""
+
     return (
         os.path.isdir(path())
         and os.path.isfile(python())

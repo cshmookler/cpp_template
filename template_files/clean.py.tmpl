@@ -6,6 +6,7 @@ from shutil import rmtree
 
 def remove(file: str) -> None:
     """Remove a file and ignore errors"""
+
     try:
         os.remove(file)
     except FileNotFoundError:
@@ -14,6 +15,7 @@ def remove(file: str) -> None:
 
 def clean() -> None:
     """Remove build files"""
+
     this_dir: str = os.path.dirname(__file__)
     rmtree(os.path.join(this_dir, "build"), ignore_errors=True)
     {% if package_type == "library" %}

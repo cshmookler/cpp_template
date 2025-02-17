@@ -75,6 +75,7 @@ class {{ package_name }}(ConanFile):
 
     def set_version(self):
         """Get project version from Git"""
+
         git = Git(self, folder=self.recipe_folder)
         try:
             self.version = git.run("describe --tags").partition("-")[0]
@@ -85,23 +86,27 @@ class {{ package_name }}(ConanFile):
 
     def config_options(self):
         """Change available options"""
+
         if self.settings.os == "Windows":
             del self.options.fPIC
 
     def configure(self):
         """Change behavior based on set options"""
+
         if self.options.shared:
             self.options.rm_safe("fPIC")
     {% endif %}
 
     def build_requirements(self):
         """Declare dependencies of the build system"""
+
         # TODO: Update meson and pkgconf versions
         self.tool_requires("meson/1.6.0")
         self.tool_requires("pkgconf/2.2.0")
 
     def requirements(self):
         """Resolve and declare dependencies"""
+
         # Read the binary configuration file
         self._binaries = self._config_module.Binaries()
         self._binaries.read()
@@ -121,11 +126,13 @@ class {{ package_name }}(ConanFile):
 
     def layout(self):
         """Set the layout of the build files"""
+
         self.folders.build = os.path.join(self.recipe_folder, "build")
         self.folders.generators = os.path.join(self.folders.build, "generators")
 
     def generate(self):
         """Generate the build system"""
+
         # Get the binary and dependency data in structured form
         binary_config = self._binaries.get()
         dep_config = self._deps.get()
@@ -200,6 +207,7 @@ class {{ package_name }}(ConanFile):
 
     def build(self):
         """Build this project"""
+
         self._build_folder = os.path.join(self.recipe_folder, "build")
         meson = Meson(self)
         meson.configure()
@@ -209,11 +217,13 @@ class {{ package_name }}(ConanFile):
 
     def package(self):
         """Install project headers and compiled binaries"""
+
         meson = Meson(self)
         meson.install()
 
     def package_info(self):
         """Package information"""
+
         self.cpp_info.libs = [self.name]
         self.cpp_info.includedirs = ["include"]
         self.cpp_info.bindirs = ["bin"]

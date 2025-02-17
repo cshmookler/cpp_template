@@ -20,6 +20,7 @@ this_dir: str = dirname(__file__)
 
 def valid_identifier_name(name: str) -> bool:
     """Verify that a given string is a valid C++ identifier name."""
+
     # At least one character and starts with a letter.
     if len(name) == 0 or not name[0].isalpha():
         return False
@@ -32,6 +33,7 @@ def valid_identifier_name(name: str) -> bool:
 
 def valid_list(list_str: str) -> bool:
     """Verify that a given string represents a valid Python list."""
+
     try:
         if type(literal_eval(list_str)) != list:
             return False
@@ -42,11 +44,13 @@ def valid_list(list_str: str) -> bool:
 
 def optional(_: str) -> bool:
     """Return True regardless of the given string value."""
+
     return True
 
 
 def required(given_str: str) -> bool:
     """Verify that a given string is not empty."""
+
     return given_str != "" and given_str is not None
 
 
@@ -64,6 +68,7 @@ def assert_none_missing(
     classification: str,
 ) -> None:
     """Ensure that all items in the expected list are in the parsed list."""
+
     missing_sections: List[str] = [k for k in expected if k not in parsed]
     if len(missing_sections) <= 0:
         return
@@ -75,7 +80,8 @@ def assert_none_missing(
 
 
 def get_config() -> Dict[str, str]:
-    """Retrieve configuration information."""
+    """Retrieve configuration information"""
+
     ini_file: str = join(this_dir, "template_config.ini")
     section_name: str = "template_config"
     expected_configs: Dict[str, ConfigInfo] = {
@@ -146,6 +152,7 @@ def get_config() -> Dict[str, str]:
 
 def shutil_onerror(func, path, exc_info) -> None:
     """On access error, add write permissions and try again"""
+
     if os.access(path, os.W_OK):
         raise
     os.chmod(path, stat.S_IWUSR)
@@ -154,6 +161,7 @@ def shutil_onerror(func, path, exc_info) -> None:
 
 def configure() -> None:
     """Configure this template project"""
+
     config = get_config()
 
     # Remove unnecessary files.

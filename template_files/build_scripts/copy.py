@@ -5,6 +5,7 @@ import os, sys, shutil
 
 def get_ev(name: str) -> str:
     """Retrieve an environment variable and ensure that it exists"""
+
     ev: str | None = os.getenv(name)
     if ev is None:
         raise RuntimeError(

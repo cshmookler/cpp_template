@@ -38,6 +38,7 @@ class Binary:
 
 def _assert_type(var: Any, *expected_types) -> NoneType:
     """Ensure that a given variable has a given expected type"""
+
     if type(var) not in expected_types:
         raise BinaryConfigInterpretationError(
             "\n\nExpected one of the following types: "
@@ -54,6 +55,7 @@ def _value_or(
     dictionary: dict, key: Any, default_value: Any, *expected_types
 ) -> Any:
     """Returns the value for a given key in a given dictionary or a given default value if the key is not found"""
+
     if key in dictionary:
         value: Any = dictionary[key]
         _assert_type(value, *expected_types)
@@ -79,10 +81,12 @@ class Dependencies:
 
     def get(self) -> Dict[str, Dependency]:
         """Returns all dependency information in structured form"""
+
         return self.deps
 
     def structured(self, raw_json: dict) -> NoneType:
         """Converts all dependency information from JSON to structured form"""
+
         _assert_type(raw_json, dict)
 
         self.deps = {}
@@ -127,11 +131,13 @@ class Dependencies:
 
     def read(self) -> NoneType:
         """Reads dependency information represented as JSON from the dependency configuration file"""
+
         raw_json: dict = json.load(open(self.path, "r"))
         self.structured(raw_json)
 
     def json(self) -> dict:
         """Converts all dependency information from structured form to JSON"""
+
         raw_json: dict = {}
         for dep_name, dep in self.deps.items():
             raw_json[dep.name] = {
@@ -144,6 +150,7 @@ class Dependencies:
 
     def write(self) -> NoneType:
         """Writes dependency information to the dependency configuration file represented as JSON"""
+
         json.dump(self.json(), open(self.path, "w"), indent=4)
 
 
@@ -165,12 +172,14 @@ class Binaries:
 
     def get(self) -> Dict[str, Binary]:
         """Returns all binary information in structured form"""
+
         return self.binaries
 
     def _structured_dependencies(
         self, raw_json: dict
     ) -> Dict[str, Dict[str, bool]]:
         """Converts JSON to components"""
+
         _assert_type(raw_json, dict)
 
         deps: Dict[str, Dict[str, bool]] = {}
@@ -191,6 +200,7 @@ class Binaries:
 
     def structured(self, raw_json: dict) -> None:
         """Converts all binary information to JSON to structured form"""
+
         _assert_type(raw_json, dict)
 
         self.binaries: Dict[str, Binary] = {}
@@ -278,11 +288,13 @@ class Binaries:
 
     def read(self) -> None:
         """Reads binary information represented as JSON from the binary configuration file"""
+
         raw_json: dict = json.load(open(self.path, "r"))
         self.structured(raw_json)
 
     def json(self) -> dict:
         """Converts all binary information from structured form to JSON"""
+
         raw_json: dict = {}
         for binary_name, binary in self.binaries.items():
             raw_json_binary = {}
@@ -298,6 +310,7 @@ class Binaries:
 
     def write(self) -> None:
         """Writes binary information to the binary configuration file represented as JSON"""
+
         json.dump(self.json(), open(self.path, "w"), indent=4)
 
 
@@ -305,6 +318,7 @@ def unstructured(
     binaries: Dict[str, Binary], deps: Dict[str, Dependency]
 ) -> list:
     """Converts the given binary and dependency information from structured form to an unstructured form comprised entirely of lists (no dictionaries)"""
+
     raw_data = []
 
     for binary_name, binary in binaries.items():
@@ -342,7 +356,7 @@ def unstructured(
 
 
 if __name__ == "__main__":
-    """Update dependency information in the binary configuration file"""
+    # Update dependency information in the binary configuration file
     build = import_module("build")
     profiles = import_module("profiles")
     build.conan(

@@ -14,6 +14,7 @@ root_dir: str = os.path.abspath(os.path.join(this_dir, os.path.pardir))
 
 def _shutil_onerror(func, path, exc_info) -> None:
     """On access error, add write permissions and try again"""
+
     if os.access(path, os.W_OK):
         raise
     os.chmod(path, stat.S_IWUSR)
@@ -22,6 +23,7 @@ def _shutil_onerror(func, path, exc_info) -> None:
 
 def rmtree(dir_path: str) -> None:
     """Recursively delete a given directory with shutil.rmtree while ignoring all errors"""
+
     shutil.rmtree(dir_path, onerror=_shutil_onerror, ignore_errors=True)
 
 
@@ -48,12 +50,14 @@ class Test:
 
     def clean(self) -> None:
         """Remove old files from a previous test"""
+
         rmtree(self.files_dir)
         rmtree(self.log_dir)
         rmtree(self._pycache_dir)
 
     def setup(self) -> None:
         """Prepare a fresh copy of this template project in the 'files' directory"""
+
         # Create directories
         os.mkdir(self.files_dir)
         os.mkdir(self.log_dir)
@@ -83,6 +87,7 @@ class Test:
 
     def call(self, log_file: str, cmd: List[str] = []) -> None:
         """Execute a given program with the given arguments in the 'files' directory and append output to a given log file in the 'log' directory"""
+
         # Write the command to stdout for debug purposes
         print("    " + log_file + " -- '", end="")
         for arg in cmd:
@@ -99,6 +104,7 @@ class Test:
 
     def run(self, log_file: str, script: str, args: List[str] = []) -> None:
         """Execute a given python script in the 'files' directory and append output to a given log file in the 'log' directory"""
+
         # Construct the command to execute
         cmd: List[str] = [
             "python",
@@ -109,6 +115,7 @@ class Test:
 
     def copy(self, src: str, dest: str = "") -> None:
         """Copy a file from the test directory to the 'files' directory"""
+
         src_abs_path = os.path.join(self.test_dir, src)
         dest_abs_path = os.path.join(self.files_dir, dest)
 
