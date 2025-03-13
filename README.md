@@ -34,6 +34,7 @@ Install Git and Python:
 1. [Git](https://git-scm.com/downloads/) (distributed version control)
 2. [Python](https://python.org/downloads/) (interpreted scripting language)
     - Select the "Add python.exe to PATH" option.
+    - Before closing the setup wizard after setup, click the "Disable path length limit" button.
 
 Install one of the following C++ compilers:
 
