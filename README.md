@@ -113,6 +113,8 @@ If errors occur, troubleshoot to isolate the issue and repeat steps 2-4.
 
 ## Build from Source
 
+> NOTE: The following sections are not required instructions and simply list the features of this template.
+
 Use Python to execute the "build.py" script. Use command prompt (Windows) or a shell (Mac & Linux) so errors are shown. On Windows with Visual Studio, use the [Visual Studio Developer Command Prompt](https://learn.microsoft.com/en-us/visualstudio/ide/reference/command-prompt-powershell) instead of a regular command prompt.
 
 ```
