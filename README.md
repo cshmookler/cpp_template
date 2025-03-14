@@ -185,7 +185,7 @@ Add a new entry to the "dependency_config.json" file like in the example below. 
 
 ### Remove dependencies
 
-Open the "dependency.json" file and remove the cooresponding entries.
+Open the "dependency_config.json" file and remove the cooresponding entries.
 
 > Note: All references to the removed dependency in the [binary configuration file](#manage-binaries) must also be removed or the next build will fail.
 
@@ -362,3 +362,4 @@ python install.py
 - [X] Make Conan and Git optional (for a stripped-down template with minimal features).
 - [X] List dependency version, user, and channel ~~and recipe revision~~ separately from the dependency name within the binary_config.json file.
 - [X] Improve documentation.
+- [ ] Don't use 'cpp_template' or related things for example things that need to be replaced.
