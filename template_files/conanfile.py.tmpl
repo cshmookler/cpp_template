@@ -8,7 +8,6 @@ from conan import ConanFile
 from conan.errors import ConanException
 from conan.tools.files import copy as copy_file
 from conan.tools.gnu import PkgConfigDeps
-from conan.tools.gnu.pkgconfigdeps import _PCGenerator, _PCInfo
 from conan.tools.meson import Meson, MesonToolchain
 from conan.tools.scm import Git
 
@@ -18,6 +17,22 @@ this_dir: str = os.path.dirname(__file__)
 placeholder_version: str = "0.0.0"
 
 required_conan_version = ">=2.3.0"
+
+
+def get_component_version(pkg_config_path) -> str:
+    """Get the version of a component from its pkg-config file."""
+
+    with open(pkg_config_path, "r") as file:
+        lines: list[str] = file.readlines()
+        for line in lines:
+            version_label: str = "Version:"
+            if not line.startswith(version_label):
+                continue
+            return line.removeprefix(version_label).strip()
+
+    raise Exception(
+        f"Failed to fetch the version of a component from '{pkg_config_path}'."
+    )
 
 
 class {{ package_name }}(ConanFile):
@@ -143,31 +158,33 @@ class {{ package_name }}(ConanFile):
 
         for require, dep in self.dependencies.host.items():
             dep_name = str(dep.ref.name)
+            dep_version = str(dep.ref.version)
 
             # Ignore dependencies that are not declared in dependency configuration file.
             if dep_name not in dep_config:
                 continue
 
             # Record the resolved version for this dependency
-            dep_config[dep_name].resolved_version = str(dep.ref.version)
+            dep_config[dep_name].resolved_version = dep_version
 
-            # This class is used internally by Conan to get dependency component information and generate PkgConfig files
-            pc_generator = _PCGenerator(pkgconfig_deps, require, dep)
-
-            def record_component(component: _PCInfo):
-                component_name = str(component.name)
-                component_version = str(component.version)
-                dep_config[dep_name].components[
-                    component_name
-                ] = component_version
-                
-            # Add the name of the package as the sole component if it does not have any components
-            if not pc_generator._dep.cpp_info.has_components:
-                record_component(pc_generator._package_info())
+            # Get the names of pkg-config files for this dependency
+            if dep.cpp_info.has_components:
+                pkg_config_names = [
+                    component.get_property("pkg_config_name")
+                    for component in dep.cpp_info.components.values()
+                ]
+            else:
+                pkg_config_names = [
+                    dep.cpp_info.get_property("pkg_config_name"),
+                ]
 
             # Accumulate all components of the dependency
-            for component in pc_generator._components_info():
-                record_component(component)
+            for pkg_config_name in pkg_config_names:
+                pkg_config_path = os.path.join(
+                    self.generators_folder, pkg_config_name + ".pc"
+                )
+                component_version = get_component_version(pkg_config_path)
+                dep_config[dep_name].components[pkg_config_name] = component_version
 
         # Add missing components to the dependencies listed in the binary configuration file
         for binary_name, binary in binary_config.items():
