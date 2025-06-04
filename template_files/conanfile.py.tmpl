@@ -8,6 +8,7 @@ from conan import ConanFile
 from conan.errors import ConanException
 from conan.tools.files import copy as copy_file
 from conan.tools.gnu import PkgConfigDeps
+from conan.tools.gnu.pkgconfigdeps import _PCFilesDeps
 from conan.tools.meson import Meson, MesonToolchain
 from conan.tools.scm import Git
 
@@ -19,19 +20,18 @@ placeholder_version: str = "0.0.0"
 required_conan_version = ">=2.3.0"
 
 
-def get_component_version(pkg_config_path) -> str:
-    """Get the version of a component from its pkg-config file."""
+def get_component_version(comp_content: str) -> str:
+    """Get the version of a component from its pkg-config file content."""
 
-    with open(pkg_config_path, "r") as file:
-        lines: list[str] = file.readlines()
-        for line in lines:
-            version_label: str = "Version:"
-            if not line.startswith(version_label):
-                continue
-            return line.removeprefix(version_label).strip()
+    for line in comp_content.split("\n"):
+        version_label: str = "Version:"
+        if not line.startswith(version_label):
+            continue
+        return line.removeprefix(version_label).strip()
 
     raise Exception(
-        f"Failed to fetch the version of a component from '{pkg_config_path}'."
+        f"Failed to fetch the version of a component from its context:\n"
+        + str(comp_context)
     )
 
 
@@ -153,8 +153,8 @@ class {{ package_name }}(ConanFile):
         dep_config = self._deps.get()
 
         # Generate .pc files for dependencies
-        pkgconfig_deps = PkgConfigDeps(self)
-        pkgconfig_deps.generate()
+        pkg_config_deps = PkgConfigDeps(self)
+        pkg_config_deps.generate()
 
         for require, dep in self.dependencies.host.items():
             dep_name = str(dep.ref.name)
@@ -167,24 +167,13 @@ class {{ package_name }}(ConanFile):
             # Record the resolved version for this dependency
             dep_config[dep_name].resolved_version = dep_version
 
-            # Get the names of pkg-config files for this dependency
-            if dep.cpp_info.has_components:
-                pkg_config_names = [
-                    component.get_property("pkg_config_name")
-                    for component in dep.cpp_info.components.values()
-                ]
-            else:
-                pkg_config_names = [
-                    dep.cpp_info.get_property("pkg_config_name"),
-                ]
-
             # Accumulate all components of the dependency
-            for pkg_config_name in pkg_config_names:
-                pkg_config_path = os.path.join(
-                    self.generators_folder, pkg_config_name + ".pc"
+            # WARN: This code is very similar to the 'generate' method of PkgConfigDeps and uses private interfaces within Conan.
+            #       Expect frequent breaking changes!
+            for comp_name, comp_content in _PCFilesDeps(pkg_config_deps, dep).items():
+                dep_config[dep_name].components[comp_name] = get_component_version(
+                    comp_content
                 )
-                component_version = get_component_version(pkg_config_path)
-                dep_config[dep_name].components[pkg_config_name] = component_version
 
         # Add missing components to the dependencies listed in the binary configuration file
         for binary_name, binary in binary_config.items():
