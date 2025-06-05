@@ -1,11 +1,11 @@
 """Set the Conan profile for this project"""
 
+import os
+import subprocess
 from argparse import ArgumentParser, Namespace
 from configparser import ConfigParser
 from dataclasses import dataclass
 from importlib import import_module
-import os
-import subprocess
 
 
 profile_dir: str = os.path.join(os.path.dirname(__file__), "profiles")
@@ -42,19 +42,19 @@ def _get_profile(parser: ConfigParser, profile_type: str) -> str:
     """Get the path to one of the active Conan profiles"""
 
     if parser.has_option(profile_section, profile_type):
-        profile = abs_path_to_profile(parser[profile_section][profile_type])
-        if os.path.isfile(profile):
+        profile = parser[profile_section][profile_type]
+        if os.path.isfile(abs_path_to_profile(profile)):
             return profile
 
     # Use the default profile if the configuration file is invalid or the profile does not exist.
     # NOTE: The updated profile is not written to the configuration file.
     if not os.path.isfile(abs_path_to_profile(default_profile)):
         generate_default()
-    return abs_path_to_profile(default_profile)
+    return default_profile
 
 
 def get_profiles() -> Profiles:
-    """Get the paths to the active Conan host and build profiles"""
+    """Get the relative paths to the active Conan host and build profiles"""
 
     # Read the existing profile paths listed in the configuration file
     parser = ConfigParser()
@@ -68,6 +68,17 @@ def get_profiles() -> Profiles:
 
     # Ensure that the configuration file is updated if changes were made to the profile paths.
     set_profiles(profiles)
+
+    return profiles
+
+
+def get_profiles_abs_paths() -> Profiles:
+    """Get the absolute paths to the active Conan host and build profiles"""
+
+    profiles = get_profiles()
+
+    profiles.build = abs_path_to_profile(profiles.build)
+    profiles.host = abs_path_to_profile(profiles.host)
 
     return profiles
 
@@ -104,10 +115,11 @@ if __name__ == "__main__":
         description="This script manages Conan profiles for this project. When run, this script verifies the existence of the active Conan profiles and writes the paths of the build and host profiles to standard out. If an active Conan profile does not exist on the file system or its entry in the configuration file is invalid, then it is replaced with the default profile. The default profile is automatically generated if it is an active profile but does not exist on the file system.",
         epilog="Refer to the official Conan documentation for help with writing profiles (https://docs.conan.io/2/reference/config_files/profiles.html).",
     )
-    arg_parser.add_argument(
-        "--build", help="set the active Conan build profile"
-    )
+    arg_parser.add_argument("--build", help="set the active Conan build profile")
     arg_parser.add_argument("--host", help="set the active Conan host profile")
+    arg_parser.add_argument(
+        "--both", help="set the active Conan build and host profiles"
+    )
 
     # Parse command line arguments.
     args: Namespace = arg_parser.parse_args()
@@ -116,17 +128,20 @@ if __name__ == "__main__":
     profiles: Profiles = get_profiles()
 
     # Set the build or host profiles if given as command line arguments.
-    if args.build != None:
+    if args.build is not None:
         profiles.build = args.build
-    if args.host != None:
+    if args.host is not None:
         profiles.host = args.host
+    if args.both is not None:
+        profiles.build = args.both
+        profiles.host = args.both
 
     # Save the updated profile configuration to the configuration file.
     set_profiles(profiles)
 
     # Read the updated profile configuration from the configuration file.
     # If either of the active profiles are invalid, they are replaced with the default profile.
-    profiles = get_profiles()
+    profiles = get_profiles_abs_paths()
 
     # Write the paths to the host and build profiles to standard out.
     print("build: " + profiles.build + "\n" + "host: " + profiles.host)

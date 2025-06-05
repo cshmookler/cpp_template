@@ -7,4 +7,4 @@ from sys import argv
 if __name__ == "__main__":
     profiles = import_module("profiles")
     build = import_module("build")
-    build.conan("install", profiles.get_profiles(), list(argv)[1:])
+    build.conan("install", profiles.get_profiles_abs_paths(), list(argv)[1:])

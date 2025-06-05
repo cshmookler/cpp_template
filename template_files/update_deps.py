@@ -1,12 +1,12 @@
 """Manage binary configuration"""
 
-from dataclasses import dataclass, field
-from importlib import import_module
 import json
 import os
+from dataclasses import dataclass, field
+from importlib import import_module
 from sys import argv
 from types import NoneType
-from typing import List, Dict, Any
+from typing import Any, Dict, List
 
 
 @dataclass
@@ -51,9 +51,7 @@ def _assert_type(var: Any, *expected_types) -> NoneType:
         )
 
 
-def _value_or(
-    dictionary: dict, key: Any, default_value: Any, *expected_types
-) -> Any:
+def _value_or(dictionary: dict, key: Any, default_value: Any, *expected_types) -> Any:
     """Returns the value for a given key in a given dictionary or a given default value if the key is not found"""
 
     if key in dictionary:
@@ -74,9 +72,7 @@ class Dependencies:
     """Dependency information for the dependency configuration file"""
 
     def __init__(self, dependencies: Dict[str, Dependency] = {}) -> NoneType:
-        self.path = os.path.join(
-            os.path.dirname(__file__), "dependency_config.json"
-        )
+        self.path = os.path.join(os.path.dirname(__file__), "dependency_config.json")
         self.deps = dependencies
 
     def get(self) -> Dict[str, Dependency]:
@@ -165,9 +161,7 @@ class Binaries:
     """Binary information for the binary configuration file"""
 
     def __init__(self, binaries: Dict[str, Binary] = {}) -> NoneType:
-        self.path = os.path.join(
-            os.path.dirname(__file__), "binary_config.json"
-        )
+        self.path = os.path.join(os.path.dirname(__file__), "binary_config.json")
         self.binaries = binaries
 
     def get(self) -> Dict[str, Binary]:
@@ -175,9 +169,7 @@ class Binaries:
 
         return self.binaries
 
-    def _structured_dependencies(
-        self, raw_json: dict
-    ) -> Dict[str, Dict[str, bool]]:
+    def _structured_dependencies(self, raw_json: dict) -> Dict[str, Dict[str, bool]]:
         """Converts JSON to components"""
 
         _assert_type(raw_json, dict)
@@ -223,9 +215,7 @@ class Binaries:
             # Dependencies
             dependencies: Dict[str, Dict[str, bool]] = {}
             if "dependencies" in binary:
-                dependencies = self._structured_dependencies(
-                    binary["dependencies"]
-                )
+                dependencies = self._structured_dependencies(binary["dependencies"])
 
             # Headers (if applicable)
             headers: List[List[str]] = []
@@ -314,9 +304,7 @@ class Binaries:
         json.dump(self.json(), open(self.path, "w"), indent=4)
 
 
-def unstructured(
-    binaries: Dict[str, Binary], deps: Dict[str, Dependency]
-) -> list:
+def unstructured(binaries: Dict[str, Binary], deps: Dict[str, Dependency]) -> list:
     """Converts the given binary and dependency information from structured form to an unstructured form comprised entirely of lists (no dictionaries)"""
 
     raw_data = []
@@ -361,7 +349,6 @@ if __name__ == "__main__":
     profiles = import_module("profiles")
     build.conan(
         "build",
-        profiles.get_profiles(),
-        extra_args=["--options:all", "quit_after_generate=True"]
-        + list(argv)[1:],
+        profiles.get_profiles_abs_paths(),
+        extra_args=["--options:all", "quit_after_generate=True"] + list(argv)[1:],
     )
