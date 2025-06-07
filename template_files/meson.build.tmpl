@@ -27,6 +27,7 @@ endif
 root_dir = meson.project_source_root()
 src_dir = root_dir / 'src'
 
+{% if version_header == "true" %}
 # Insert the project version into the version header file
 conf_data = configuration_data()
 conf_data.set('version', project_version)
@@ -47,6 +48,7 @@ run_command(
     check : true,
 )
 
+{% endif %}
 foreach binary : project_binaries
     # Accumulate binary information
     binary_name = binary[0]
@@ -175,6 +177,7 @@ include_dir = root_dir / 'include'
 src_dir = root_dir / 'src'
 tests_dir = root_dir / 'tests'
 
+{% if version_header == "true" %}
 # Insert the project version into the version header file
 conf_data = configuration_data()
 conf_data.set('version', meson.project_version())
@@ -188,23 +191,30 @@ configure_file(
     output : 'version.hpp',
 )
 
+{% endif %}
 {% if package_type == "application" %}
 exe_{{ package_name }} = executable(
     '{{ package_name }}',
     files(
         src_dir / 'main.cpp',
+        {% if version_header == "true" %}
         src_dir / 'version.cpp',
+        {% endif %}
     ),
     install : true,
 )
 {% else %}
 lib_{{ package_name }}_headers = files(
+    {% if version_header == "true" %}
     build_dir / 'version.hpp'
+    {% endif %}
 )
 lib_{{ package_name }} = library(
     '{{ package_name }}',
     files(
+        {% if version_header == "true" %}
         src_dir / 'version.cpp',
+        {% endif %}
     ),
     version : meson.project_version(),
     install : true,
@@ -219,6 +229,7 @@ dep_gtest_main = dependency(
 )
 
 if dep_gtest_main.found()
+    {% if version_header == "true" %}
     test_version = executable(
         'version',
         files(
@@ -228,6 +239,7 @@ if dep_gtest_main.found()
         dependencies : dep_gtest_main,
     )
     test('version', test_version)
+    {% endif %}
 else
     warning('Skipping tests due to missing dependencies')
 endif

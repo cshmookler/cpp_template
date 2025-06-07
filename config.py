@@ -10,7 +10,6 @@ from ast import literal_eval
 from configparser import ConfigParser
 from dataclasses import dataclass
 from importlib import import_module
-from os import listdir, remove, rename
 from os.path import dirname, join
 from typing import Callable, Dict, KeysView, List, Union
 
@@ -100,6 +99,14 @@ def get_config() -> Dict[str, str]:
                 "library",
             ],
         ),
+        "version_header": ConfigInfo(
+            default="true",
+            constraint=lambda s: s
+            in [
+                "true",
+                "false",
+            ],
+        ),
         "conan": ConfigInfo(
             default="true",
             constraint=lambda s: s
@@ -150,13 +157,31 @@ def get_config() -> Dict[str, str]:
     return configs
 
 
-def shutil_onerror(func, path, exc_info) -> None:
-    """On access error, add write permissions and try again"""
+def remove(*path: str) -> None:
+    """Remove a file or directory (relative to this directory) or do nothing if it doesn't exist."""
 
-    if os.access(path, os.W_OK):
-        raise
-    os.chmod(path, stat.S_IWUSR)
-    func(path)
+    full_path: str = join(this_dir, *path)
+
+    if not os.path.exists(full_path):
+        # The path does not exist.  Do nothing.
+        return
+
+    if os.path.isfile(full_path):
+        # The path is a file.
+        os.remove(full_path)
+        return
+
+    # The path is a directory.
+
+    def shutil_onerror(func, path, exc_info) -> None:
+        """On access error, add write permissions and try again"""
+
+        if os.access(path, os.W_OK):
+            raise
+        os.chmod(path, stat.S_IWUSR)
+        func(path)
+
+    shutil.rmtree(full_path, onerror=shutil_onerror)
 
 
 def configure() -> None:
@@ -165,24 +190,24 @@ def configure() -> None:
     config = get_config()
 
     # Remove unnecessary files.
-    shutil.rmtree(join(this_dir, ".git"), onerror=shutil_onerror)
-    shutil.rmtree(join(this_dir, "tests"))
-    remove(join(this_dir, ".gitignore"))
-    remove(join(this_dir, ".gitattributes"))
-    remove(join(this_dir, "LICENSE"))
-    remove(join(this_dir, "README.md"))
+    remove(".git")
+    remove("tests")
+    remove(".gitignore")
+    remove(".gitattributes")
+    remove("LICENSE")
+    remove("README.md")
 
     # Create a fresh git repository.
     subprocess.run(["git", "init", "--initial-branch", "main", this_dir], check=True)
 
     # Unpack template files.
-    for file in listdir(join(this_dir, "template_files")):
+    for file in os.listdir(join(this_dir, "template_files")):
         shutil.move(join(this_dir, "template_files", file), join(this_dir, file))
-    shutil.rmtree(join(this_dir, "template_files"))
+    remove("template_files")
 
     if config["conan"] == "true":
         # The VERSION file is unnecessary if Conan is used.
-        remove(join(this_dir, "VERSION"))
+        remove("VERSION")
 
     # Create the virtual environment.
     venv = import_module("this_venv")
@@ -200,29 +225,40 @@ def configure() -> None:
 
     # Remove files dependent on the package type.
     if config["package_type"] == "library":
-        remove(join(this_dir, "src", "main.cpp.tmpl"))
+        remove("src", "main.cpp.tmpl")
         if config["conan"] != "true":
-            shutil.rmtree(join(this_dir, "test_package"))
-            remove(join(this_dir, "install.py"))
+            remove("test_package")
+            remove("install.py")
     else:
         shutil.move(
             join(this_dir, "include", "version.hpp.in"),
             join(this_dir, "src"),
         )
-        shutil.rmtree(join(this_dir, "include"))
-        shutil.rmtree(join(this_dir, "test_package"))
-        remove(join(this_dir, "install.py"))
+        remove("include")
+        remove("test_package")
+        remove("install.py")
+
+    # Remove files dependent on use of the version header
+    if config["version_header"] != "true":
+        remove("src", "version.cpp")
+        if config["package_type"] == "library":
+            remove("include", "version.hpp.in")
+        else:
+            remove("src", "version.hpp.in")
+        remove("tests", "version.test.cpp")
+        if config["conan"] != "true":
+            remove("test_package")
 
     # Remove files dependent on support for Conan.
     if config["conan"] != "true":
-        shutil.rmtree(join(this_dir, "build_scripts"))
-        remove(join(this_dir, "conanfile.py.tmpl"))
-        remove(join(this_dir, "clean.py.tmpl"))
-        remove(join(this_dir, "build.py"))
-        remove(join(this_dir, "clear_cache.py"))
-        remove(join(this_dir, "profiles.py"))
-        remove(join(this_dir, "this_venv.py"))
-        remove(join(this_dir, "update_deps.py"))
+        remove("build_scripts")
+        remove("conanfile.py.tmpl")
+        remove("clean.py.tmpl")
+        remove("build.py")
+        remove("clear_cache.py")
+        remove("profiles.py")
+        remove("this_venv.py")
+        remove("update_deps.py")
 
     if config["conan"] == "true":
         config_module = import_module("update_deps")
@@ -246,51 +282,55 @@ def configure() -> None:
         for dep_name in structured_project_deps.keys():
             dep_names[dep_name] = {}
 
+        # Construct the binary configuration.
+        binary_config = {
+            config["package_name"]: config_module.Binary(
+                name=config["package_name"],
+                bin_type=config["package_type"],
+                dependencies=dep_names,
+                headers=(
+                    [[config["version_header_dir"], "version.hpp"]]
+                    if config["version_header"] == "true"
+                    and config["package_type"] == "library"
+                    else []
+                ),
+                sources=(
+                    [["src", "version.cpp"]]
+                    if config["version_header"] == "true"
+                    else []
+                ),
+                main=(
+                    [] if config["package_type"] == "library" else ["src", "main.cpp"]
+                ),
+            )
+        }
+
+        if config["version_header"] == "true":
+            binary_config["version"] = config_module.Binary(
+                name="version",
+                bin_type="test",
+                dependencies={"gtest": {}},
+                headers=[],
+                sources=[
+                    ["tests", "version.test.cpp"],
+                    ["src", "version.cpp"],
+                ],
+                main=[],
+            )
+
         # Create the binary configuration file
-        binaries = config_module.Binaries(
-            {
-                config["package_name"]: config_module.Binary(
-                    name=config["package_name"],
-                    bin_type=config["package_type"],
-                    dependencies=dep_names,
-                    headers=[
-                        (
-                            [config["version_header_dir"], "version.hpp"]
-                            if config["package_type"] == "library"
-                            else []
-                        )
-                    ],
-                    sources=[["src", "version.cpp"]],
-                    main=(
-                        []
-                        if config["package_type"] == "library"
-                        else ["src", "main.cpp"]
-                    ),
-                ),
-                "version": config_module.Binary(
-                    name="version",
-                    bin_type="test",
-                    dependencies={"gtest": {}},
-                    headers=[],
-                    sources=[
-                        ["tests", "version.test.cpp"],
-                        ["src", "version.cpp"],
-                    ],
-                    main=[],
-                ),
-            }
-        )
+        binaries = config_module.Binaries(binary_config)
         binaries.write()
 
     # Remove this configuration script, the templater script, and the cooresponding .ini file once project configuration is complete.
-    remove(join(this_dir, "config.py"))
-    remove(join(this_dir, "configure_templates.py"))
-    remove(join(this_dir, "template_config.ini"))
+    remove("config.py")
+    remove("configure_templates.py")
+    remove("template_config.ini")
 
     # Remove the virtual environment and pre-compiled Python bytecode if Conan is not used.
     if config["conan"] != "true":
-        shutil.rmtree(join(this_dir, venv.name))
-        shutil.rmtree(join(this_dir, "__pycache__"))
+        remove(venv.name)
+        remove("__pycache__")
 
 
 if __name__ == "__main__":

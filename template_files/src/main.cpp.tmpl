@@ -1,13 +1,20 @@
 // Standard includes
 #include <iostream>
 
+{% if version_header == "true" %}
 // Local includes
 #include "../{{ version_header_dir }}/version.hpp"
 
+{% endif %}
 int main(int argc, char** argv) {
+    {% if version_header == "true" %}
     std::cout << "\nCompiletime Version:\t"
               << {{ namespace }}::compiletime_version << "\nRuntime Version:\t"
               << {{ namespace }}::get_runtime_version() << "\n\n";
+
+    {% else %}
+    std::cout << "Hello World!\n";
+    {% endif %}
 
     return 0;
 }
