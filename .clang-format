@@ -23,7 +23,7 @@ IndentAccessModifiers : false                                   # 13.x      # (b
 AccessModifierOffset : -2                                       #  3.3      # (integer)
 IndentCaseBlocks : false                                        # 11.x      # (boolean)
 IndentCaseLabels : true                                         #  3.3      # (boolean)
-IndentExternBlock : Indent                                      # 11.x      # AfterExternBlock, NoIndent, Indent
+IndentExternBlock : NoIndent                                    # 11.x      # AfterExternBlock, NoIndent, Indent
 IndentGotoLabels : true                                         # 10.x      # (boolean)
 IndentPPDirectives : BeforeHash                                 #  6.x      # None, AfterHash, BeforeHash
 # IndentRequiresClause : false                                    # 15.x      # (boolean)  # Successor of IndentRequires
